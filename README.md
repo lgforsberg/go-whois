@@ -1,4 +1,8 @@
-# Go Whois, Fork by @lgforsberg, to add more TLD parsers. All cred to original Author: https://github.com/shlin168/go-whois
+# go-whois Fork
+
+Fork by @lgforsberg, primarily to to add more TLD parsers as the library lacks the ability to do so dynamically. 
+
+All cred to original Author: https://github.com/shlin168/go-whois
 
 ### Parsers added in Fork:
 
