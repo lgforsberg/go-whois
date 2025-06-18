@@ -1,5 +1,4 @@
-module github.com/shlin168/go-whois
-
+module github.com/lgforsberg/go-whois
 go 1.24
 
 require (
