@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/shlin168/go-whois/whois/utils"
+	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
 const (

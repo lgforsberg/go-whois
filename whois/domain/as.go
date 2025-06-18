@@ -4,7 +4,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/shlin168/go-whois/whois/utils"
+	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
 const asTfmt = "02 January 2006 15:04:05"

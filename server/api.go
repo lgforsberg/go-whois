@@ -8,10 +8,10 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/shlin168/go-whois/whois"
-	wd "github.com/shlin168/go-whois/whois/domain"
-	wip "github.com/shlin168/go-whois/whois/ip"
-	"github.com/shlin168/go-whois/whois/utils"
+	"github.com/lgforsberg/go-whois/whois"
+	wd "github.com/lgforsberg/go-whois/whois/domain"
+	wip "github.com/lgforsberg/go-whois/whois/ip"
+	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
 /*

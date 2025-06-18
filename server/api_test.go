@@ -20,7 +20,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/shlin168/go-whois/whois"
+	"github.com/lgforsberg/go-whois/whois"
 )
 
 const testTimeout = 1 * time.Second

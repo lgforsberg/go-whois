@@ -11,11 +11,11 @@ import (
 	"strings"
 	"time"
 
-	wd "github.com/shlin168/go-whois/whois/domain"
-	wip "github.com/shlin168/go-whois/whois/ip"
-	"github.com/shlin168/go-whois/whois/utils"
-
 	"github.com/sirupsen/logrus"
+
+	wd "github.com/lgforsberg/go-whois/whois/domain"
+	wip "github.com/lgforsberg/go-whois/whois/ip"
+	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
 const (

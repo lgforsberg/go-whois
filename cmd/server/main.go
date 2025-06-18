@@ -7,8 +7,8 @@ import (
 	"github.com/namsral/flag"
 	"github.com/sirupsen/logrus"
 
-	"github.com/shlin168/go-whois/server"
-	"github.com/shlin168/go-whois/whois/utils"
+	"github.com/lgforsberg/go-whois/server"
+	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
 func main() {

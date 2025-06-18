@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	wd "github.com/shlin168/go-whois/whois/domain"
+	wd "github.com/lgforsberg/go-whois/whois/domain"
 	"github.com/stretchr/testify/assert"
 )
 

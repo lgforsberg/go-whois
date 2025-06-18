@@ -12,8 +12,8 @@ import (
 	"github.com/namsral/flag"
 	"github.com/sirupsen/logrus"
 
-	"github.com/shlin168/go-whois/whois"
-	"github.com/shlin168/go-whois/whois/utils"
+	"github.com/lgforsberg/go-whois/whois"
+	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
 const defaultTimeout = 5 * time.Second

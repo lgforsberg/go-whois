@@ -18,7 +18,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/shlin168/go-whois/whois"
+	"github.com/lgforsberg/go-whois/whois"
 )
 
 const (

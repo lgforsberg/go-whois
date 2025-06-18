@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/shlin168/go-whois/whois/domain/testdata"
+	"github.com/lgforsberg/go-whois/whois/domain/testdata"
 )
 
 func checkParserResult(t *testing.T, whoisServer, rawtextPath, expParser string, exp *ParsedWhois) {

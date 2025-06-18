@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/shlin168/go-whois/whois"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/lgforsberg/go-whois/whois"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"

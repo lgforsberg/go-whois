@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/shlin168/go-whois/whois/ip/testdata"
+	"github.com/lgforsberg/go-whois/whois/ip/testdata"
 )
 
 func TestDefaultIPParserRIPE(t *testing.T) {

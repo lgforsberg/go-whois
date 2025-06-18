@@ -4,7 +4,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/shlin168/go-whois/whois/utils"
+	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
 var nicHdlDefaultMap map[string]string = map[string]string{

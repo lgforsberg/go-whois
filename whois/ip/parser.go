@@ -6,8 +6,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	wd "github.com/shlin168/go-whois/whois/domain"
-	"github.com/shlin168/go-whois/whois/utils"
+	wd "github.com/lgforsberg/go-whois/whois/domain"
+	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
 var DefaultIPKeyMap map[string]string = map[string]string{

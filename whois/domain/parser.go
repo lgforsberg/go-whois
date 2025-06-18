@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/shlin168/go-whois/whois/utils"
+	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
 const (
@@ -185,6 +185,8 @@ func NewTLDDomainParser(whoisServer string) ITLDParser {
 		return NewNLTLDParser() // nl
 	case "whois.dns.pl":
 		return NewPLTLDParser() // pl
+	case "whois.dns.pt":
+		return NewPTTLDParser() // pt
 	case "whois.ripn.net":
 		return NewRUTLDParser() // ru
 	case "whois.sk-nic.sk":

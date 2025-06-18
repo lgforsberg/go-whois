@@ -1,0 +1,20 @@
+# whois.dns.pt
+
+Domain: org.pt
+Domain Status: Reserved
+Creation Date: 06/10/1999 00:00:00
+Expiration Date: 06/10/2025 23:59:00
+Owner Name: Associação DNS.PT
+Owner Address: Rua Eça de Queirós  29
+Owner Locality: Lisboa
+Owner ZipCode: 1050-095
+Owner Locality ZipCode: LISBOA
+Owner Country Code: PT
+Owner Email: secretariado@pt.pt,request@pt.pt
+Admin Name: Associação DNS.PT
+Admin Address: Rua Eça de Queirós  29
+Admin Locality: Lisboa
+Admin ZipCode: 1050-095
+Admin Locality ZipCode: LISBOA
+Admin Country Code: PT
+Admin Email: secretariado@pt.pt,request@pt.pt

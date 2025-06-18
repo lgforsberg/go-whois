@@ -148,14 +148,10 @@ func NewDomainWhoisServerMap(xmlpath string) (DomainWhoisServerMap, error) {
 
 	// Not available server
 	// in: whois.inregistry.in -> whois.registry.in
-	// pt: whois.dns.pt -> whois.ripe.net (while seems that this server return 'no entries found' for every domain?)
-	DomainWhoisServerMap["pt"] = []WhoisServer{{Host: "whois.ripe.net"}}
+	DomainWhoisServerMap["pt"] = []WhoisServer{{Host: "whois.dns.pt"}}
 	for k, v := range DomainWhoisServerMap {
 		if len(v) > 0 && v[0].Host == "whois.inregistry.in" {
 			DomainWhoisServerMap[k] = []WhoisServer{{Host: "whois.registry.in"}}
-		}
-		if len(v) > 0 && v[0].Host == "whois.dns.pt" {
-			DomainWhoisServerMap[k] = []WhoisServer{{Host: "whois.ripe.net"}}
 		}
 	}
 
@@ -170,8 +166,9 @@ func NewDomainWhoisServerMap(xmlpath string) (DomainWhoisServerMap, error) {
 
 // GetWhoisServer get whois server list given public suffix
 // Example:
-//		ps="pooch.co.uk", search order: "pooch.co.uk" -> "co.uk" -> "uk"
-//		ps="co.uk", 	  search order: "co.uk" -> "uk"
+//
+//	ps="pooch.co.uk", search order: "pooch.co.uk" -> "co.uk" -> "uk"
+//	ps="co.uk", 	  search order: "co.uk" -> "uk"
 func (dsmap DomainWhoisServerMap) GetWhoisServer(ps string) []WhoisServer {
 	var wss []WhoisServer
 	lvl := strings.Split(ps, ".")
