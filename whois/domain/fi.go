@@ -99,6 +99,22 @@ func (fiw *FITLDParser) handleRegistrarField(key, val string, parsedWhois *Parse
 	}
 }
 
+func (fiw *FITLDParser) handleBasicFields(key, val string, parsedWhois *ParsedWhois) {
+	switch key {
+	case "domain":
+		parsedWhois.DomainName = val
+	case "status":
+		parsedWhois.Statuses = []string{val}
+	case "nserver":
+		if len(parsedWhois.NameServers) == 0 {
+			parsedWhois.NameServers = []string{}
+		}
+		parsedWhois.NameServers = append(parsedWhois.NameServers, strings.Split(val, " ")[0])
+	case "dnssec":
+		parsedWhois.Dnssec = val
+	}
+}
+
 func (fiw *FITLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	parsedWhois, err := fiw.parser.Do(rawtext, nil)
 	if err != nil {
@@ -114,37 +130,11 @@ func (fiw *FITLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 			continue
 		}
 
-		// Handle basic fields
-		switch key {
-		case "domain":
-			parsedWhois.DomainName = val
-		case "status":
-			parsedWhois.Statuses = []string{val}
-		case "nserver":
-			if len(parsedWhois.NameServers) == 0 {
-				parsedWhois.NameServers = []string{}
-			}
-			parsedWhois.NameServers = append(parsedWhois.NameServers, strings.Split(val, " ")[0])
-		case "dnssec":
-			parsedWhois.Dnssec = val
-		}
-
-		// Handle date fields
-		if key == "created" || key == "expires" || key == "modified" {
-			fiw.handleDateField(key, val, parsedWhois)
-			continue
-		}
-
-		// Handle contact fields
-		if key == "Holder" || key == "Tech" || key == "name" || key == "holder" || key == "address" || key == "city" || key == "country" || key == "phone" || key == "holder email" || key == "email" || key == "postal" {
-			fiw.handleContactField(key, val, &contactFlg, &regContact, &techContact)
-			continue
-		}
-
-		// Handle registrar fields
-		if key == "Registrar" || key == "registrar" || key == "www" {
-			fiw.handleRegistrarField(key, val, parsedWhois)
-		}
+		// Handle fields
+		fiw.handleBasicFields(key, val, parsedWhois)
+		fiw.handleDateField(key, val, parsedWhois)
+		fiw.handleContactField(key, val, &contactFlg, &regContact, &techContact)
+		fiw.handleRegistrarField(key, val, parsedWhois)
 	}
 	contactsMap[REGISTRANT] = regContact
 	contactsMap[TECH] = techContact

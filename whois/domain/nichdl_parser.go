@@ -55,9 +55,24 @@ func (nhtld *NicHdlTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, erro
 // Do parse rawtext with DefaultKeyMap, stop parsing if stopFunc is given and return true
 // If specKeyMaps is given, it will parse
 func (nh *NicHdlParser) Do(rawtext string, stopFunc func(string) bool, specKeyMaps ...map[string]string) (*ParsedWhois, error) {
-	// Initialize map to store whois information
 	wMap := make(map[string]interface{})
 
+	parseNicHdlLines(rawtext, nh, specKeyMaps, wMap)
+
+	parsedWhois, err := map2ParsedWhois(wMap)
+	if err != nil {
+		return nil, err
+	}
+
+	processNicHdlDateFields(parsedWhois)
+
+	sort.Strings(parsedWhois.NameServers)
+	sort.Strings(parsedWhois.Statuses)
+	return parsedWhois, nil
+}
+
+// parseNicHdlLines parses lines and fills the whois map for nic-hdl format
+func parseNicHdlLines(rawtext string, nh *NicHdlParser, specKeyMaps []map[string]string, wMap map[string]interface{}) {
 	var currHdl string
 	var hasParsedHdl map[string]bool
 	var contactsMap map[string]map[string]interface{}
@@ -68,7 +83,6 @@ func (nh *NicHdlParser) Do(rawtext string, stopFunc func(string) bool, specKeyMa
 		}
 	}
 
-	// Parsing raw text line by line
 	lines := strings.Split(rawtext, "\n")
 	for idx, line := range lines {
 		line = strings.TrimSpace(line)
@@ -96,18 +110,6 @@ func (nh *NicHdlParser) Do(rawtext string, stopFunc func(string) bool, specKeyMa
 	}
 
 	wMap[CONTACTS] = contactsMap
-	parsedWhois, err := map2ParsedWhois(wMap)
-	if err != nil {
-		return nil, err
-	}
-
-	// Since '...DateRaw' fields do not contains json struct tag, actual values are temporarily
-	// stored in '...Date' fields. Manually copied them back and try to parse date fields
-	processNicHdlDateFields(parsedWhois)
-
-	sort.Strings(parsedWhois.NameServers)
-	sort.Strings(parsedWhois.Statuses)
-	return parsedWhois, nil
 }
 
 func processKeyMapField(keyName, val, key string, idx int, lines []string, currHdl *string, wMap map[string]interface{}, contactsMap *map[string]map[string]interface{}) {

@@ -283,10 +283,24 @@ func (wtld *TLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 // Do parse rawtext with DefaultKeyMap, stop parsing if stopFunc is given and return true
 // If specKeyMaps is given, it will parse
 func (wb *Parser) Do(rawtext string, stopFunc func(string) bool, specKeyMaps ...map[string]string) (*ParsedWhois, error) {
-	// Initialize map to store whois information
 	wMap := make(map[string]interface{})
 
-	// Parsing raw text line by line
+	parseLinesToWhoisMap(rawtext, stopFunc, specKeyMaps, wMap)
+
+	parsedWhois, err := map2ParsedWhois(wMap)
+	if err != nil {
+		return nil, err
+	}
+
+	processDateFields(parsedWhois)
+
+	sort.Strings(parsedWhois.NameServers)
+	sort.Strings(parsedWhois.Statuses)
+	return parsedWhois, nil
+}
+
+// parseLinesToWhoisMap parses lines and fills the whois map
+func parseLinesToWhoisMap(rawtext string, stopFunc func(string) bool, specKeyMaps []map[string]string, wMap map[string]interface{}) {
 	for _, line := range strings.Split(rawtext, "\n") {
 		line = strings.TrimSpace(line)
 		if IsCommentLine(line) {
@@ -299,34 +313,22 @@ func (wb *Parser) Do(rawtext string, stopFunc func(string) bool, specKeyMaps ...
 		if err != nil {
 			continue
 		}
+		mapKeysToWhoisMap(key, val, specKeyMaps, wMap)
+	}
+}
 
-		// Fill whois map using default key map
-		if keyName := mapRawtextKeyToStructKey(key); len(keyName) > 0 {
-			fillWhoisMap(wMap, keyName, val, false)
-		}
-		// Add special key maps to enrich default parsing result,
-		// which is useful for different TLDs to handle rawtext in different ways
-		if len(specKeyMaps) > 0 {
-			for _, specKeyMap := range specKeyMaps {
-				if keyName, ok := specKeyMap[key]; ok {
-					fillWhoisMap(wMap, keyName, val, true)
-				}
+// mapKeysToWhoisMap maps keys to the whois map using default and special key maps
+func mapKeysToWhoisMap(key, val string, specKeyMaps []map[string]string, wMap map[string]interface{}) {
+	if keyName := mapRawtextKeyToStructKey(key); len(keyName) > 0 {
+		fillWhoisMap(wMap, keyName, val, false)
+	}
+	if len(specKeyMaps) > 0 {
+		for _, specKeyMap := range specKeyMaps {
+			if keyName, ok := specKeyMap[key]; ok {
+				fillWhoisMap(wMap, keyName, val, true)
 			}
 		}
 	}
-
-	parsedWhois, err := map2ParsedWhois(wMap)
-	if err != nil {
-		return nil, err
-	}
-
-	// Since '...DateRaw' fields do not contains json struct tag, actual values are temporarily
-	// stored in '...Date' fields. Manually copied them back and try to parse date fields
-	processDateFields(parsedWhois)
-
-	sort.Strings(parsedWhois.NameServers)
-	sort.Strings(parsedWhois.Statuses)
-	return parsedWhois, nil
 }
 
 // fillWhoisMap maps key name in raw text to whois json struct tag

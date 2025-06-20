@@ -31,6 +31,27 @@ func (dew *DETLDParser) GetName() string {
 	return "de"
 }
 
+func (dew *DETLDParser) handleNameServers(line string, parsedWhois *ParsedWhois) bool {
+	if strings.HasPrefix(line, "Nserver:") {
+		nsLine := strings.TrimSpace(strings.TrimPrefix(line, "Nserver:"))
+		if nsLine != "" {
+			parsedWhois.NameServers = append(parsedWhois.NameServers, nsLine)
+		}
+		return true
+	}
+	return false
+}
+
+func (dew *DETLDParser) handleChangedDate(line string, parsedWhois *ParsedWhois) bool {
+	if strings.HasPrefix(line, "Changed:") {
+		dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Changed:"))
+		parsedWhois.UpdatedDateRaw = dateStr
+		parsedWhois.UpdatedDate, _ = utils.ConvTimeFmt(dateStr, deTimeFmt, WhoisTimeFmt)
+		return true
+	}
+	return false
+}
+
 func (dew *DETLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	parsedWhois, err := dew.parser.Do(rawtext, nil, DEMap)
 	if err != nil {
@@ -43,26 +64,17 @@ func (dew *DETLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 		return parsedWhois, nil
 	}
 
-	// Parse name servers
+	// Parse name servers and Changed date from raw text
 	parsedWhois.NameServers = []string{}
 	lines := strings.Split(rawtext, "\n")
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "Nserver:") {
-			nsLine := strings.TrimSpace(strings.TrimPrefix(line, "Nserver:"))
-			if nsLine != "" {
-				parsedWhois.NameServers = append(parsedWhois.NameServers, nsLine)
-			}
-		}
-	}
 
-	// Parse the Changed date
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "Changed:") {
-			dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Changed:"))
-			parsedWhois.UpdatedDateRaw = dateStr
-			parsedWhois.UpdatedDate, _ = utils.ConvTimeFmt(dateStr, deTimeFmt, WhoisTimeFmt)
+		if dew.handleNameServers(line, parsedWhois) {
+			continue
+		}
+		if dew.handleChangedDate(line, parsedWhois) {
+			continue
 		}
 	}
 

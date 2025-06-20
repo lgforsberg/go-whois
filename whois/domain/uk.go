@@ -33,6 +33,56 @@ func (ukw *UKTLDParser) GetName() string {
 	return "uk"
 }
 
+func (ukw *UKTLDParser) handleBasicFields(keyword, line string, lines []string, idx int, parsedWhois *ParsedWhois) {
+	switch keyword {
+	case "Domain name", "Domain":
+		parsedWhois.DomainName = strings.TrimSpace(lines[idx+1])
+	case "DNSSEC":
+		parsedWhois.Dnssec = strings.TrimSpace(lines[idx+1])
+	}
+}
+
+func (ukw *UKTLDParser) handleRegistrarFields(keyword, line string, lines []string, idx int, parsedWhois *ParsedWhois) {
+	if keyword == "Registrar" || keyword == "Domain Owner" {
+		if parsedWhois.Registrar == nil {
+			parsedWhois.Registrar = &Registrar{}
+		}
+		parsedWhois.Registrar.Name = strings.TrimSpace(lines[idx+1])
+	}
+}
+
+func (ukw *UKTLDParser) handleNameServers(keyword string, lines []string, idx int, parsedWhois *ParsedWhois) {
+	if keyword == "Name servers" || keyword == "Servers" {
+		for i := 1; i <= maxNServer; i++ {
+			ns := strings.TrimSpace(lines[idx+i])
+			if len(ns) == 0 {
+				break
+			}
+			if end := strings.Index(ns, "\t"); end != -1 {
+				ns = ns[:end]
+			}
+			parsedWhois.NameServers = append(parsedWhois.NameServers, ns)
+		}
+	}
+}
+
+func (ukw *UKTLDParser) handleDateFields(keyword string, lines []string, idx int, parsedWhois *ParsedWhois) {
+	switch keyword {
+	case "Entry created":
+		parsedWhois.CreatedDateRaw = strings.TrimSpace(lines[idx+1])
+		adjustDT := removeStRdNdThAndTrimMonInTime(parsedWhois.CreatedDateRaw)
+		parsedWhois.CreatedDate, _ = utils.ConvTimeFmt(adjustDT, tFmt, WhoisTimeFmt)
+	case "Entry updated":
+		parsedWhois.UpdatedDateRaw = strings.TrimSpace(lines[idx+1])
+		adjustDT := removeStRdNdThAndTrimMonInTime(parsedWhois.UpdatedDateRaw)
+		parsedWhois.UpdatedDate, _ = utils.ConvTimeFmt(adjustDT, tFmt, WhoisTimeFmt)
+	case "Renewal date":
+		parsedWhois.ExpiredDateRaw = strings.TrimSpace(lines[idx+1])
+		adjustDT := removeStRdNdThAndTrimMonInTime(parsedWhois.ExpiredDateRaw)
+		parsedWhois.ExpiredDate, _ = utils.ConvTimeFmt(adjustDT, tFmt, WhoisTimeFmt)
+	}
+}
+
 func (ukw *UKTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	parsedWhois, err := ukw.parser.Do(rawtext, ukw.stopFunc, UKMap)
 	if err != nil {
@@ -45,41 +95,11 @@ func (ukw *UKTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 		if ukw.stopFunc(line) {
 			break
 		}
-		switch keyword := strings.TrimRight(line, ":"); keyword {
-		case "Domain name", "Domain":
-			parsedWhois.DomainName = strings.TrimSpace(lines[idx+1])
-		case "Registrar", "Domain Owner":
-			if parsedWhois.Registrar == nil {
-				parsedWhois.Registrar = &Registrar{}
-			}
-			parsedWhois.Registrar.Name = strings.TrimSpace(lines[idx+1])
-		case "Name servers", "Servers":
-			for i := 1; i <= maxNServer; i++ {
-				ns := strings.TrimSpace(lines[idx+i])
-				if len(ns) == 0 {
-					break
-				}
-				if end := strings.Index(ns, "\t"); end != -1 {
-					// sometimes ns contains ip. E.g., ns0.cf.ac.uk\t131.251.133.10
-					ns = ns[:end]
-				}
-				parsedWhois.NameServers = append(parsedWhois.NameServers, ns)
-			}
-		case "DNSSEC":
-			parsedWhois.Dnssec = strings.TrimSpace(lines[idx+1])
-		case "Entry created":
-			parsedWhois.CreatedDateRaw = strings.TrimSpace(lines[idx+1])
-			adjustDT := removeStRdNdThAndTrimMonInTime(parsedWhois.CreatedDateRaw)
-			parsedWhois.CreatedDate, _ = utils.ConvTimeFmt(adjustDT, tFmt, WhoisTimeFmt)
-		case "Entry updated":
-			parsedWhois.UpdatedDateRaw = strings.TrimSpace(lines[idx+1])
-			adjustDT := removeStRdNdThAndTrimMonInTime(parsedWhois.UpdatedDateRaw)
-			parsedWhois.UpdatedDate, _ = utils.ConvTimeFmt(adjustDT, tFmt, WhoisTimeFmt)
-		case "Renewal date":
-			parsedWhois.ExpiredDateRaw = strings.TrimSpace(lines[idx+1])
-			adjustDT := removeStRdNdThAndTrimMonInTime(parsedWhois.ExpiredDateRaw)
-			parsedWhois.ExpiredDate, _ = utils.ConvTimeFmt(adjustDT, tFmt, WhoisTimeFmt)
-		}
+		keyword := strings.TrimRight(line, ":")
+		ukw.handleBasicFields(keyword, line, lines, idx, parsedWhois)
+		ukw.handleRegistrarFields(keyword, line, lines, idx, parsedWhois)
+		ukw.handleNameServers(keyword, lines, idx, parsedWhois)
+		ukw.handleDateFields(keyword, lines, idx, parsedWhois)
 	}
 	sort.Strings(parsedWhois.NameServers)
 	return parsedWhois, nil

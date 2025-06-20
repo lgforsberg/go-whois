@@ -35,6 +35,35 @@ func NewUATLDParser() *UATLDParser {
 	}
 }
 
+func (uaw *UATLDParser) handleContactSection(key string, contactFlg *string, contactsMap map[string]map[string]interface{}) {
+	switch key {
+	case "% Registrant":
+		*contactFlg = REGISTRANT
+		contactsMap[REGISTRANT] = make(map[string]interface{})
+	case "% Administrative Contacts":
+		*contactFlg = ADMIN
+		contactsMap[ADMIN] = make(map[string]interface{})
+	case "% Technical Contacts":
+		*contactFlg = TECH
+		contactsMap[TECH] = make(map[string]interface{})
+	}
+}
+
+func (uaw *UATLDParser) handleContactDetails(key, val, contactFlg string, contactsMap map[string]map[string]interface{}) {
+	if len(contactFlg) == 0 {
+		return
+	}
+	ckey := mapContactKeys(uaContactKeyMap, key)
+	if ckey == "street" {
+		if _, ok := contactsMap[contactFlg][ckey]; !ok {
+			contactsMap[contactFlg][ckey] = []string{}
+		}
+		contactsMap[contactFlg][ckey] = append(contactsMap[contactFlg][ckey].([]string), val)
+		return
+	}
+	contactsMap[contactFlg][ckey] = val
+}
+
 func (uaw *UATLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	parsedWhois, err := uaw.parser.Do(rawtext, nil, UAMap)
 	if err != nil {
@@ -56,29 +85,11 @@ func (uaw *UATLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 		if err != nil {
 			continue
 		}
-		switch key {
-		case "% Registrant":
-			contactFlg = REGISTRANT
-			contactsMap[REGISTRANT] = make(map[string]interface{})
-		case "% Administrative Contacts":
-			contactFlg = ADMIN
-			contactsMap[ADMIN] = make(map[string]interface{})
-		case "% Technical Contacts":
-			contactFlg = TECH
-			contactsMap[TECH] = make(map[string]interface{})
-		case "person", "organization-loc", "phone", "fax", "e-mail", "address":
-			if len(contactFlg) == 0 {
-				continue
-			}
-			ckey := mapContactKeys(uaContactKeyMap, key)
-			if ckey == "street" {
-				if _, ok := contactsMap[contactFlg][ckey]; !ok {
-					contactsMap[contactFlg][ckey] = []string{}
-				}
-				contactsMap[contactFlg][ckey] = append(contactsMap[contactFlg][ckey].([]string), val)
-				continue
-			}
-			contactsMap[contactFlg][ckey] = val
+
+		uaw.handleContactSection(key, &contactFlg, contactsMap)
+
+		if key == "person" || key == "organization-loc" || key == "phone" || key == "fax" || key == "e-mail" || key == "address" {
+			uaw.handleContactDetails(key, val, contactFlg, contactsMap)
 		}
 	}
 	contacts, err := map2ParsedContacts(contactsMap)

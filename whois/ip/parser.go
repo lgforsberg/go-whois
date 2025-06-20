@@ -107,32 +107,37 @@ func (wp *Parser) Do(rawtext string, specKeyMaps ...map[string]string) (*ParsedW
 	var nmap map[string]interface{}
 	block := false
 
+	processIPWhoisLines(rawtext, wp.ip, wp.logger, &ns, &cs, &rs, &nmap, &block)
+
+	return &ParsedWhois{Networks: ns, Contacts: cs, Routes: rs}, nil
+}
+
+// processIPWhoisLines processes each line of the rawtext for IP whois parsing
+func processIPWhoisLines(rawtext, ip string, logger logrus.FieldLogger, ns *[]Network, cs *[]Contact, rs *[]Route, nmap *map[string]interface{}, block *bool) {
 	for _, line := range strings.Split(rawtext, "\n") {
 		if strings.HasPrefix(line, "%") || strings.HasPrefix(line, "#") {
 			continue
 		}
 
 		if len(line) == 0 {
-			if nmap != nil {
-				processBlock(nmap, &ns, &cs, &rs, wp.ip, wp.logger)
-				nmap = nil
+			if *nmap != nil {
+				processBlock(*nmap, ns, cs, rs, ip, logger)
+				*nmap = nil
 			}
-			block = false
+			*block = false
 			continue
 		}
 
 		if kv := strings.SplitN(line, ":", 2); len(kv) == 2 {
-			if !block {
-				nmap = make(map[string]interface{})
-				block = true
+			if !*block {
+				*nmap = make(map[string]interface{})
+				*block = true
 			}
-			if block {
-				processKeyValue(kv, nmap)
+			if *block {
+				processKeyValue(kv, *nmap)
 			}
 		}
 	}
-
-	return &ParsedWhois{Networks: ns, Contacts: cs, Routes: rs}, nil
 }
 
 func processBlock(nmap map[string]interface{}, ns *[]Network, cs *[]Contact, rs *[]Route, ip string, logger logrus.FieldLogger) {

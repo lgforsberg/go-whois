@@ -32,6 +32,64 @@ func (dkw *DKTLDParser) GetName() string {
 	return "dk"
 }
 
+func (dkw *DKTLDParser) handleDates(line string, parsedWhois *ParsedWhois) {
+	if strings.HasPrefix(line, "Registered:") {
+		dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Registered:"))
+		parsedWhois.CreatedDateRaw = dateStr
+		parsedWhois.CreatedDate, _ = utils.ConvTimeFmt(dateStr, dkTimeFmt, WhoisTimeFmt)
+	} else if strings.HasPrefix(line, "Expires:") {
+		dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Expires:"))
+		parsedWhois.ExpiredDateRaw = dateStr
+		parsedWhois.ExpiredDate, _ = utils.ConvTimeFmt(dateStr, dkTimeFmt, WhoisTimeFmt)
+	}
+}
+
+func (dkw *DKTLDParser) handleNameServers(line string, inNameservers *bool, parsedWhois *ParsedWhois) {
+	if strings.HasPrefix(line, "Nameservers") {
+		*inNameservers = true
+		return
+	}
+	if *inNameservers {
+		if strings.HasPrefix(line, "Hostname:") {
+			nsLine := strings.TrimSpace(strings.TrimPrefix(line, "Hostname:"))
+			if nsLine != "" {
+				parsedWhois.NameServers = append(parsedWhois.NameServers, nsLine)
+			}
+		}
+		if line == "" {
+			*inNameservers = false
+		}
+	}
+}
+
+func (dkw *DKTLDParser) handleRegistrant(line string, inRegistrant *bool, parsedWhois *ParsedWhois) {
+	if strings.HasPrefix(line, "Registrant") {
+		*inRegistrant = true
+		if parsedWhois.Contacts.Registrant == nil {
+			parsedWhois.Contacts.Registrant = &Contact{}
+		}
+		return
+	}
+	if *inRegistrant {
+		if strings.HasPrefix(line, "Name:") {
+			parsedWhois.Contacts.Registrant.Name = strings.TrimSpace(strings.TrimPrefix(line, "Name:"))
+		} else if strings.HasPrefix(line, "Address:") {
+			parsedWhois.Contacts.Registrant.Street = append(parsedWhois.Contacts.Registrant.Street, strings.TrimSpace(strings.TrimPrefix(line, "Address:")))
+		} else if strings.HasPrefix(line, "Postalcode:") {
+			parsedWhois.Contacts.Registrant.Postal = strings.TrimSpace(strings.TrimPrefix(line, "Postalcode:"))
+		} else if strings.HasPrefix(line, "City:") {
+			parsedWhois.Contacts.Registrant.City = strings.TrimSpace(strings.TrimPrefix(line, "City:"))
+		} else if strings.HasPrefix(line, "Country:") {
+			parsedWhois.Contacts.Registrant.Country = strings.TrimSpace(strings.TrimPrefix(line, "Country:"))
+		} else if strings.HasPrefix(line, "Phone:") {
+			parsedWhois.Contacts.Registrant.Phone = strings.TrimSpace(strings.TrimPrefix(line, "Phone:"))
+		}
+		if line == "" {
+			*inRegistrant = false
+		}
+	}
+}
+
 func (dkw *DKTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	// Check if domain is not found
 	if strings.Contains(rawtext, "No entries found for the selected source.") {
@@ -45,85 +103,21 @@ func (dkw *DKTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 		return nil, err
 	}
 
+	// Initialize contacts if nil
+	if parsedWhois.Contacts == nil {
+		parsedWhois.Contacts = &Contacts{}
+	}
 	// Parse the response line by line
 	lines := strings.Split(rawtext, "\n")
-
-	// Parse dates
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "Registered:") {
-			dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Registered:"))
-			parsedWhois.CreatedDateRaw = dateStr
-			parsedWhois.CreatedDate, _ = utils.ConvTimeFmt(dateStr, dkTimeFmt, WhoisTimeFmt)
-		} else if strings.HasPrefix(line, "Expires:") {
-			dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Expires:"))
-			parsedWhois.ExpiredDateRaw = dateStr
-			parsedWhois.ExpiredDate, _ = utils.ConvTimeFmt(dateStr, dkTimeFmt, WhoisTimeFmt)
-		}
-	}
-
-	// Parse name servers
-	parsedWhois.NameServers = []string{}
 	inNameservers := false
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "Nameservers") {
-			inNameservers = true
-			continue
-		}
-		if inNameservers && strings.HasPrefix(line, "Hostname:") {
-			nsLine := strings.TrimSpace(strings.TrimPrefix(line, "Hostname:"))
-			if nsLine != "" {
-				parsedWhois.NameServers = append(parsedWhois.NameServers, nsLine)
-			}
-		}
-		// Stop parsing nameservers when we hit an empty line or another section
-		if inNameservers && line == "" {
-			inNameservers = false
-		}
-	}
-
-	// Parse registrant information
 	inRegistrant := false
+	parsedWhois.NameServers = []string{}
+
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "Registrant") {
-			inRegistrant = true
-			if parsedWhois.Contacts == nil {
-				parsedWhois.Contacts = &Contacts{}
-			}
-			if parsedWhois.Contacts.Registrant == nil {
-				parsedWhois.Contacts.Registrant = &Contact{}
-			}
-			continue
-		}
-		if inRegistrant {
-			if strings.HasPrefix(line, "Name:") {
-				nameStr := strings.TrimSpace(strings.TrimPrefix(line, "Name:"))
-				if parsedWhois.Contacts.Registrant.Name == "" {
-					parsedWhois.Contacts.Registrant.Name = nameStr
-				}
-			} else if strings.HasPrefix(line, "Address:") {
-				addrStr := strings.TrimSpace(strings.TrimPrefix(line, "Address:"))
-				parsedWhois.Contacts.Registrant.Street = append(parsedWhois.Contacts.Registrant.Street, addrStr)
-			} else if strings.HasPrefix(line, "Postalcode:") {
-				postalStr := strings.TrimSpace(strings.TrimPrefix(line, "Postalcode:"))
-				parsedWhois.Contacts.Registrant.Postal = postalStr
-			} else if strings.HasPrefix(line, "City:") {
-				cityStr := strings.TrimSpace(strings.TrimPrefix(line, "City:"))
-				parsedWhois.Contacts.Registrant.City = cityStr
-			} else if strings.HasPrefix(line, "Country:") {
-				countryStr := strings.TrimSpace(strings.TrimPrefix(line, "Country:"))
-				parsedWhois.Contacts.Registrant.Country = countryStr
-			} else if strings.HasPrefix(line, "Phone:") {
-				phoneStr := strings.TrimSpace(strings.TrimPrefix(line, "Phone:"))
-				parsedWhois.Contacts.Registrant.Phone = phoneStr
-			}
-		}
-		// Stop parsing registrant when we hit an empty line or another section
-		if inRegistrant && line == "" {
-			inRegistrant = false
-		}
+		dkw.handleDates(line, parsedWhois)
+		dkw.handleNameServers(line, &inNameservers, parsedWhois)
+		dkw.handleRegistrant(line, &inRegistrant, parsedWhois)
 	}
 
 	// Set status to "Active" for registered domains if not already set

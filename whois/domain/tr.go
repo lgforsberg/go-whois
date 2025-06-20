@@ -20,6 +20,90 @@ func (p *TRTLDParser) GetName() string {
 	return "tr"
 }
 
+func (p *TRTLDParser) handleSection(line string, section *string) bool {
+	if strings.HasPrefix(line, "** Registrant:") {
+		*section = "registrant"
+		return true
+	}
+	if strings.HasPrefix(line, "** Registrar:") {
+		*section = "registrar"
+		return true
+	}
+	if strings.HasPrefix(line, "** Domain Servers:") {
+		*section = "nameservers"
+		return true
+	}
+	if strings.HasPrefix(line, "** Additional Info:") {
+		*section = "additional"
+		return true
+	}
+	if strings.HasPrefix(line, "** Whois Server:") {
+		*section = "whois"
+		return true
+	}
+	return false
+}
+
+func (p *TRTLDParser) parseRegistrant(line string, registrant *Contact) {
+	if line != "" && !strings.HasPrefix(line, "**") {
+		if registrant.Name == "" {
+			registrant.Name = line
+		} else {
+			registrant.Street = append(registrant.Street, line)
+		}
+	}
+}
+
+func (p *TRTLDParser) parseRegistrar(line string, i *int, lines []string, parsed *ParsedWhois, admin *Contact) {
+	if strings.HasPrefix(line, "NIC Handle") {
+		parsed.Registrar.IanaID = strings.TrimSpace(strings.TrimPrefix(line, "NIC Handle"))
+		parsed.Registrar.IanaID = strings.TrimPrefix(parsed.Registrar.IanaID, ":")
+		parsed.Registrar.IanaID = strings.TrimSpace(parsed.Registrar.IanaID)
+	} else if strings.HasPrefix(line, "Organization Name") {
+		parsed.Registrar.Name = strings.TrimSpace(strings.TrimPrefix(line, "Organization Name"))
+		parsed.Registrar.Name = strings.TrimPrefix(parsed.Registrar.Name, ":")
+		parsed.Registrar.Name = strings.TrimSpace(parsed.Registrar.Name)
+	} else if strings.HasPrefix(line, "Address") {
+		addr := strings.TrimSpace(strings.TrimPrefix(line, "Address"))
+		addr = strings.TrimPrefix(addr, ":")
+		addr = strings.TrimSpace(addr)
+		if addr != "" {
+			admin.Street = append(admin.Street, addr)
+		}
+		// Check for indented address lines
+		for j := *i + 1; j < len(lines); j++ {
+			if strings.HasPrefix(lines[j], "  ") || strings.HasPrefix(lines[j], "\t") {
+				admin.Street = append(admin.Street, strings.TrimSpace(lines[j]))
+				*i = j
+			} else {
+				break
+			}
+		}
+	} else if strings.HasPrefix(line, "Phone") {
+		parsed.Registrar.AbuseContactPhone = strings.TrimSpace(strings.TrimPrefix(line, "Phone"))
+		parsed.Registrar.AbuseContactPhone = strings.TrimPrefix(parsed.Registrar.AbuseContactPhone, ":")
+		parsed.Registrar.AbuseContactPhone = strings.TrimSpace(parsed.Registrar.AbuseContactPhone)
+	} else if strings.HasPrefix(line, "Fax") {
+		admin.Fax = strings.TrimSpace(strings.TrimPrefix(line, "Fax"))
+		admin.Fax = strings.TrimPrefix(admin.Fax, ":")
+		admin.Fax = strings.TrimSpace(admin.Fax)
+	}
+}
+
+func (p *TRTLDParser) parseNameServers(line string, parsed *ParsedWhois) {
+	if line != "" && !strings.HasPrefix(line, "**") {
+		parsed.NameServers = append(parsed.NameServers, line)
+	}
+}
+
+func (p *TRTLDParser) parseAdditionalInfo(line string, parsed *ParsedWhois) {
+	if strings.HasPrefix(line, "Created on") {
+		parsed.CreatedDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Created on..............:"))
+	} else if strings.HasPrefix(line, "Expires on") {
+		parsed.ExpiredDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Expires on..............:"))
+	}
+}
+
 func (p *TRTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	parsed := &ParsedWhois{
 		DomainName:  "",
@@ -69,99 +153,20 @@ func (p *TRTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 			}
 			continue
 		}
-		if strings.HasPrefix(line, "** Registrant:") {
-			section = "registrant"
-			continue
-		}
-		if strings.HasPrefix(line, "** Registrar:") {
-			section = "registrar"
-			continue
-		}
-		if strings.HasPrefix(line, "** Domain Servers:") {
-			section = "nameservers"
-			continue
-		}
-		if strings.HasPrefix(line, "** Additional Info:") {
-			section = "additional"
-			continue
-		}
-		if strings.HasPrefix(line, "** Whois Server:") {
-			section = "whois"
+		if p.handleSection(line, &section) {
 			continue
 		}
 
 		// Section parsing
-		if section == "registrant" {
-			if line != "" && !strings.HasPrefix(line, "**") {
-				if registrant.Name == "" {
-					registrant.Name = line
-				} else {
-					registrant.Street = append(registrant.Street, line)
-				}
-			}
-			continue
-		}
-		if section == "registrar" {
-			if strings.HasPrefix(line, "NIC Handle") {
-				parsed.Registrar.IanaID = strings.TrimSpace(strings.TrimPrefix(line, "NIC Handle"))
-				parsed.Registrar.IanaID = strings.TrimPrefix(parsed.Registrar.IanaID, ":")
-				parsed.Registrar.IanaID = strings.TrimSpace(parsed.Registrar.IanaID)
-				continue
-			}
-			if strings.HasPrefix(line, "Organization Name") {
-				parsed.Registrar.Name = strings.TrimSpace(strings.TrimPrefix(line, "Organization Name"))
-				parsed.Registrar.Name = strings.TrimPrefix(parsed.Registrar.Name, ":")
-				parsed.Registrar.Name = strings.TrimSpace(parsed.Registrar.Name)
-				continue
-			}
-			if strings.HasPrefix(line, "Address") {
-				addr := strings.TrimSpace(strings.TrimPrefix(line, "Address"))
-				addr = strings.TrimPrefix(addr, ":")
-				addr = strings.TrimSpace(addr)
-				if addr != "" {
-					admin.Street = append(admin.Street, addr)
-				}
-				// Check for indented address lines
-				for j := i + 1; j < len(lines); j++ {
-					if strings.HasPrefix(lines[j], "  ") || strings.HasPrefix(lines[j], "\t") {
-						admin.Street = append(admin.Street, strings.TrimSpace(lines[j]))
-						i = j
-					} else {
-						break
-					}
-				}
-				continue
-			}
-			if strings.HasPrefix(line, "Phone") {
-				parsed.Registrar.AbuseContactPhone = strings.TrimSpace(strings.TrimPrefix(line, "Phone"))
-				parsed.Registrar.AbuseContactPhone = strings.TrimPrefix(parsed.Registrar.AbuseContactPhone, ":")
-				parsed.Registrar.AbuseContactPhone = strings.TrimSpace(parsed.Registrar.AbuseContactPhone)
-				continue
-			}
-			if strings.HasPrefix(line, "Fax") {
-				admin.Fax = strings.TrimSpace(strings.TrimPrefix(line, "Fax"))
-				admin.Fax = strings.TrimPrefix(admin.Fax, ":")
-				admin.Fax = strings.TrimSpace(admin.Fax)
-				continue
-			}
-			continue
-		}
-		if section == "nameservers" {
-			if line != "" && !strings.HasPrefix(line, "**") {
-				parsed.NameServers = append(parsed.NameServers, line)
-			}
-			continue
-		}
-		if section == "additional" {
-			if strings.HasPrefix(line, "Created on") {
-				parsed.CreatedDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Created on..............:"))
-				continue
-			}
-			if strings.HasPrefix(line, "Expires on") {
-				parsed.ExpiredDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Expires on..............:"))
-				continue
-			}
-			continue
+		switch section {
+		case "registrant":
+			p.parseRegistrant(line, &registrant)
+		case "registrar":
+			p.parseRegistrar(line, &i, lines, parsed, &admin)
+		case "nameservers":
+			p.parseNameServers(line, parsed)
+		case "additional":
+			p.parseAdditionalInfo(line, parsed)
 		}
 	}
 

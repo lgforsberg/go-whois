@@ -103,15 +103,11 @@ func (atw *ATTLDParser) handleContactField(key, val string, tmpContact *map[stri
 	return false
 }
 
-func (atw *ATTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
-	parsedWhois, err := atw.parser.Do(rawtext, nil, ATMap)
-	if err != nil {
-		return nil, err
-	}
-
+func (atw *ATTLDParser) parse(rawtext string, parsedWhois *ParsedWhois) *ParsedWhois {
 	contactsMap := map[string]map[string]interface{}{}
 	var tmpContact map[string]interface{}
 	var updateFlg bool
+
 	lines := strings.Split(rawtext, "\n")
 	for _, line := range lines {
 		if IsCommentLine(line) {
@@ -122,29 +118,31 @@ func (atw *ATTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 			continue
 		}
 
-		// Handle registrar field
 		if atw.handleRegistrarField(key, val, parsedWhois) {
 			continue
 		}
-
-		// Handle date field
 		if atw.handleDateField(key, val, parsedWhois, &updateFlg) {
 			continue
 		}
-
-		// Handle contact ID fields
 		if atw.handleContactIDField(key, val, parsedWhois) {
 			continue
 		}
-
-		// Handle contact fields
 		atw.handleContactField(key, val, &tmpContact, contactsMap, parsedWhois)
 	}
 	contacts, err := map2ParsedContacts(contactsMap)
 	if err == nil {
 		parsedWhois.Contacts = contacts
 	}
-	// Parsed Time again since it has a weird format
 	parsedWhois.UpdatedDate, _ = utils.ConvTimeFmt(parsedWhois.UpdatedDateRaw, ATTimeFmt, WhoisTimeFmt)
-	return parsedWhois, err
+	return parsedWhois
+}
+
+func (atw *ATTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	parsedWhois, err := atw.parser.Do(rawtext, nil, ATMap)
+	if err != nil {
+		return nil, err
+	}
+	// Parsed Time again since it has a weird format
+	parsedWhois = atw.parse(rawtext, parsedWhois)
+	return parsedWhois, nil
 }

@@ -113,9 +113,7 @@ func (euw *EUTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 		}
 
 		// Handle contact details
-		if key == "Name" || key == "Organization" || key == "Organisation" || key == "Email" || key == "Address" || key == "Website" {
-			euw.handleContactDetails(key, val, contactFlg, parsedWhois, contactsMap)
-		}
+		euw.handleContactDetails(key, val, contactFlg, parsedWhois, contactsMap)
 	}
 	sort.Strings(parsedWhois.NameServers)
 	contacts, err := map2ParsedContacts(contactsMap)

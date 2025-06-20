@@ -36,6 +36,43 @@ func (cnw *CNTLDParser) GetName() string {
 	return "cn"
 }
 
+func (cnw *CNTLDParser) handleDates(line string, parsedWhois *ParsedWhois) bool {
+	if strings.HasPrefix(line, "Registration Time:") {
+		dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Registration Time:"))
+		parsedWhois.CreatedDateRaw = dateStr
+		parsedWhois.CreatedDate, _ = utils.ConvTimeFmt(dateStr, cnTimeFmt, WhoisTimeFmt)
+		return true
+	} else if strings.HasPrefix(line, "Expiration Time:") {
+		dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Expiration Time:"))
+		parsedWhois.ExpiredDateRaw = dateStr
+		parsedWhois.ExpiredDate, _ = utils.ConvTimeFmt(dateStr, cnTimeFmt, WhoisTimeFmt)
+		return true
+	}
+	return false
+}
+
+func (cnw *CNTLDParser) handleNameServers(line string, parsedWhois *ParsedWhois) bool {
+	if strings.HasPrefix(line, "Name Server:") {
+		nsLine := strings.TrimSpace(strings.TrimPrefix(line, "Name Server:"))
+		if nsLine != "" {
+			parsedWhois.NameServers = append(parsedWhois.NameServers, nsLine)
+		}
+		return true
+	}
+	return false
+}
+
+func (cnw *CNTLDParser) handleStatuses(line string, parsedWhois *ParsedWhois) bool {
+	if strings.HasPrefix(line, "Domain Status:") {
+		statusStr := strings.TrimSpace(strings.TrimPrefix(line, "Domain Status:"))
+		if statusStr != "" {
+			parsedWhois.Statuses = append(parsedWhois.Statuses, statusStr)
+		}
+		return true
+	}
+	return false
+}
+
 func (cnw *CNTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	// Check if domain is not found
 	if strings.Contains(rawtext, "No matching record.") ||
@@ -50,42 +87,21 @@ func (cnw *CNTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 		return nil, err
 	}
 
-	// Parse dates in CN format
+	// Manual parsing for fields not covered by the generic parser
+	parsedWhois.NameServers = []string{}
+	parsedWhois.Statuses = []string{}
 	lines := strings.Split(rawtext, "\n")
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "Registration Time:") {
-			dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Registration Time:"))
-			parsedWhois.CreatedDateRaw = dateStr
-			parsedWhois.CreatedDate, _ = utils.ConvTimeFmt(dateStr, cnTimeFmt, WhoisTimeFmt)
-		} else if strings.HasPrefix(line, "Expiration Time:") {
-			dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Expiration Time:"))
-			parsedWhois.ExpiredDateRaw = dateStr
-			parsedWhois.ExpiredDate, _ = utils.ConvTimeFmt(dateStr, cnTimeFmt, WhoisTimeFmt)
-		}
-	}
 
-	// Parse name servers
-	parsedWhois.NameServers = []string{}
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "Name Server:") {
-			nsLine := strings.TrimSpace(strings.TrimPrefix(line, "Name Server:"))
-			if nsLine != "" {
-				parsedWhois.NameServers = append(parsedWhois.NameServers, nsLine)
-			}
+		if cnw.handleDates(line, parsedWhois) {
+			continue
 		}
-	}
-
-	// Parse statuses manually (clear any existing ones)
-	parsedWhois.Statuses = []string{}
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "Domain Status:") {
-			statusStr := strings.TrimSpace(strings.TrimPrefix(line, "Domain Status:"))
-			if statusStr != "" {
-				parsedWhois.Statuses = append(parsedWhois.Statuses, statusStr)
-			}
+		if cnw.handleNameServers(line, parsedWhois) {
+			continue
+		}
+		if cnw.handleStatuses(line, parsedWhois) {
+			continue
 		}
 	}
 

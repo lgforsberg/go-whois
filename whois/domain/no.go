@@ -26,6 +26,43 @@ func (now *NOTLDParser) GetName() string {
 	return "no"
 }
 
+func (now *NOTLDParser) handleBasicFields(line string, parsedWhois *ParsedWhois) bool {
+	if strings.HasPrefix(line, "Domain Name") {
+		parsedWhois.DomainName = extractNOField(line)
+		return true
+	} else if strings.HasPrefix(line, "Name Server Handle") {
+		parsedWhois.NameServers = append(parsedWhois.NameServers, extractNOField(line))
+		return true
+	}
+	return false
+}
+
+func (now *NOTLDParser) handleRegistrarFields(line string, parsedWhois *ParsedWhois) bool {
+	if strings.HasPrefix(line, "Registrar Handle") {
+		if parsedWhois.Registrar == nil {
+			parsedWhois.Registrar = &Registrar{}
+		}
+		parsedWhois.Registrar.Name = extractNOField(line)
+		return true
+	}
+	return false
+}
+
+func (now *NOTLDParser) handleDateFields(line string, parsedWhois *ParsedWhois) bool {
+	if strings.HasPrefix(line, "Created:") {
+		dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Created:"))
+		parsedWhois.CreatedDateRaw = dateStr
+		parsedWhois.CreatedDate, _ = utils.ConvTimeFmt(dateStr, noTimeFmt, WhoisTimeFmt)
+		return true
+	} else if strings.HasPrefix(line, "Last updated:") {
+		dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Last updated:"))
+		parsedWhois.UpdatedDateRaw = dateStr
+		parsedWhois.UpdatedDate, _ = utils.ConvTimeFmt(dateStr, noTimeFmt, WhoisTimeFmt)
+		return true
+	}
+	return false
+}
+
 func (now *NOTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	// Check if domain is not found
 	if strings.Contains(rawtext, "% No match") {
@@ -39,23 +76,14 @@ func (now *NOTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "Domain Name") {
-			parsedWhois.DomainName = extractNOField(line)
-		} else if strings.HasPrefix(line, "Registrar Handle") {
-			if parsedWhois.Registrar == nil {
-				parsedWhois.Registrar = &Registrar{}
-			}
-			parsedWhois.Registrar.Name = extractNOField(line)
-		} else if strings.HasPrefix(line, "Name Server Handle") {
-			parsedWhois.NameServers = append(parsedWhois.NameServers, extractNOField(line))
-		} else if strings.HasPrefix(line, "Created:") {
-			dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Created:"))
-			parsedWhois.CreatedDateRaw = dateStr
-			parsedWhois.CreatedDate, _ = utils.ConvTimeFmt(dateStr, noTimeFmt, WhoisTimeFmt)
-		} else if strings.HasPrefix(line, "Last updated:") {
-			dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Last updated:"))
-			parsedWhois.UpdatedDateRaw = dateStr
-			parsedWhois.UpdatedDate, _ = utils.ConvTimeFmt(dateStr, noTimeFmt, WhoisTimeFmt)
+		if now.handleBasicFields(line, parsedWhois) {
+			continue
+		}
+		if now.handleRegistrarFields(line, parsedWhois) {
+			continue
+		}
+		if now.handleDateFields(line, parsedWhois) {
+			continue
 		}
 	}
 

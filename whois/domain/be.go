@@ -89,12 +89,7 @@ func (bew *BETLDParser) handleRegistrarDetails(key, val string, regFlg bool, par
 	return false
 }
 
-func (bew *BETLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
-	parsedWhois, err := bew.parser.Do(rawtext, nil)
-	if err != nil {
-		return nil, err
-	}
-
+func (bew *BETLDParser) parse(rawtext string, parsedWhois *ParsedWhois) *ParsedWhois {
 	var regFlg bool
 	lines := strings.Split(rawtext, "\n")
 	for idx, line := range lines {
@@ -103,29 +98,28 @@ func (bew *BETLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 		}
 		key, val, _ := getKeyValFromLine(line)
 
-		// Handle basic fields
 		if bew.handleBasicFields(key, val, parsedWhois) {
 			continue
 		}
-
-		// Handle registrar section
 		if bew.handleRegistrarSection(key, &regFlg, parsedWhois) {
 			continue
 		}
-
-		// Handle name servers
 		if bew.handleNameServers(key, lines, idx, parsedWhois) {
 			continue
 		}
-
-		// Handle flags
 		if bew.handleFlags(key, lines, idx, parsedWhois) {
 			continue
 		}
-
-		// Handle registrar details
 		bew.handleRegistrarDetails(key, val, regFlg, parsedWhois)
 	}
 	sort.Strings(parsedWhois.NameServers)
-	return parsedWhois, nil
+	return parsedWhois
+}
+
+func (bew *BETLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	parsedWhois, err := bew.parser.Do(rawtext, nil)
+	if err != nil {
+		return nil, err
+	}
+	return bew.parse(rawtext, parsedWhois), nil
 }

@@ -18,6 +18,57 @@ func (lvw *LVTLDParser) GetName() string {
 	return "lv"
 }
 
+func (lvw *LVTLDParser) handleDomainSection(line string, parsedWhois *ParsedWhois) {
+	if strings.HasPrefix(line, "Domain:") {
+		parsedWhois.DomainName = getLVValue(line)
+	} else if strings.HasPrefix(line, "Status:") {
+		status := getLVValue(line)
+		if status == "free" {
+			parsedWhois.Statuses = []string{"free"}
+			return
+		}
+		parsedWhois.Statuses = []string{status}
+	}
+}
+
+func (lvw *LVTLDParser) handleHolderSection(line string, parsedWhois *ParsedWhois) {
+	if parsedWhois.Contacts == nil {
+		parsedWhois.Contacts = &Contacts{}
+	}
+	if parsedWhois.Contacts.Registrant == nil {
+		parsedWhois.Contacts.Registrant = &Contact{}
+	}
+
+	if strings.HasPrefix(line, "Name:") {
+		parsedWhois.Contacts.Registrant.Name = getLVValue(line)
+	} else if strings.HasPrefix(line, "Country:") {
+		parsedWhois.Contacts.Registrant.Country = getLVValue(line)
+	} else if strings.HasPrefix(line, "Address:") {
+		parsedWhois.Contacts.Registrant.Street = []string{getLVValue(line)}
+	}
+}
+
+func (lvw *LVTLDParser) handleRegistrarSection(line string, parsedWhois *ParsedWhois) {
+	if parsedWhois.Registrar == nil {
+		parsedWhois.Registrar = &Registrar{}
+	}
+	if strings.HasPrefix(line, "Name:") {
+		parsedWhois.Registrar.Name = getLVValue(line)
+	}
+}
+
+func (lvw *LVTLDParser) handleNserversSection(line string, parsedWhois *ParsedWhois) {
+	if strings.HasPrefix(line, "Nserver:") {
+		parsedWhois.NameServers = append(parsedWhois.NameServers, getLVValue(line))
+	}
+}
+
+func (lvw *LVTLDParser) handleWhoisSection(line string, parsedWhois *ParsedWhois) {
+	if strings.HasPrefix(line, "Updated:") {
+		parsedWhois.UpdatedDateRaw = getLVValue(line)
+	}
+}
+
 func (lvw *LVTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	parsedWhois := &ParsedWhois{}
 	lines := strings.Split(rawtext, "\n")
@@ -36,72 +87,18 @@ func (lvw *LVTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 
 		switch currentSection {
 		case "Domain":
-			if strings.HasPrefix(line, "Domain:") {
-				parsedWhois.DomainName = getLVValue(line)
-			} else if strings.HasPrefix(line, "Status:") {
-				status := getLVValue(line)
-				if status == "free" {
-					parsedWhois.Statuses = []string{"free"}
-					return parsedWhois, nil
-				}
-				parsedWhois.Statuses = []string{status}
+			lvw.handleDomainSection(line, parsedWhois)
+			if parsedWhois.Statuses != nil && parsedWhois.Statuses[0] == "free" {
+				return parsedWhois, nil
 			}
 		case "Holder":
-			if strings.HasPrefix(line, "Name:") {
-				if parsedWhois.Contacts == nil {
-					parsedWhois.Contacts = &Contacts{}
-				}
-				if parsedWhois.Contacts.Registrant == nil {
-					parsedWhois.Contacts.Registrant = &Contact{}
-				}
-				parsedWhois.Contacts.Registrant.Name = getLVValue(line)
-			} else if strings.HasPrefix(line, "Country:") {
-				if parsedWhois.Contacts == nil {
-					parsedWhois.Contacts = &Contacts{}
-				}
-				if parsedWhois.Contacts.Registrant == nil {
-					parsedWhois.Contacts.Registrant = &Contact{}
-				}
-				parsedWhois.Contacts.Registrant.Country = getLVValue(line)
-			} else if strings.HasPrefix(line, "Address:") {
-				if parsedWhois.Contacts == nil {
-					parsedWhois.Contacts = &Contacts{}
-				}
-				if parsedWhois.Contacts.Registrant == nil {
-					parsedWhois.Contacts.Registrant = &Contact{}
-				}
-				parsedWhois.Contacts.Registrant.Street = []string{getLVValue(line)}
-			}
-		case "Tech":
-			if strings.HasPrefix(line, "Type:") {
-				if parsedWhois.Contacts == nil {
-					parsedWhois.Contacts = &Contacts{}
-				}
-				if parsedWhois.Contacts.Tech == nil {
-					parsedWhois.Contacts.Tech = &Contact{}
-				}
-				// Note: Contact struct doesn't have Type field, so skip
-			}
+			lvw.handleHolderSection(line, parsedWhois)
 		case "Registrar":
-			if strings.HasPrefix(line, "Name:") {
-				if parsedWhois.Registrar == nil {
-					parsedWhois.Registrar = &Registrar{}
-				}
-				parsedWhois.Registrar.Name = getLVValue(line)
-			} else if strings.HasPrefix(line, "Address:") {
-				if parsedWhois.Registrar == nil {
-					parsedWhois.Registrar = &Registrar{}
-				}
-				// Note: Registrar struct doesn't have Address field, so skip
-			}
+			lvw.handleRegistrarSection(line, parsedWhois)
 		case "Nservers":
-			if strings.HasPrefix(line, "Nserver:") {
-				parsedWhois.NameServers = append(parsedWhois.NameServers, getLVValue(line))
-			}
+			lvw.handleNserversSection(line, parsedWhois)
 		case "Whois":
-			if strings.HasPrefix(line, "Updated:") {
-				parsedWhois.UpdatedDateRaw = getLVValue(line)
-			}
+			lvw.handleWhoisSection(line, parsedWhois)
 		}
 	}
 

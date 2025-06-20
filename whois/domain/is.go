@@ -18,17 +18,8 @@ func (isw *ISTLDParser) GetName() string {
 	return "is"
 }
 
-func (isw *ISTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
-	parsedWhois := &ParsedWhois{}
-	lines := strings.Split(rawtext, "\n")
-
-	if strings.Contains(rawtext, "No entries found for query") {
-		parsedWhois.Statuses = []string{"free"}
-		return parsedWhois, nil
-	}
-
-	// First pass: parse domain section and collect handle references
-	handles := make(map[string]string) // contact type -> handle
+func (isw *ISTLDParser) parseDomainSection(lines []string, parsedWhois *ParsedWhois) (map[string]string, bool) {
+	handles := make(map[string]string)
 	var domainSectionDone bool
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
@@ -61,8 +52,10 @@ func (isw *ISTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 			}
 		}
 	}
+	return handles, domainSectionDone
+}
 
-	// Second pass: parse role sections and map handles to contact info
+func (isw *ISTLDParser) parseRoleSections(lines []string) map[string]*Contact {
 	roleMap := make(map[string]*Contact)
 	var currentHandle string
 	var currentContact *Contact
@@ -86,16 +79,16 @@ func (isw *ISTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 			currentContact.Phone = strings.TrimSpace(strings.TrimPrefix(line, "phone:"))
 		} else if strings.HasPrefix(line, "e-mail:") && currentContact != nil {
 			currentContact.Email = strings.TrimSpace(strings.TrimPrefix(line, "e-mail:"))
-		} else if strings.HasPrefix(line, "created:") && currentContact != nil {
-			// skip
 		} else if strings.HasPrefix(line, "source:") && currentContact != nil && currentHandle != "" {
 			roleMap[currentHandle] = currentContact
 			currentContact = nil
 			currentHandle = ""
 		}
 	}
+	return roleMap
+}
 
-	// Map handles to contacts
+func (isw *ISTLDParser) mapHandlesToContacts(handles map[string]string, roleMap map[string]*Contact, parsedWhois *ParsedWhois) {
 	if len(handles) > 0 {
 		parsedWhois.Contacts = &Contacts{}
 		if h, ok := handles["registrant"]; ok {
@@ -119,6 +112,25 @@ func (isw *ISTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 			}
 		}
 	}
+}
+
+func (isw *ISTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	parsedWhois := &ParsedWhois{}
+	lines := strings.Split(rawtext, "\n")
+
+	if strings.Contains(rawtext, "No entries found for query") {
+		parsedWhois.Statuses = []string{"free"}
+		return parsedWhois, nil
+	}
+
+	// First pass: parse domain section and collect handle references
+	handles, _ := isw.parseDomainSection(lines, parsedWhois)
+
+	// Second pass: parse role sections and map handles to contact info
+	roleMap := isw.parseRoleSections(lines)
+
+	// Map handles to contacts
+	isw.mapHandlesToContacts(handles, roleMap, parsedWhois)
 
 	return parsedWhois, nil
 }
