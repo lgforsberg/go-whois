@@ -40,6 +40,65 @@ func (fiw FITLDParser) getKeyValFromLine(line string) (string, string) {
 	return line, ""
 }
 
+func (fiw *FITLDParser) handleDateField(key, val string, parsedWhois *ParsedWhois) {
+	switch key {
+	case "created":
+		parsedWhois.CreatedDateRaw = val
+		parsedWhois.CreatedDate, _ = utils.ConvTimeFmt(parsedWhois.CreatedDateRaw, fiTfmt, WhoisTimeFmt)
+	case "expires":
+		parsedWhois.ExpiredDateRaw = val
+		parsedWhois.ExpiredDate, _ = utils.ConvTimeFmt(parsedWhois.ExpiredDateRaw, fiTfmt, WhoisTimeFmt)
+	case "modified":
+		parsedWhois.UpdatedDateRaw = val
+		parsedWhois.UpdatedDate, _ = utils.ConvTimeFmt(parsedWhois.UpdatedDateRaw, fiTfmt, WhoisTimeFmt)
+	}
+}
+
+func (fiw *FITLDParser) handleContactField(key, val string, contactFlg *string, regContact, techContact map[string]interface{}) {
+	switch key {
+	case "Holder":
+		*contactFlg = REGISTRANT
+		regContact = make(map[string]interface{})
+	case "Tech":
+		*contactFlg = TECH
+		techContact = make(map[string]interface{})
+	case "name", "holder", "address", "city", "country", "phone", "holder email", "email", "postal":
+		var tmpContact map[string]interface{}
+		switch *contactFlg {
+		case REGISTRANT:
+			tmpContact = regContact
+		case TECH:
+			tmpContact = techContact
+		}
+		if tmpContact != nil {
+			ckey := mapContactKeys(fiContactKeyMap, key)
+			if ckey == "street" {
+				if _, ok := tmpContact[ckey]; !ok {
+					tmpContact[ckey] = []string{}
+				}
+				tmpContact[ckey] = append(tmpContact[ckey].([]string), val)
+				return
+			}
+			tmpContact[ckey] = val
+		}
+	}
+}
+
+func (fiw *FITLDParser) handleRegistrarField(key, val string, parsedWhois *ParsedWhois) {
+	switch key {
+	case "Registrar":
+		parsedWhois.Registrar = &Registrar{}
+	case "registrar":
+		if parsedWhois.Registrar != nil {
+			parsedWhois.Registrar.Name = val
+		}
+	case "www":
+		if parsedWhois.Registrar != nil {
+			parsedWhois.Registrar.URL = val
+		}
+	}
+}
+
 func (fiw *FITLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	parsedWhois, err := fiw.parser.Do(rawtext, nil)
 	if err != nil {
@@ -54,20 +113,13 @@ func (fiw *FITLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 		if len(key) == 0 {
 			continue
 		}
+
+		// Handle basic fields
 		switch key {
 		case "domain":
 			parsedWhois.DomainName = val
 		case "status":
 			parsedWhois.Statuses = []string{val}
-		case "created":
-			parsedWhois.CreatedDateRaw = val
-			parsedWhois.CreatedDate, _ = utils.ConvTimeFmt(parsedWhois.CreatedDateRaw, fiTfmt, WhoisTimeFmt)
-		case "expires":
-			parsedWhois.ExpiredDateRaw = val
-			parsedWhois.ExpiredDate, _ = utils.ConvTimeFmt(parsedWhois.ExpiredDateRaw, fiTfmt, WhoisTimeFmt)
-		case "modified":
-			parsedWhois.UpdatedDateRaw = val
-			parsedWhois.UpdatedDate, _ = utils.ConvTimeFmt(parsedWhois.UpdatedDateRaw, fiTfmt, WhoisTimeFmt)
 		case "nserver":
 			if len(parsedWhois.NameServers) == 0 {
 				parsedWhois.NameServers = []string{}
@@ -75,41 +127,23 @@ func (fiw *FITLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 			parsedWhois.NameServers = append(parsedWhois.NameServers, strings.Split(val, " ")[0])
 		case "dnssec":
 			parsedWhois.Dnssec = val
-		case "Holder":
-			contactFlg = REGISTRANT
-			regContact = make(map[string]interface{})
-		case "Tech":
-			contactFlg = TECH
-			techContact = make(map[string]interface{})
-		case "name", "holder", "address", "city", "country", "phone", "holder email", "email", "postal":
-			var tmpContact map[string]interface{}
-			switch contactFlg {
-			case REGISTRANT:
-				tmpContact = regContact
-			case TECH:
-				tmpContact = techContact
-			}
-			if tmpContact != nil {
-				ckey := mapContactKeys(fiContactKeyMap, key)
-				if ckey == "street" {
-					if _, ok := tmpContact[ckey]; !ok {
-						tmpContact[ckey] = []string{}
-					}
-					tmpContact[ckey] = append(tmpContact[ckey].([]string), val)
-					continue
-				}
-				tmpContact[ckey] = val
-			}
-		case "Registrar":
-			parsedWhois.Registrar = &Registrar{}
-		case "registrar":
-			if parsedWhois.Registrar != nil {
-				parsedWhois.Registrar.Name = val
-			}
-		case "www":
-			if parsedWhois.Registrar != nil {
-				parsedWhois.Registrar.URL = val
-			}
+		}
+
+		// Handle date fields
+		if key == "created" || key == "expires" || key == "modified" {
+			fiw.handleDateField(key, val, parsedWhois)
+			continue
+		}
+
+		// Handle contact fields
+		if key == "Holder" || key == "Tech" || key == "name" || key == "holder" || key == "address" || key == "city" || key == "country" || key == "phone" || key == "holder email" || key == "email" || key == "postal" {
+			fiw.handleContactField(key, val, &contactFlg, regContact, techContact)
+			continue
+		}
+
+		// Handle registrar fields
+		if key == "Registrar" || key == "registrar" || key == "www" {
+			fiw.handleRegistrarField(key, val, parsedWhois)
 		}
 	}
 	contactsMap[REGISTRANT] = regContact

@@ -41,14 +41,7 @@ func (ptw *PTTLDParser) GetName() string {
 	return "pt"
 }
 
-func (ptw *PTTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
-	parsedWhois, err := ptw.parser.Do(rawtext, nil, PTMap)
-	if err != nil {
-		return nil, err
-	}
-
-	// Parse dates in PT format
-	lines := strings.Split(rawtext, "\n")
+func (ptw *PTTLDParser) parseDates(lines []string, parsedWhois *ParsedWhois) {
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if strings.HasPrefix(line, "Creation Date:") {
@@ -61,8 +54,9 @@ func (ptw *PTTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 			parsedWhois.ExpiredDate, _ = utils.ConvTimeFmt(dateStr, ptTimeFmt, WhoisTimeFmt)
 		}
 	}
+}
 
-	// Parse name servers with IP addresses
+func (ptw *PTTLDParser) parseNameServers(lines []string, parsedWhois *ParsedWhois) {
 	parsedWhois.NameServers = []string{}
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
@@ -82,8 +76,9 @@ func (ptw *PTTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 			}
 		}
 	}
+}
 
-	// Remove empty contacts
+func (ptw *PTTLDParser) cleanupEmptyContacts(parsedWhois *ParsedWhois) {
 	if parsedWhois.Contacts != nil {
 		if parsedWhois.Contacts.Registrant != nil && isContactEmpty(parsedWhois.Contacts.Registrant) {
 			parsedWhois.Contacts.Registrant = nil
@@ -98,6 +93,24 @@ func (ptw *PTTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 			parsedWhois.Contacts.Billing = nil
 		}
 	}
+}
+
+func (ptw *PTTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	parsedWhois, err := ptw.parser.Do(rawtext, nil, PTMap)
+	if err != nil {
+		return nil, err
+	}
+
+	lines := strings.Split(rawtext, "\n")
+
+	// Parse dates in PT format
+	ptw.parseDates(lines, parsedWhois)
+
+	// Parse name servers with IP addresses
+	ptw.parseNameServers(lines, parsedWhois)
+
+	// Remove empty contacts
+	ptw.cleanupEmptyContacts(parsedWhois)
 
 	return parsedWhois, nil
 }
