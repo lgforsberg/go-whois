@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -75,11 +77,34 @@ func getWhoiServerResp(t *testing.T, query string, whoisServer ...string) (code 
 }
 
 func TestServer(t *testing.T) {
-	// initialize and start whois server
-	ts, err := NewTestWhoisServer(TestBaseConf)
-	ts.resolver = nil // not testing resolver
+	// mock whois server
+	whoisServer, err := whois.StartMockWhoisServer(":0")
+	require.Nil(t, err)
+	defer whoisServer.Close()
+	whoisServerAddr := whoisServer.Addr().String()
+	whoisServerHost := whoisServerAddr[:strings.LastIndex(whoisServerAddr, ":")]
+	testWhoisPort, err := strconv.Atoi(whoisServerAddr[strings.LastIndex(whoisServerAddr, ":")+1:])
+	require.Nil(t, err)
+	testServerMap := whois.DomainWhoisServerMap{
+		"io":  []whois.WhoisServer{{Host: whoisServerHost}},
+		"app": []whois.WhoisServer{{Host: whoisServerHost}},
+		"aaa": []whois.WhoisServer{{Host: whoisServerHost}},
+	}
+
+	// Create a custom client with mock server
+	mockClient, err := whois.NewClient(
+		whois.WithTimeout(TestBaseConf.whoisTimeout),
+		whois.WithServerMap(testServerMap),
+		whois.WithTestingWhoisPort(testWhoisPort),
+		whois.WithErrLogger(logrus.New()),
+	)
+	require.Nil(t, err)
+
+	// Create a custom server with the mock client
+	ts, err := New(TestBaseConf, logrus.New(), logrus.New(), mockClient)
 	require.Nil(t, err)
 	ts.reg = prometheus.DefaultRegisterer
+
 	go ts.Start(localAddr, metricAddr)
 	time.Sleep(1 * time.Second) // wait for server to start
 
@@ -89,8 +114,8 @@ func TestServer(t *testing.T) {
 	assert.NotEmpty(t, content)
 	assert.Nil(t, err)
 
-	// send 'not.found.ab38ffdefwfef.com' and should return 404
-	code, content, err = getWhoiServerResp(t, "not.found.ab38ffdefwfef.com")
+	// send 'abc.app' and should return 404 (using mock server)
+	code, content, err = getWhoiServerResp(t, whois.TestNotFoundDomain)
 	assert.Equal(t, http.StatusNotFound, code)
 	assert.NotEmpty(t, content)
 	assert.Nil(t, err)

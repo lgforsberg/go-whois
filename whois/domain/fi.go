@@ -54,32 +54,32 @@ func (fiw *FITLDParser) handleDateField(key, val string, parsedWhois *ParsedWhoi
 	}
 }
 
-func (fiw *FITLDParser) handleContactField(key, val string, contactFlg *string, regContact, techContact map[string]interface{}) {
+func (fiw *FITLDParser) handleContactField(key, val string, contactFlg *string, regContact, techContact *map[string]interface{}) {
 	switch key {
 	case "Holder":
 		*contactFlg = REGISTRANT
-		regContact = make(map[string]interface{})
+		*regContact = make(map[string]interface{})
 	case "Tech":
 		*contactFlg = TECH
-		techContact = make(map[string]interface{})
+		*techContact = make(map[string]interface{})
 	case "name", "holder", "address", "city", "country", "phone", "holder email", "email", "postal":
-		var tmpContact map[string]interface{}
+		var tmpContact *map[string]interface{}
 		switch *contactFlg {
 		case REGISTRANT:
 			tmpContact = regContact
 		case TECH:
 			tmpContact = techContact
 		}
-		if tmpContact != nil {
+		if tmpContact != nil && *tmpContact != nil {
 			ckey := mapContactKeys(fiContactKeyMap, key)
 			if ckey == "street" {
-				if _, ok := tmpContact[ckey]; !ok {
-					tmpContact[ckey] = []string{}
+				if _, ok := (*tmpContact)[ckey]; !ok {
+					(*tmpContact)[ckey] = []string{}
 				}
-				tmpContact[ckey] = append(tmpContact[ckey].([]string), val)
+				(*tmpContact)[ckey] = append((*tmpContact)[ckey].([]string), val)
 				return
 			}
-			tmpContact[ckey] = val
+			(*tmpContact)[ckey] = val
 		}
 	}
 }
@@ -137,7 +137,7 @@ func (fiw *FITLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 
 		// Handle contact fields
 		if key == "Holder" || key == "Tech" || key == "name" || key == "holder" || key == "address" || key == "city" || key == "country" || key == "phone" || key == "holder email" || key == "email" || key == "postal" {
-			fiw.handleContactField(key, val, &contactFlg, regContact, techContact)
+			fiw.handleContactField(key, val, &contactFlg, &regContact, &techContact)
 			continue
 		}
 

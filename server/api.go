@@ -125,20 +125,21 @@ func handleIPQuery(resp http.ResponseWriter, cli *whois.Client, wr WhoisReq, sta
 	wBase := <-respChan
 	*respBy = respByRT
 
-	if status.Err != nil {
-		handleIPError(resp, status)
-		return
-	}
-
 	wResp := &WhoisIPResp{Whois: wBase}
 	wResp.Type = *qType
 	wResp.Notes.OriginalQuery = wr.Query
 	wResp.QueriedDate = utils.UTCNow().Format(wd.WhoisTimeFmt)
 	resp.Header().Set("Content-Type", "application/json")
 
+	// Check for "not found" first, before checking for other errors
 	if status.RespType == whois.RespTypeNotFound {
 		resp.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(resp).Encode(wResp)
+		return
+	}
+
+	if status.Err != nil {
+		handleIPError(resp, status)
 		return
 	}
 
@@ -180,21 +181,22 @@ func handleDomainQuery(resp http.ResponseWriter, req *http.Request, cli *whois.C
 	wBase := <-respChan
 	*respBy = respByRT
 
-	if status.Err != nil {
-		handleDomainError(resp, status)
-		return
-	}
-
 	wResp := &WhoisResp{Whois: wBase}
 	wResp.Type = *qType
 	wResp.Notes.OriginalQuery = wr.Query
 	wResp.Notes.PublicSuffixs = pslist
 	wResp.QueriedDate = utils.UTCNow().Format(wd.WhoisTimeFmt)
 
+	// Check for "not found" first, before checking for other errors
 	if status.RespType == whois.RespTypeNotFound {
 		resp.Header().Set("Content-Type", "application/json")
 		resp.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(resp).Encode(wResp)
+		return
+	}
+
+	if status.Err != nil {
+		handleDomainError(resp, status)
 		return
 	}
 

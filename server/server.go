@@ -56,11 +56,16 @@ type Server struct {
 }
 
 // New initialize whois api server
-func New(cfg *ServerCfg, errLogger, acsLogger logrus.FieldLogger) (*Server, error) {
+// If customClient is not nil, it will be used instead of creating a new one
+func New(cfg *ServerCfg, errLogger, acsLogger logrus.FieldLogger, customClient ...*whois.Client) (*Server, error) {
 	s := &Server{
 		resolver:  NewResolver(cfg.ipLookupTimeout),
 		errLogger: errLogger,
 		acsLogger: acsLogger,
+	}
+	if len(customClient) > 0 && customClient[0] != nil {
+		s.cli = customClient[0]
+		return s, nil
 	}
 	// Initialize domain whois server map from URL
 	whoisServer, err := whois.NewDomainWhoisServerMap(whois.WhoisServerListURL)
