@@ -155,4 +155,4 @@ More information at http://internet.ee`
 	if parsedWhoisFree.ExpiredDateRaw != "" {
 		t.Errorf("Expected no expiration date for free domain, got '%s'", parsedWhoisFree.ExpiredDateRaw)
 	}
-} 
+}

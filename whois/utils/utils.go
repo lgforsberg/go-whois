@@ -97,9 +97,10 @@ func GetPublicSuffixs(domain string) ([]string, error) {
 
 // return string after first ".", and return input string if it does not contains "."
 // E.g,
-// 	GetTLD("aaa.aaa") = "aaa"
-// 	GetTLD("pooch.co.uk") = "co.uk"
-// 	GetTLD("com") = "com"
+//
+//	GetTLD("aaa.aaa") = "aaa"
+//	GetTLD("pooch.co.uk") = "co.uk"
+//	GetTLD("com") = "com"
 func GetTLD(ps string) string {
 	if tldlist := strings.SplitN(ps, ".", 2); len(tldlist) == 2 {
 		return tldlist[1]

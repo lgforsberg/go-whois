@@ -30,18 +30,18 @@ func (p *VETLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 
 	// Use default parser with custom key mappings
 	keyMap := map[string]string{
-		"domain:":       "domain_name",
-		"registrar:":    "registrar",
-		"registered:":   "created_date",
-		"changed:":      "updated_date",
-		"expire:":       "expired_date",
-		"updated:":      "updated_date",
+		"domain:":     "domain_name",
+		"registrar:":  "registrar",
+		"registered:": "created_date",
+		"changed:":    "updated_date",
+		"expire:":     "expired_date",
+		"updated:":    "updated_date",
 	}
 
 	parsed, err := p.parser.Do(rawtext, func(line string) bool {
 		return strings.HasPrefix(line, "%") && strings.Contains(line, "Timestamp:")
 	}, keyMap)
-	
+
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func extractNameserversFromNSSET(rawtext string) []string {
 // extractChangedField extracts the changed field manually
 func extractChangedField(rawtext string) string {
 	lines := strings.Split(rawtext, "\n")
-	
+
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if strings.HasPrefix(line, "changed:") {
@@ -128,6 +128,6 @@ func extractChangedField(rawtext string) string {
 			return changed
 		}
 	}
-	
+
 	return ""
 }
