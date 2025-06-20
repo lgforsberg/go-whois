@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -85,6 +86,7 @@ func WhoisHandler(cli *whois.Client, resolver *Resolver, acsLogger logrus.FieldL
 			http.Error(resp, "Json payload should include 'query'", http.StatusBadRequest)
 			return
 		}
+
 		var qType string
 		var nsErr error
 		respBy := respByNone
@@ -107,96 +109,125 @@ func WhoisHandler(cli *whois.Client, resolver *Resolver, acsLogger logrus.FieldL
 
 		// perform query - IP
 		if utils.IsIP(wr.Query) {
-			qType = whois.TypeIP
-			status.DomainOrIP = wr.Query
-			respChan := cli.QueryIPChan(status)
-			wBase := <-respChan
-			respBy = respByRT
-			if status.Err != nil {
-				switch status.RespType {
-				case whois.RespTypeTimeout:
-					http.Error(resp, status.Err.Error(), http.StatusRequestTimeout)
-					return
-				case whois.RespTypeError:
-					http.Error(resp, status.Err.Error(), http.StatusInternalServerError)
-					return
-				}
-			}
-			wResp := &WhoisIPResp{Whois: wBase}
-			wResp.Type = qType
-			wResp.Notes.OriginalQuery = wr.Query
-			wResp.QueriedDate = utils.UTCNow().Format(wd.WhoisTimeFmt)
-			resp.Header().Set("Content-Type", "application/json")
-			if status.RespType == whois.RespTypeNotFound {
-				resp.WriteHeader(http.StatusNotFound)
-				json.NewEncoder(resp).Encode(wResp)
-				return
-			}
-			if status.RespType == whois.RespTypeParseError {
-				wResp.Notes.Error = status.Err.Error()
-			}
-			resp.WriteHeader(http.StatusOK)
-			json.NewEncoder(resp).Encode(wResp)
+			handleIPQuery(resp, cli, wr, status, &qType, &respBy)
 			return
 		}
-		// perform query - domain, validate and trim port if given
-		qType = whois.TypeDomain
-		domain, err := utils.GetHost(wr.Query)
-		if err != nil {
-			status.RespType, status.Err = whois.RespTypeError, err
-			http.Error(resp, "invalid input", http.StatusBadRequest)
-			return
-		}
-		pslist, err := utils.GetPublicSuffixs(domain)
-		if err != nil && len(pslist) == 0 {
-			respBy = respByPS
-			status.RespType, status.Err = whois.RespTypeError, err
-			http.Error(resp, err.Error(), http.StatusBadRequest)
-			return
-		}
-		status.PublicSuffixs = pslist
-		respChan := cli.QueryPublicSuffixsChan(status)
-		wBase := <-respChan
-		respBy = respByRT
-		if status.Err != nil {
-			switch status.RespType {
-			case whois.RespTypeTimeout:
-				http.Error(resp, status.Err.Error(), http.StatusRequestTimeout)
-				return
-			case whois.RespTypeError:
-				http.Error(resp, status.Err.Error(), http.StatusInternalServerError)
-				return
-			}
-		}
-		wResp := &WhoisResp{Whois: wBase}
-		wResp.Type = qType
-		wResp.Notes.OriginalQuery = wr.Query
-		wResp.Notes.PublicSuffixs = pslist
-		wResp.QueriedDate = utils.UTCNow().Format(wd.WhoisTimeFmt)
-		if status.RespType == whois.RespTypeNotFound {
-			resp.Header().Set("Content-Type", "application/json")
-			resp.WriteHeader(http.StatusNotFound)
-			json.NewEncoder(resp).Encode(wResp)
-			return
-		}
-		// nslookup
-		if wr.IP {
-			if wResp.IP, nsErr = resolver.Lookup(req.Context(), domain, wd.WhoisTimeFmt); nsErr != nil {
-				if dnsErr, ok := nsErr.(*net.DNSError); ok && dnsErr.IsNotFound {
-					IncrIPLookupMetrics(ipLookupNotFound)
-				} else {
-					IncrIPLookupMetrics(ipLookupError)
-				}
-			} else {
-				IncrIPLookupMetrics(ipLookupFound)
-			}
-		}
-		if status.RespType == whois.RespTypeParseError {
-			wResp.Notes.Error = status.Err.Error()
-		}
-		resp.Header().Set("Content-Type", "application/json")
-		resp.WriteHeader(http.StatusOK)
+
+		// perform query - domain
+		handleDomainQuery(resp, req, cli, resolver, wr, status, &qType, &respBy, &nsErr)
+	}
+}
+
+func handleIPQuery(resp http.ResponseWriter, cli *whois.Client, wr WhoisReq, status *whois.Status, qType *string, respBy *string) {
+	*qType = whois.TypeIP
+	status.DomainOrIP = wr.Query
+	respChan := cli.QueryIPChan(status)
+	wBase := <-respChan
+	*respBy = respByRT
+
+	if status.Err != nil {
+		handleIPError(resp, status)
+		return
+	}
+
+	wResp := &WhoisIPResp{Whois: wBase}
+	wResp.Type = *qType
+	wResp.Notes.OriginalQuery = wr.Query
+	wResp.QueriedDate = utils.UTCNow().Format(wd.WhoisTimeFmt)
+	resp.Header().Set("Content-Type", "application/json")
+
+	if status.RespType == whois.RespTypeNotFound {
+		resp.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(resp).Encode(wResp)
 		return
+	}
+
+	if status.RespType == whois.RespTypeParseError {
+		wResp.Notes.Error = status.Err.Error()
+	}
+	resp.WriteHeader(http.StatusOK)
+	json.NewEncoder(resp).Encode(wResp)
+}
+
+func handleIPError(resp http.ResponseWriter, status *whois.Status) {
+	switch status.RespType {
+	case whois.RespTypeTimeout:
+		http.Error(resp, status.Err.Error(), http.StatusRequestTimeout)
+	case whois.RespTypeError:
+		http.Error(resp, status.Err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func handleDomainQuery(resp http.ResponseWriter, req *http.Request, cli *whois.Client, resolver *Resolver, wr WhoisReq, status *whois.Status, qType *string, respBy *string, nsErr *error) {
+	*qType = whois.TypeDomain
+	domain, err := utils.GetHost(wr.Query)
+	if err != nil {
+		status.RespType, status.Err = whois.RespTypeError, err
+		http.Error(resp, "invalid input", http.StatusBadRequest)
+		return
+	}
+
+	pslist, err := utils.GetPublicSuffixs(domain)
+	if err != nil && len(pslist) == 0 {
+		*respBy = respByPS
+		status.RespType, status.Err = whois.RespTypeError, err
+		http.Error(resp, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	status.PublicSuffixs = pslist
+	respChan := cli.QueryPublicSuffixsChan(status)
+	wBase := <-respChan
+	*respBy = respByRT
+
+	if status.Err != nil {
+		handleDomainError(resp, status)
+		return
+	}
+
+	wResp := &WhoisResp{Whois: wBase}
+	wResp.Type = *qType
+	wResp.Notes.OriginalQuery = wr.Query
+	wResp.Notes.PublicSuffixs = pslist
+	wResp.QueriedDate = utils.UTCNow().Format(wd.WhoisTimeFmt)
+
+	if status.RespType == whois.RespTypeNotFound {
+		resp.Header().Set("Content-Type", "application/json")
+		resp.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(resp).Encode(wResp)
+		return
+	}
+
+	// nslookup
+	if wr.IP {
+		handleNSLookup(req.Context(), resolver, domain, wResp, nsErr)
+	}
+
+	if status.RespType == whois.RespTypeParseError {
+		wResp.Notes.Error = status.Err.Error()
+	}
+	resp.Header().Set("Content-Type", "application/json")
+	resp.WriteHeader(http.StatusOK)
+	json.NewEncoder(resp).Encode(wResp)
+}
+
+func handleDomainError(resp http.ResponseWriter, status *whois.Status) {
+	switch status.RespType {
+	case whois.RespTypeTimeout:
+		http.Error(resp, status.Err.Error(), http.StatusRequestTimeout)
+	case whois.RespTypeError:
+		http.Error(resp, status.Err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func handleNSLookup(ctx context.Context, resolver *Resolver, domain string, wResp *WhoisResp, nsErr *error) {
+	if wResp.IP, *nsErr = resolver.Lookup(ctx, domain, wd.WhoisTimeFmt); *nsErr != nil {
+		if dnsErr, ok := (*nsErr).(*net.DNSError); ok && dnsErr.IsNotFound {
+			IncrIPLookupMetrics(ipLookupNotFound)
+		} else {
+			IncrIPLookupMetrics(ipLookupError)
+		}
+	} else {
+		IncrIPLookupMetrics(ipLookupFound)
 	}
 }

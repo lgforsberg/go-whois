@@ -71,67 +71,119 @@ type DomainWhoisServerMap map[string][]WhoisServer
 
 // NewDomainWhoisServerMap initialize map from 'xmlpath' support local file path and file from web
 func NewDomainWhoisServerMap(xmlpath string) (DomainWhoisServerMap, error) {
-	var content []byte
-	if strings.HasPrefix(xmlpath, "http") {
-		// Use HTTP client with timeout to prevent indefinite hangs
-		client := &http.Client{Timeout: 30 * time.Second}
-		resp, err := client.Get(xmlpath)
-		if err != nil {
-			return nil, err
-		}
-		defer resp.Body.Close()
-		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("unexpected server resp code: %d", resp.StatusCode)
-		}
-		// Use LimitReader to prevent unbounded memory consumption
-		limitedReader := io.LimitReader(resp.Body, MaxXMLResponseSize)
-		if content, err = ioutil.ReadAll(limitedReader); err != nil {
-			return nil, err
-		}
-	} else {
-		domainXML, err := os.Open(xmlpath)
-		if err != nil {
-			return nil, err
-		}
-		defer domainXML.Close()
-		if content, _ = ioutil.ReadAll(domainXML); err != nil {
-			return nil, err
-		}
+	content, err := readXMLContent(xmlpath)
+	if err != nil {
+		return nil, err
 	}
+
 	dls := DomainList{}
 	if err := xml.Unmarshal(content, &dls); err != nil {
 		return nil, err
 	}
+
 	DomainWhoisServerMap := make(map[string][]WhoisServer)
-	for _, domain := range dls.Domain {
-		if len(domain.WhoisServer) > 0 {
-			DomainWhoisServerMap[domain.Name] = make([]WhoisServer, len(domain.WhoisServer))
-			for i, ws := range domain.WhoisServer {
-				DomainWhoisServerMap[domain.Name][i].Host = ws.Host
-				if len(ws.AvailablePattern) > 0 {
-					ptn, err := regexp.Compile(ws.AvailablePattern)
-					if err == nil {
-						DomainWhoisServerMap[domain.Name][i].AvailPtn = ptn
-					}
-				}
-			}
-		}
+	processDomains(dls.Domain, DomainWhoisServerMap)
+	applyOverrides(DomainWhoisServerMap)
+
+	return DomainWhoisServerMap, nil
+}
+
+func readXMLContent(xmlpath string) ([]byte, error) {
+	if strings.HasPrefix(xmlpath, "http") {
+		return readXMLFromHTTP(xmlpath)
+	}
+	return readXMLFromFile(xmlpath)
+}
+
+func readXMLFromHTTP(xmlpath string) ([]byte, error) {
+	// Use HTTP client with timeout to prevent indefinite hangs
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Get(xmlpath)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected server resp code: %d", resp.StatusCode)
+	}
+	// Use LimitReader to prevent unbounded memory consumption
+	limitedReader := io.LimitReader(resp.Body, MaxXMLResponseSize)
+	return ioutil.ReadAll(limitedReader)
+}
+
+func readXMLFromFile(xmlpath string) ([]byte, error) {
+	domainXML, err := os.Open(xmlpath)
+	if err != nil {
+		return nil, err
+	}
+	defer domainXML.Close()
+	return ioutil.ReadAll(domainXML)
+}
+
+func processDomains(domains []struct {
+	Text                string `xml:",chardata"`
+	Name                string `xml:"name,attr"`
+	Source              string `xml:"source"`
+	Created             string `xml:"created"`
+	Changed             string `xml:"changed"`
+	RegistrationService string `xml:"registrationService"`
+	State               string `xml:"state"`
+	WhoisServer         []struct {
+		Text             string `xml:",chardata"`
+		Host             string `xml:"host,attr"`
+		Source           string `xml:"source"`
+		AvailablePattern string `xml:"availablePattern"`
+		ErrorPattern     string `xml:"errorPattern"`
+		QueryFormat      string `xml:"queryFormat"`
+	} `xml:"whoisServer"`
+	CountryCode string `xml:"countryCode"`
+	Domain      []struct {
+		Text        string `xml:",chardata"`
+		Name        string `xml:"name,attr"`
+		Source      string `xml:"source"`
+		WhoisServer []struct {
+			Text             string `xml:",chardata"`
+			Host             string `xml:"host,attr"`
+			Source           string `xml:"source"`
+			AvailablePattern string `xml:"availablePattern"`
+			ErrorPattern     string `xml:"errorPattern"`
+			QueryFormat      string `xml:"queryFormat"`
+		} `xml:"whoisServer"`
+	} `xml:"domain"`
+}, DomainWhoisServerMap map[string][]WhoisServer) {
+	for _, domain := range domains {
+		processWhoisServers(domain.Name, domain.WhoisServer, DomainWhoisServerMap)
+
 		// contains subdomains
 		for _, sd := range domain.Domain {
-			if len(sd.WhoisServer) > 0 {
-				DomainWhoisServerMap[sd.Name] = make([]WhoisServer, len(sd.WhoisServer))
-				for i, sws := range sd.WhoisServer {
-					DomainWhoisServerMap[sd.Name][i].Host = sws.Host
-					if len(sws.AvailablePattern) > 0 {
-						ptn, err := regexp.Compile(sws.AvailablePattern)
-						if err == nil {
-							DomainWhoisServerMap[sd.Name][i].AvailPtn = ptn
-						}
-					}
+			processWhoisServers(sd.Name, sd.WhoisServer, DomainWhoisServerMap)
+		}
+	}
+}
+
+func processWhoisServers(domainName string, whoisServers []struct {
+	Text             string `xml:",chardata"`
+	Host             string `xml:"host,attr"`
+	Source           string `xml:"source"`
+	AvailablePattern string `xml:"availablePattern"`
+	ErrorPattern     string `xml:"errorPattern"`
+	QueryFormat      string `xml:"queryFormat"`
+}, DomainWhoisServerMap map[string][]WhoisServer) {
+	if len(whoisServers) > 0 {
+		DomainWhoisServerMap[domainName] = make([]WhoisServer, len(whoisServers))
+		for i, ws := range whoisServers {
+			DomainWhoisServerMap[domainName][i].Host = ws.Host
+			if len(ws.AvailablePattern) > 0 {
+				ptn, err := regexp.Compile(ws.AvailablePattern)
+				if err == nil {
+					DomainWhoisServerMap[domainName][i].AvailPtn = ptn
 				}
 			}
 		}
 	}
+}
+
+func applyOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
 	// for those domains that only subdomains contains whois server
 	// Removed .mc mapping - .mc should use default parser instead of whois.ripe.net
 	DomainWhoisServerMap["mm"] = []WhoisServer{{Host: "whois.nic.mm"}}
@@ -139,17 +191,9 @@ func NewDomainWhoisServerMap(xmlpath string) (DomainWhoisServerMap, error) {
 	if err == nil {
 		DomainWhoisServerMap["mm"][0].AvailPtn = ptn
 	}
+
 	// wrong or unavailable first whois server in whois-server-list.xml
-	// ai: whois.ai -> whois.nic.ai
-	DomainWhoisServerMap["ai"] = []WhoisServer{{Host: "whois.nic.ai"}}
-	// cyou: whois.afilias-srs.net -> whois.nic.cyou
-	DomainWhoisServerMap["cyou"] = []WhoisServer{{Host: "whois.nic.cyou"}}
-	// live: whois.rightside.co -> whois.nic.live
-	DomainWhoisServerMap["live"] = []WhoisServer{{Host: "whois.nic.live"}}
-	// vg: ccwhois.ksregistry.net -> whois.nic.vg
-	DomainWhoisServerMap["vg"] = []WhoisServer{{Host: "whois.nic.vg"}}
-	// live: whois-dub.mm-registry.com -> whois.nic.live
-	DomainWhoisServerMap["surf"] = []WhoisServer{{Host: "whois.nic.surf"}}
+	applyServerOverrides(DomainWhoisServerMap)
 
 	// Not available server
 	// in: whois.inregistry.in -> whois.registry.in
@@ -161,12 +205,30 @@ func NewDomainWhoisServerMap(xmlpath string) (DomainWhoisServerMap, error) {
 	}
 
 	// unfilled whois server
-	for _, tld := range []string{"ar", "blogspot.com.ar", "com.ar", "edu.ar", "gob.ar",
-		"gov.ar", "int.ar", "mil.ar", "net.ar", "org.ar", "tur.ar"} {
-		DomainWhoisServerMap[tld] = []WhoisServer{{Host: "whois.nic.ar"}}
+	applyArgentinaOverrides(DomainWhoisServerMap)
+}
+
+func applyServerOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
+	overrides := map[string]string{
+		"ai":   "whois.nic.ai",   // ai: whois.ai -> whois.nic.ai
+		"cyou": "whois.nic.cyou", // cyou: whois.afilias-srs.net -> whois.nic.cyou
+		"live": "whois.nic.live", // live: whois.rightside.co -> whois.nic.live
+		"vg":   "whois.nic.vg",   // vg: ccwhois.ksregistry.net -> whois.nic.vg
+		"surf": "whois.nic.surf", // live: whois-dub.mm-registry.com -> whois.nic.live
 	}
 
-	return DomainWhoisServerMap, nil
+	for tld, host := range overrides {
+		DomainWhoisServerMap[tld] = []WhoisServer{{Host: host}}
+	}
+}
+
+func applyArgentinaOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
+	argentinaTLDs := []string{"ar", "blogspot.com.ar", "com.ar", "edu.ar", "gob.ar",
+		"gov.ar", "int.ar", "mil.ar", "net.ar", "org.ar", "tur.ar"}
+
+	for _, tld := range argentinaTLDs {
+		DomainWhoisServerMap[tld] = []WhoisServer{{Host: "whois.nic.ar"}}
+	}
 }
 
 // GetWhoisServer get whois server list given public suffix

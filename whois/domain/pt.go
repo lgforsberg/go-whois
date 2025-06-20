@@ -120,5 +120,22 @@ func isContactEmpty(c *Contact) bool {
 	if c == nil {
 		return true
 	}
-	return c.ID == "" && c.Name == "" && c.Email == "" && c.Organization == "" && c.Country == "" && c.City == "" && c.State == "" && c.Postal == "" && c.Phone == "" && c.PhoneExt == "" && c.Fax == "" && c.FaxExt == "" && (len(c.Street) == 0 || (len(c.Street) == 1 && c.Street[0] == ""))
+
+	return isBasicFieldsEmpty(c) && isAddressFieldsEmpty(c) && isContactFieldsEmpty(c) && isStreetEmpty(c)
+}
+
+func isBasicFieldsEmpty(c *Contact) bool {
+	return c.ID == "" && c.Name == "" && c.Email == "" && c.Organization == ""
+}
+
+func isAddressFieldsEmpty(c *Contact) bool {
+	return c.Country == "" && c.City == "" && c.State == "" && c.Postal == ""
+}
+
+func isContactFieldsEmpty(c *Contact) bool {
+	return c.Phone == "" && c.PhoneExt == "" && c.Fax == "" && c.FaxExt == ""
+}
+
+func isStreetEmpty(c *Contact) bool {
+	return len(c.Street) == 0 || (len(c.Street) == 1 && c.Street[0] == "")
 }

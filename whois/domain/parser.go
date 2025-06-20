@@ -154,144 +154,100 @@ type ITLDParser interface {
 //	parser := NewTLDDomainParser(whois_server)
 //	parsedWhois, err := parser.GetParsedWhois(rawtext)
 func NewTLDDomainParser(whoisServer string) ITLDParser {
-	switch whoisServer {
-	case "whois.nic.ar":
-		return NewARTLDParser() // ar
-	case "whois.amnic.net":
-		return NewAMTLDParser() // am
-	case "whois.nic.as":
-		return NewASTLDParser() // as
-	case "whois.nic.at":
-		return NewATTLDParser() // at
-	case "whois.audns.net.au":
-		return NewAUTLDParser() // au
-	case "whois.dns.be":
-		return NewBETLDParser() // be
-	case "whois.nic.br":
-		return NewBRTLDParser() // br
-	case "whois.nic.cz":
-		return NewCZTLDParser() // cz
-	case "whois.eu":
-		return NewEUTLDParser() // eu
-	case "whois.nic.fr":
-		return NewFRTLDParser() // fr
-	case "whois.fi":
-		return NewFITLDParser() // fi
-	case "whois.nic.ir":
-		return NewIRTLDParser() // ir
-	case "whois.nic.it":
-		return NewITTLDParser() // it
-	case "whois.domain-registry.nl":
-		return NewNLTLDParser() // nl
-	case "whois.dns.pl":
-		return NewPLTLDParser() // pl
-	case "whois.dns.pt":
-		return NewPTTLDParser() // pt
-	case "whois.ripn.net":
-		return NewRUTLDParser() // ru
-	case "whois.sk-nic.sk":
-		return NewSKTLDParser() // sk
-	case "whois.dot.tk", "whois.dot.ml", "whois.dominio.gq":
-		return NewTKMLGQTLDParser() // gq, ml, tk
-	case "whois.twnic.net", "whois.twnic.net.tw":
-		return NewTWTLDParser() // tw
-	case "whois.nic.uk", "whois.ja.net":
-		return NewUKTLDParser() // uk
-	case "whois.ua", "whois.net.ua", "whois.in.ua":
-		return NewUATLDParser() // ua
-	case "whois.denic.de":
-		return NewDETLDParser() // de
-	case "whois.jprs.jp":
-		return NewJPTLDParser() // jp
-	case "whois.cnnic.cn":
-		return NewCNTLDParser() // cn
-	case "whois.dk-hostmaster.dk":
-		return NewDKTLDParser() // dk
-	case "whois.iis.se", "whois.iis.nu":
-		return NewSETLDParser() // se, nu
-	case "whois.norid.no":
-		return NewNOTLDParser() // no
-	case "whois.nic.aw":
-		return NewAWTLDParser() // aw
-	case "whois.register.bg":
-		return NewBGTLDParser() // bg
-	case "whois.nic.cl":
-		return NewCLTLDParser() // cl
-	case "whois.nic.cr":
-		return NewCRTLDParser() // cr
-	case "whois.eenet.ee":
-		return NewEETLDParser() // ee
-	case "whois.channelisles.net":
-		return NewGGTLDParser() // gg, je
-	case "whois.hkirc.hk":
-		return NewHKTLDParser() // hk
-	case "whois.dns.hr":
-		return NewHRTLDParser() // hr
-	case "whois.nic.hu":
-		return NewHUTLDParser() // hu
-	case "whois.nic.im":
-		return NewIMTLDParser() // im
-	case "whois.isnic.is":
-		return NewISTLDParser() // is
-	case "whois.kr":
-		return NewKRTLDParser() // kr
-	case "whois.nic.kz":
-		return NewKZTLDParser() // kz
-	case "whois.domreg.lt":
-		return NewLTTLDParser() // lt
-	case "whois.dns.lu":
-		return NewLUTLDParser() // lu
-	case "whois.nic.lv":
-		return NewLVTLDParser() // lv
-	case "whois.nic.md":
-		return NewMDTLDParser() // md
-	case "whois.marnet.mk":
-		return NewMKTLDParser() // mk
-	case "whois.monic.mo":
-		return NewMOTLDParser() // mo
-	case "whois.mx":
-		return NewMXTLDParser() // mx
-	case "whois.nic.pf":
-		return NewPFTLDParser() // pf
-	case "whois.nic.qa":
-		return NewQATLDParser() // qa
-	case "whois.rotld.ro":
-		return NewROTLDParser() // ro
-	case "whois.rnids.rs":
-		return NewRSTLDParser() // rs
-	case "whois.nic.sa":
-		return NewSATLDParser() // sa
-	case "whois.arnes.si":
-		return NewSITLDParser() // si
-	case "whois.nic.sm":
-		return NewSMTLDParser() // sm
-	case "whois.nic.sn":
-		return NewSNTLDParser() // sn
-	case "whois.tcinet.ru":
-		return NewSUTLDParser() // su
-	case "whois.nic.tg":
-		return NewTGTLDParser() // tg
-	case "whois.thnic.co.th":
-		return NewTHTLDParser() // th
-	case "whois.nic.tm":
-		return NewTMTLDParser() // tm
-	case "whois.ati.tn":
-		return NewTNTLDParser() // tn
-	case "whois.nic.tr":
-		return NewTRTLDParser() // tr
-	case "whois.tznic.or.tz":
-		return NewTZTLDParser() // tz
-	case "whois.co.ug":
-		return NewUGTLDParser() // ug
-	case "whois.cctld.uz":
-		return NewUZTLDParser() // uz
-	case "whois.nic.ve":
-		return NewVETLDParser() // ve
-	case "whois.vunic.vu":
-		return NewVUTLDParser() // vu
-	default:
-		return NewTLDParser()
+	// Map of whois servers to their corresponding parser constructors
+	serverParserMap := map[string]func() ITLDParser{
+		"whois.nic.ar":             func() ITLDParser { return NewARTLDParser() }, // ar
+		"whois.amnic.net":          func() ITLDParser { return NewAMTLDParser() }, // am
+		"whois.nic.as":             func() ITLDParser { return NewASTLDParser() }, // as
+		"whois.nic.at":             func() ITLDParser { return NewATTLDParser() }, // at
+		"whois.audns.net.au":       func() ITLDParser { return NewAUTLDParser() }, // au
+		"whois.dns.be":             func() ITLDParser { return NewBETLDParser() }, // be
+		"whois.nic.br":             func() ITLDParser { return NewBRTLDParser() }, // br
+		"whois.nic.cz":             func() ITLDParser { return NewCZTLDParser() }, // cz
+		"whois.eu":                 func() ITLDParser { return NewEUTLDParser() }, // eu
+		"whois.nic.fr":             func() ITLDParser { return NewFRTLDParser() }, // fr
+		"whois.fi":                 func() ITLDParser { return NewFITLDParser() }, // fi
+		"whois.nic.ir":             func() ITLDParser { return NewIRTLDParser() }, // ir
+		"whois.nic.it":             func() ITLDParser { return NewITTLDParser() }, // it
+		"whois.domain-registry.nl": func() ITLDParser { return NewNLTLDParser() }, // nl
+		"whois.dns.pl":             func() ITLDParser { return NewPLTLDParser() }, // pl
+		"whois.dns.pt":             func() ITLDParser { return NewPTTLDParser() }, // pt
+		"whois.ripn.net":           func() ITLDParser { return NewRUTLDParser() }, // ru
+		"whois.sk-nic.sk":          func() ITLDParser { return NewSKTLDParser() }, // sk
+		"whois.twnic.net":          func() ITLDParser { return NewTWTLDParser() }, // tw
+		"whois.twnic.net.tw":       func() ITLDParser { return NewTWTLDParser() }, // tw
+		"whois.nic.uk":             func() ITLDParser { return NewUKTLDParser() }, // uk
+		"whois.ja.net":             func() ITLDParser { return NewUKTLDParser() }, // uk
+		"whois.ua":                 func() ITLDParser { return NewUATLDParser() }, // ua
+		"whois.net.ua":             func() ITLDParser { return NewUATLDParser() }, // ua
+		"whois.in.ua":              func() ITLDParser { return NewUATLDParser() }, // ua
+		"whois.denic.de":           func() ITLDParser { return NewDETLDParser() }, // de
+		"whois.jprs.jp":            func() ITLDParser { return NewJPTLDParser() }, // jp
+		"whois.cnnic.cn":           func() ITLDParser { return NewCNTLDParser() }, // cn
+		"whois.dk-hostmaster.dk":   func() ITLDParser { return NewDKTLDParser() }, // dk
+		"whois.iis.se":             func() ITLDParser { return NewSETLDParser() }, // se, nu
+		"whois.iis.nu":             func() ITLDParser { return NewSETLDParser() }, // se, nu
+		"whois.norid.no":           func() ITLDParser { return NewNOTLDParser() }, // no
+		"whois.nic.aw":             func() ITLDParser { return NewAWTLDParser() }, // aw
+		"whois.register.bg":        func() ITLDParser { return NewBGTLDParser() }, // bg
+		"whois.nic.cl":             func() ITLDParser { return NewCLTLDParser() }, // cl
+		"whois.nic.cr":             func() ITLDParser { return NewCRTLDParser() }, // cr
+		"whois.eenet.ee":           func() ITLDParser { return NewEETLDParser() }, // ee
+		"whois.channelisles.net":   func() ITLDParser { return NewGGTLDParser() }, // gg, je
+		"whois.hkirc.hk":           func() ITLDParser { return NewHKTLDParser() }, // hk
+		"whois.dns.hr":             func() ITLDParser { return NewHRTLDParser() }, // hr
+		"whois.nic.hu":             func() ITLDParser { return NewHUTLDParser() }, // hu
+		"whois.nic.im":             func() ITLDParser { return NewIMTLDParser() }, // im
+		"whois.isnic.is":           func() ITLDParser { return NewISTLDParser() }, // is
+		"whois.kr":                 func() ITLDParser { return NewKRTLDParser() }, // kr
+		"whois.nic.kz":             func() ITLDParser { return NewKZTLDParser() }, // kz
+		"whois.domreg.lt":          func() ITLDParser { return NewLTTLDParser() }, // lt
+		"whois.dns.lu":             func() ITLDParser { return NewLUTLDParser() }, // lu
+		"whois.nic.lv":             func() ITLDParser { return NewLVTLDParser() }, // lv
+		"whois.nic.md":             func() ITLDParser { return NewMDTLDParser() }, // md
+		"whois.marnet.mk":          func() ITLDParser { return NewMKTLDParser() }, // mk
+		"whois.monic.mo":           func() ITLDParser { return NewMOTLDParser() }, // mo
+		"whois.mx":                 func() ITLDParser { return NewMXTLDParser() }, // mx
+		"whois.nic.pf":             func() ITLDParser { return NewPFTLDParser() }, // pf
+		"whois.nic.qa":             func() ITLDParser { return NewQATLDParser() }, // qa
+		"whois.rotld.ro":           func() ITLDParser { return NewROTLDParser() }, // ro
+		"whois.rnids.rs":           func() ITLDParser { return NewRSTLDParser() }, // rs
+		"whois.nic.sa":             func() ITLDParser { return NewSATLDParser() }, // sa
+		"whois.arnes.si":           func() ITLDParser { return NewSITLDParser() }, // si
+		"whois.nic.sm":             func() ITLDParser { return NewSMTLDParser() }, // sm
+		"whois.nic.sn":             func() ITLDParser { return NewSNTLDParser() }, // sn
+		"whois.tcinet.ru":          func() ITLDParser { return NewSUTLDParser() }, // su
+		"whois.nic.tg":             func() ITLDParser { return NewTGTLDParser() }, // tg
+		"whois.thnic.co.th":        func() ITLDParser { return NewTHTLDParser() }, // th
+		"whois.nic.tm":             func() ITLDParser { return NewTMTLDParser() }, // tm
+		"whois.ati.tn":             func() ITLDParser { return NewTNTLDParser() }, // tn
+		"whois.nic.tr":             func() ITLDParser { return NewTRTLDParser() }, // tr
+		"whois.tznic.or.tz":        func() ITLDParser { return NewTZTLDParser() }, // tz
+		"whois.co.ug":              func() ITLDParser { return NewUGTLDParser() }, // ug
+		"whois.cctld.uz":           func() ITLDParser { return NewUZTLDParser() }, // uz
+		"whois.nic.ve":             func() ITLDParser { return NewVETLDParser() }, // ve
+		"whois.vunic.vu":           func() ITLDParser { return NewVUTLDParser() }, // vu
 	}
+
+	// Special case for multiple servers sharing the same parser
+	specialServerMap := map[string]func() ITLDParser{
+		"whois.dot.tk":     func() ITLDParser { return NewTKMLGQTLDParser() }, // gq, ml, tk
+		"whois.dot.ml":     func() ITLDParser { return NewTKMLGQTLDParser() }, // gq, ml, tk
+		"whois.dominio.gq": func() ITLDParser { return NewTKMLGQTLDParser() }, // gq, ml, tk
+	}
+
+	// Check special cases first
+	if parserFunc, exists := specialServerMap[whoisServer]; exists {
+		return parserFunc()
+	}
+
+	// Check regular server map
+	if parserFunc, exists := serverParserMap[whoisServer]; exists {
+		return parserFunc()
+	}
+
+	// Default case
+	return NewTLDParser()
 }
 
 // Parser implements default parser if tlds not match other parsers with specific parsing method
