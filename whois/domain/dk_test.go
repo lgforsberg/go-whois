@@ -58,61 +58,9 @@ Hostname:             ns4.google.com`
 		t.Errorf("Expected no error, got %v", err)
 	}
 
-	if parsedWhois.DomainName != "google.dk" {
-		t.Errorf("Expected domain name to be 'google.dk', got '%s'", parsedWhois.DomainName)
-	}
-
-	if len(parsedWhois.NameServers) != 4 {
-		t.Errorf("Expected 4 name servers, got %d", len(parsedWhois.NameServers))
-	}
-
-	expectedNS := []string{"ns1.google.com", "ns2.google.com", "ns3.google.com", "ns4.google.com"}
-	for i, ns := range expectedNS {
-		if parsedWhois.NameServers[i] != ns {
-			t.Errorf("Expected name server %d to be '%s', got '%s'", i, ns, parsedWhois.NameServers[i])
-		}
-	}
-
-	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "Active" {
-		t.Errorf("Expected status to be 'Active', got %v", parsedWhois.Statuses)
-	}
-
-	if parsedWhois.CreatedDateRaw != "1999-01-10" {
-		t.Errorf("Expected created date raw to be '1999-01-10', got '%s'", parsedWhois.CreatedDateRaw)
-	}
-
-	if parsedWhois.ExpiredDateRaw != "2026-03-31" {
-		t.Errorf("Expected expired date raw to be '2026-03-31', got '%s'", parsedWhois.ExpiredDateRaw)
-	}
-
-	// Test registrant information
-	if parsedWhois.Contacts == nil || parsedWhois.Contacts.Registrant == nil {
-		t.Errorf("Expected registrant contact to be parsed")
-	}
-
-	if parsedWhois.Contacts.Registrant.Name != "Google LLC" {
-		t.Errorf("Expected registrant name to be 'Google LLC', got '%s'", parsedWhois.Contacts.Registrant.Name)
-	}
-
-	if len(parsedWhois.Contacts.Registrant.Street) != 1 || parsedWhois.Contacts.Registrant.Street[0] != "1600 Amphitheatre Parkway" {
-		t.Errorf("Expected registrant street to be '1600 Amphitheatre Parkway', got %v", parsedWhois.Contacts.Registrant.Street)
-	}
-
-	if parsedWhois.Contacts.Registrant.Postal != "94043" {
-		t.Errorf("Expected registrant postal to be '94043', got '%s'", parsedWhois.Contacts.Registrant.Postal)
-	}
-
-	if parsedWhois.Contacts.Registrant.City != "Mountain View" {
-		t.Errorf("Expected registrant city to be 'Mountain View', got '%s'", parsedWhois.Contacts.Registrant.City)
-	}
-
-	if parsedWhois.Contacts.Registrant.Country != "US" {
-		t.Errorf("Expected registrant country to be 'US', got '%s'", parsedWhois.Contacts.Registrant.Country)
-	}
-
-	if parsedWhois.Contacts.Registrant.Phone != "+1 650-253-0000" {
-		t.Errorf("Expected registrant phone to be '+1 650-253-0000', got '%s'", parsedWhois.Contacts.Registrant.Phone)
-	}
+	assertDKBasicFields(t, parsedWhois)
+	assertDKContacts(t, parsedWhois)
+	assertDKNameServers(t, parsedWhois)
 
 	// Test unregistered domain (case8)
 	rawtextFree := `# Hello 63.35.110.58. Your session has been logged.
@@ -138,20 +86,88 @@ No entries found for the selected source.`
 		t.Errorf("Expected no error for free domain, got %v", err)
 	}
 
-	if len(parsedWhoisFree.Statuses) != 1 || parsedWhoisFree.Statuses[0] != "free" {
-		t.Errorf("Expected status to be 'free', got %v", parsedWhoisFree.Statuses)
+	assertDKUnregisteredDomain(t, parsedWhoisFree)
+}
+
+func assertDKBasicFields(t *testing.T, parsedWhois *ParsedWhois) {
+	if parsedWhois.DomainName != "google.dk" {
+		t.Errorf("Expected domain name to be 'google.dk', got '%s'", parsedWhois.DomainName)
+	}
+
+	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "Active" {
+		t.Errorf("Expected status to be 'Active', got %v", parsedWhois.Statuses)
+	}
+
+	if parsedWhois.CreatedDateRaw != "1999-01-10" {
+		t.Errorf("Expected created date raw to be '1999-01-10', got '%s'", parsedWhois.CreatedDateRaw)
+	}
+
+	if parsedWhois.ExpiredDateRaw != "2026-03-31" {
+		t.Errorf("Expected expired date raw to be '2026-03-31', got '%s'", parsedWhois.ExpiredDateRaw)
+	}
+}
+
+func assertDKContacts(t *testing.T, parsedWhois *ParsedWhois) {
+	if parsedWhois.Contacts == nil || parsedWhois.Contacts.Registrant == nil {
+		t.Errorf("Expected registrant contact to be parsed")
+		return
+	}
+
+	registrant := parsedWhois.Contacts.Registrant
+	if registrant.Name != "Google LLC" {
+		t.Errorf("Expected registrant name to be 'Google LLC', got '%s'", registrant.Name)
+	}
+
+	if len(registrant.Street) != 1 || registrant.Street[0] != "1600 Amphitheatre Parkway" {
+		t.Errorf("Expected registrant street to be '1600 Amphitheatre Parkway', got %v", registrant.Street)
+	}
+
+	if registrant.Postal != "94043" {
+		t.Errorf("Expected registrant postal to be '94043', got '%s'", registrant.Postal)
+	}
+
+	if registrant.City != "Mountain View" {
+		t.Errorf("Expected registrant city to be 'Mountain View', got '%s'", registrant.City)
+	}
+
+	if registrant.Country != "US" {
+		t.Errorf("Expected registrant country to be 'US', got '%s'", registrant.Country)
+	}
+
+	if registrant.Phone != "+1 650-253-0000" {
+		t.Errorf("Expected registrant phone to be '+1 650-253-0000', got '%s'", registrant.Phone)
+	}
+}
+
+func assertDKNameServers(t *testing.T, parsedWhois *ParsedWhois) {
+	if len(parsedWhois.NameServers) != 4 {
+		t.Errorf("Expected 4 name servers, got %d", len(parsedWhois.NameServers))
+		return
+	}
+
+	expectedNS := []string{"ns1.google.com", "ns2.google.com", "ns3.google.com", "ns4.google.com"}
+	for i, ns := range expectedNS {
+		if parsedWhois.NameServers[i] != ns {
+			t.Errorf("Expected name server %d to be '%s', got '%s'", i, ns, parsedWhois.NameServers[i])
+		}
+	}
+}
+
+func assertDKUnregisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
+	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "free" {
+		t.Errorf("Expected status to be 'free', got %v", parsedWhois.Statuses)
 	}
 
 	// Verify that free domains have no nameservers or dates
-	if len(parsedWhoisFree.NameServers) != 0 {
-		t.Errorf("Expected no name servers for free domain, got %d", len(parsedWhoisFree.NameServers))
+	if len(parsedWhois.NameServers) != 0 {
+		t.Errorf("Expected no name servers for free domain, got %d", len(parsedWhois.NameServers))
 	}
 
-	if parsedWhoisFree.CreatedDateRaw != "" {
-		t.Errorf("Expected no created date for free domain, got '%s'", parsedWhoisFree.CreatedDateRaw)
+	if parsedWhois.CreatedDateRaw != "" {
+		t.Errorf("Expected no created date for free domain, got '%s'", parsedWhois.CreatedDateRaw)
 	}
 
-	if parsedWhoisFree.ExpiredDateRaw != "" {
-		t.Errorf("Expected no expired date for free domain, got '%s'", parsedWhoisFree.ExpiredDateRaw)
+	if parsedWhois.ExpiredDateRaw != "" {
+		t.Errorf("Expected no expired date for free domain, got '%s'", parsedWhois.ExpiredDateRaw)
 	}
 }

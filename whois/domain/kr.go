@@ -36,84 +36,18 @@ func (krw *KRTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	var inEnglish bool
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if line == "# ENGLISH" {
-			inEnglish = true
+		if krw.handleSectionChange(line, &inEnglish) {
 			continue
 		}
-		if line == "# KOREAN(UTF8)" {
-			inEnglish = false
+		if krw.skipLine(line) {
 			continue
 		}
-		if line == "" || strings.HasPrefix(line, "#") || strings.HasPrefix(line, "-") {
-			continue
-		}
-
 		if inEnglish {
-			if strings.HasPrefix(line, "Domain Name") {
-				parsedWhois.DomainName = getValue(line)
-			} else if strings.HasPrefix(line, "Registrant Address") {
-				if parsedWhois.Contacts == nil {
-					parsedWhois.Contacts = &Contacts{}
-				}
-				if parsedWhois.Contacts.Registrant == nil {
-					parsedWhois.Contacts.Registrant = &Contact{}
-				}
-				parsedWhois.Contacts.Registrant.Street = []string{getValue(line)}
-			} else if strings.HasPrefix(line, "Registrant Zip Code") {
-				if parsedWhois.Contacts == nil {
-					parsedWhois.Contacts = &Contacts{}
-				}
-				if parsedWhois.Contacts.Registrant == nil {
-					parsedWhois.Contacts.Registrant = &Contact{}
-				}
-				parsedWhois.Contacts.Registrant.Postal = getValue(line)
-			} else if strings.HasPrefix(line, "Registrant") && !strings.HasPrefix(line, "Registrant Address") && !strings.HasPrefix(line, "Registrant Zip Code") {
-				if parsedWhois.Contacts == nil {
-					parsedWhois.Contacts = &Contacts{}
-				}
-				if parsedWhois.Contacts.Registrant == nil {
-					parsedWhois.Contacts.Registrant = &Contact{}
-				}
-				parsedWhois.Contacts.Registrant.Name = getValue(line)
-			} else if strings.HasPrefix(line, "Administrative Contact(AC)") {
-				if parsedWhois.Contacts == nil {
-					parsedWhois.Contacts = &Contacts{}
-				}
-				if parsedWhois.Contacts.Admin == nil {
-					parsedWhois.Contacts.Admin = &Contact{}
-				}
-				parsedWhois.Contacts.Admin.Name = getValue(line)
-			} else if strings.HasPrefix(line, "AC E-Mail") {
-				if parsedWhois.Contacts == nil {
-					parsedWhois.Contacts = &Contacts{}
-				}
-				if parsedWhois.Contacts.Admin == nil {
-					parsedWhois.Contacts.Admin = &Contact{}
-				}
-				parsedWhois.Contacts.Admin.Email = getValue(line)
-			} else if strings.HasPrefix(line, "AC Phone Number") {
-				if parsedWhois.Contacts == nil {
-					parsedWhois.Contacts = &Contacts{}
-				}
-				if parsedWhois.Contacts.Admin == nil {
-					parsedWhois.Contacts.Admin = &Contact{}
-				}
-				parsedWhois.Contacts.Admin.Phone = getValue(line)
-			} else if strings.HasPrefix(line, "Registered Date") {
-				parsedWhois.CreatedDateRaw = getValue(line)
-			} else if strings.HasPrefix(line, "Last Updated Date") {
-				parsedWhois.UpdatedDateRaw = getValue(line)
-			} else if strings.HasPrefix(line, "Expiration Date") {
-				parsedWhois.ExpiredDateRaw = getValue(line)
-			} else if strings.HasPrefix(line, "Authorized Agency") {
-				if parsedWhois.Registrar == nil {
-					parsedWhois.Registrar = &Registrar{}
-				}
-				parsedWhois.Registrar.Name = getValue(line)
-			} else if strings.HasPrefix(line, "DNSSEC") {
-				parsedWhois.Dnssec = getValue(line)
-			} else if strings.HasPrefix(line, "Host Name") {
-				parsedWhois.NameServers = append(parsedWhois.NameServers, getValue(line))
+			if krw.parseDomainFields(line, parsedWhois) {
+				continue
+			}
+			if krw.parseContactFields(line, parsedWhois) {
+				continue
 			}
 		}
 	}
@@ -130,6 +64,100 @@ func (krw *KRTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	}
 
 	return parsedWhois, nil
+}
+
+func (krw *KRTLDParser) handleSectionChange(line string, inEnglish *bool) bool {
+	switch line {
+	case "# ENGLISH":
+		*inEnglish = true
+		return true
+	case "# KOREAN(UTF8)":
+		*inEnglish = false
+		return true
+	}
+	return false
+}
+
+func (krw *KRTLDParser) skipLine(line string) bool {
+	return line == "" || strings.HasPrefix(line, "#") || strings.HasPrefix(line, "-")
+}
+
+func (krw *KRTLDParser) parseDomainFields(line string, parsedWhois *ParsedWhois) bool {
+	switch {
+	case strings.HasPrefix(line, "Domain Name"):
+		parsedWhois.DomainName = getValue(line)
+		return true
+	case strings.HasPrefix(line, "Registered Date"):
+		parsedWhois.CreatedDateRaw = getValue(line)
+		return true
+	case strings.HasPrefix(line, "Last Updated Date"):
+		parsedWhois.UpdatedDateRaw = getValue(line)
+		return true
+	case strings.HasPrefix(line, "Expiration Date"):
+		parsedWhois.ExpiredDateRaw = getValue(line)
+		return true
+	case strings.HasPrefix(line, "Authorized Agency"):
+		if parsedWhois.Registrar == nil {
+			parsedWhois.Registrar = &Registrar{}
+		}
+		parsedWhois.Registrar.Name = getValue(line)
+		return true
+	case strings.HasPrefix(line, "DNSSEC"):
+		parsedWhois.Dnssec = getValue(line)
+		return true
+	case strings.HasPrefix(line, "Host Name"):
+		parsedWhois.NameServers = append(parsedWhois.NameServers, getValue(line))
+		return true
+	}
+	return false
+}
+
+func (krw *KRTLDParser) parseContactFields(line string, parsedWhois *ParsedWhois) bool {
+	switch {
+	case strings.HasPrefix(line, "Registrant Address"):
+		krw.ensureContact(parsedWhois, "registrant")
+		parsedWhois.Contacts.Registrant.Street = []string{getValue(line)}
+		return true
+	case strings.HasPrefix(line, "Registrant Zip Code"):
+		krw.ensureContact(parsedWhois, "registrant")
+		parsedWhois.Contacts.Registrant.Postal = getValue(line)
+		return true
+	case strings.HasPrefix(line, "Registrant") &&
+		!strings.HasPrefix(line, "Registrant Address") &&
+		!strings.HasPrefix(line, "Registrant Zip Code"):
+		krw.ensureContact(parsedWhois, "registrant")
+		parsedWhois.Contacts.Registrant.Name = getValue(line)
+		return true
+	case strings.HasPrefix(line, "Administrative Contact(AC)"):
+		krw.ensureContact(parsedWhois, "admin")
+		parsedWhois.Contacts.Admin.Name = getValue(line)
+		return true
+	case strings.HasPrefix(line, "AC E-Mail"):
+		krw.ensureContact(parsedWhois, "admin")
+		parsedWhois.Contacts.Admin.Email = getValue(line)
+		return true
+	case strings.HasPrefix(line, "AC Phone Number"):
+		krw.ensureContact(parsedWhois, "admin")
+		parsedWhois.Contacts.Admin.Phone = getValue(line)
+		return true
+	}
+	return false
+}
+
+func (krw *KRTLDParser) ensureContact(parsedWhois *ParsedWhois, contactType string) {
+	if parsedWhois.Contacts == nil {
+		parsedWhois.Contacts = &Contacts{}
+	}
+	switch contactType {
+	case "registrant":
+		if parsedWhois.Contacts.Registrant == nil {
+			parsedWhois.Contacts.Registrant = &Contact{}
+		}
+	case "admin":
+		if parsedWhois.Contacts.Admin == nil {
+			parsedWhois.Contacts.Admin = &Contact{}
+		}
+	}
 }
 
 func getValue(line string) string {

@@ -48,36 +48,8 @@ Updated: 2025-06-18T23:12:30.974138+00:00
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
-	if parsedWhois.DomainName != "google.lv" {
-		t.Errorf("Expected domain name 'google.lv', got '%s'", parsedWhois.DomainName)
-	}
-	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "active" {
-		t.Errorf("Expected status 'active', got '%v'", parsedWhois.Statuses)
-	}
-	if parsedWhois.Contacts == nil || parsedWhois.Contacts.Registrant == nil {
-		t.Fatal("Expected registrant contact to be parsed")
-	}
-	if parsedWhois.Contacts.Registrant.Name != "Google LLC" {
-		t.Errorf("Expected registrant name 'Google LLC', got '%s'", parsedWhois.Contacts.Registrant.Name)
-	}
-	if parsedWhois.Contacts.Registrant.Country != "US" {
-		t.Errorf("Expected registrant country 'US', got '%s'", parsedWhois.Contacts.Registrant.Country)
-	}
-	if len(parsedWhois.Contacts.Registrant.Street) != 1 || parsedWhois.Contacts.Registrant.Street[0] != "1600 Amphitheatre Parkway, Mountain View, CA, 94043, USA" {
-		t.Errorf("Expected registrant address '1600 Amphitheatre Parkway, Mountain View, CA, 94043, USA', got '%v'", parsedWhois.Contacts.Registrant.Street)
-	}
-	if parsedWhois.Registrar == nil || parsedWhois.Registrar.Name != "MarkMonitor Inc." {
-		t.Errorf("Expected registrar name 'MarkMonitor Inc.', got '%v'", parsedWhois.Registrar)
-	}
-	if len(parsedWhois.NameServers) != 4 {
-		t.Errorf("Expected 4 nameservers, got %d", len(parsedWhois.NameServers))
-	}
-	if parsedWhois.NameServers[0] != "ns1.google.com" {
-		t.Errorf("Expected first nameserver 'ns1.google.com', got '%s'", parsedWhois.NameServers[0])
-	}
-	if parsedWhois.UpdatedDateRaw != "2025-06-18T23:12:30.974138+00:00" {
-		t.Errorf("Expected updated date '2025-06-18T23:12:30.974138+00:00', got '%s'", parsedWhois.UpdatedDateRaw)
-	}
+	assertLVRegisteredDomain(t, parsedWhois, "google.lv", "MarkMonitor Inc.", []string{"ns1.google.com", "ns2.google.com", "ns3.google.com", "ns4.google.com"}, "2025-06-18T23:12:30.974138+00:00")
+	assertLVRegistrantContact(t, parsedWhois, "Google LLC", "US", "1600 Amphitheatre Parkway, Mountain View, CA, 94043, USA")
 }
 
 func TestLVTLDParser_ParseUnregistered(t *testing.T) {
@@ -94,14 +66,61 @@ Updated: 2025-06-18T23:12:30.974138+00:00`
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
-	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "free" {
-		t.Errorf("Expected status 'free', got '%v'", parsedWhois.Statuses)
-	}
+	assertLVUnregisteredDomain(t, parsedWhois)
 }
 
 func TestLVTLDParser_GetName(t *testing.T) {
 	parser := NewLVTLDParser()
 	if parser.GetName() != "lv" {
 		t.Errorf("Expected parser name 'lv', got '%s'", parser.GetName())
+	}
+}
+
+func assertLVRegisteredDomain(t *testing.T, parsedWhois *ParsedWhois, expectedDomain, expectedRegistrar string, expectedNS []string, expectedUpdated string) {
+	if parsedWhois.DomainName != expectedDomain {
+		t.Errorf("Expected domain name '%s', got '%s'", expectedDomain, parsedWhois.DomainName)
+	}
+	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "active" {
+		t.Errorf("Expected status 'active', got '%v'", parsedWhois.Statuses)
+	}
+	if parsedWhois.Registrar == nil || parsedWhois.Registrar.Name != expectedRegistrar {
+		t.Errorf("Expected registrar name '%s', got '%v'", expectedRegistrar, parsedWhois.Registrar)
+	}
+	assertStringSliceEqualLV(t, parsedWhois.NameServers, expectedNS, "nameserver")
+	if parsedWhois.UpdatedDateRaw != expectedUpdated {
+		t.Errorf("Expected updated date '%s', got '%s'", expectedUpdated, parsedWhois.UpdatedDateRaw)
+	}
+}
+
+func assertLVRegistrantContact(t *testing.T, parsedWhois *ParsedWhois, expectedName, expectedCountry, expectedAddress string) {
+	if parsedWhois.Contacts == nil || parsedWhois.Contacts.Registrant == nil {
+		t.Fatal("Expected registrant contact to be parsed")
+	}
+	if parsedWhois.Contacts.Registrant.Name != expectedName {
+		t.Errorf("Expected registrant name '%s', got '%s'", expectedName, parsedWhois.Contacts.Registrant.Name)
+	}
+	if parsedWhois.Contacts.Registrant.Country != expectedCountry {
+		t.Errorf("Expected registrant country '%s', got '%s'", expectedCountry, parsedWhois.Contacts.Registrant.Country)
+	}
+	if len(parsedWhois.Contacts.Registrant.Street) != 1 || parsedWhois.Contacts.Registrant.Street[0] != expectedAddress {
+		t.Errorf("Expected registrant address '%s', got '%v'", expectedAddress, parsedWhois.Contacts.Registrant.Street)
+	}
+}
+
+func assertLVUnregisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
+	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "free" {
+		t.Errorf("Expected status 'free', got '%v'", parsedWhois.Statuses)
+	}
+}
+
+func assertStringSliceEqualLV(t *testing.T, actual, expected []string, label string) {
+	if len(actual) != len(expected) {
+		t.Errorf("Expected %d %s(s), got %d", len(expected), label, len(actual))
+		return
+	}
+	for i, v := range expected {
+		if i < len(actual) && actual[i] != v {
+			t.Errorf("Expected %s %d to be '%s', got '%s'", label, i, v, actual[i])
+		}
 	}
 }

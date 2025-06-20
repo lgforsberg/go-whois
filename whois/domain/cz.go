@@ -56,42 +56,50 @@ func (czw *CZTLDParser) handleDateField(key, val string, parsedWhois *ParsedWhoi
 func (czw *CZTLDParser) handleContactField(key, val string, parsedWhois *ParsedWhois, contactFlg *string, contactsMap map[string]map[string]interface{}, regFlg *bool) {
 	switch key {
 	case "contact":
-		// registrar
-		if parsedWhois.Registrar != nil && "REG-"+val == parsedWhois.Registrar.Name {
-			*regFlg = true
-		}
-		// contacts: registrant/tech
-		if parsedWhois.Contacts != nil {
-			if parsedWhois.Contacts.Registrant != nil && val == parsedWhois.Contacts.Registrant.ID {
-				*contactFlg = REGISTRANT
-				contactsMap[REGISTRANT] = make(map[string]interface{})
-			} else if parsedWhois.Contacts.Tech != nil && val == parsedWhois.Contacts.Tech.ID {
-				*contactFlg = TECH
-				contactsMap[TECH] = make(map[string]interface{})
-			}
-		}
+		czw.handleContactIdentification(val, parsedWhois, contactFlg, contactsMap, regFlg)
 	case "name", "org", "address":
-		if len(*contactFlg) == 0 {
-			return
-		}
-		if *regFlg && key == "name" {
-			parsedWhois.Registrar.Name = val
-			return
-		}
-		ckey := key
-		if key == "address" {
-			ckey = "street"
-			if _, ok := contactsMap[*contactFlg][ckey]; !ok {
-				contactsMap[*contactFlg][ckey] = []string{}
-			}
-			contactsMap[*contactFlg][ckey] = append(contactsMap[*contactFlg][ckey].([]string), val)
-			return
-		}
-		if key == "org" {
-			ckey = "organization"
-		}
-		contactsMap[*contactFlg][ckey] = val
+		czw.handleContactFieldAssignment(key, val, parsedWhois, contactFlg, contactsMap, regFlg)
 	}
+}
+
+func (czw *CZTLDParser) handleContactIdentification(val string, parsedWhois *ParsedWhois, contactFlg *string, contactsMap map[string]map[string]interface{}, regFlg *bool) {
+	// registrar
+	if parsedWhois.Registrar != nil && "REG-"+val == parsedWhois.Registrar.Name {
+		*regFlg = true
+	}
+	// contacts: registrant/tech
+	if parsedWhois.Contacts != nil {
+		if parsedWhois.Contacts.Registrant != nil && val == parsedWhois.Contacts.Registrant.ID {
+			*contactFlg = REGISTRANT
+			contactsMap[REGISTRANT] = make(map[string]interface{})
+		} else if parsedWhois.Contacts.Tech != nil && val == parsedWhois.Contacts.Tech.ID {
+			*contactFlg = TECH
+			contactsMap[TECH] = make(map[string]interface{})
+		}
+	}
+}
+
+func (czw *CZTLDParser) handleContactFieldAssignment(key, val string, parsedWhois *ParsedWhois, contactFlg *string, contactsMap map[string]map[string]interface{}, regFlg *bool) {
+	if len(*contactFlg) == 0 {
+		return
+	}
+	if *regFlg && key == "name" {
+		parsedWhois.Registrar.Name = val
+		return
+	}
+	ckey := key
+	if key == "address" {
+		ckey = "street"
+		if _, ok := contactsMap[*contactFlg][ckey]; !ok {
+			contactsMap[*contactFlg][ckey] = []string{}
+		}
+		contactsMap[*contactFlg][ckey] = append(contactsMap[*contactFlg][ckey].([]string), val)
+		return
+	}
+	if key == "org" {
+		ckey = "organization"
+	}
+	contactsMap[*contactFlg][ckey] = val
 }
 
 func (czw *CZTLDParser) cleanNameServers(parsedWhois *ParsedWhois) {

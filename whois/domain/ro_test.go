@@ -44,48 +44,7 @@ func TestROTLDParser_Parse(t *testing.T) {
 				t.Fatalf("Failed to parse whois data: %v", err)
 			}
 
-			if result.DomainName != tc.expected.DomainName {
-				t.Errorf("Expected domain name '%s', got '%s'", tc.expected.DomainName, result.DomainName)
-			}
-			if result.CreatedDateRaw != tc.expected.CreatedDateRaw {
-				t.Errorf("Expected created date '%s', got '%s'", tc.expected.CreatedDateRaw, result.CreatedDateRaw)
-			}
-			if result.ExpiredDateRaw != tc.expected.ExpiredDateRaw {
-				t.Errorf("Expected expired date '%s', got '%s'", tc.expected.ExpiredDateRaw, result.ExpiredDateRaw)
-			}
-			if tc.expected.Registrar != nil {
-				if result.Registrar == nil {
-					t.Error("Expected registrar, got nil")
-				} else {
-					if tc.expected.Registrar.Name != result.Registrar.Name {
-						t.Errorf("Expected registrar name '%s', got '%s'", tc.expected.Registrar.Name, result.Registrar.Name)
-					}
-					if tc.expected.Registrar.URL != result.Registrar.URL {
-						t.Errorf("Expected registrar URL '%s', got '%s'", tc.expected.Registrar.URL, result.Registrar.URL)
-					}
-				}
-			}
-			if result.Dnssec != tc.expected.Dnssec {
-				t.Errorf("Expected DNSSEC '%s', got '%s'", tc.expected.Dnssec, result.Dnssec)
-			}
-			if len(result.NameServers) != len(tc.expected.NameServers) {
-				t.Errorf("Expected %d nameservers, got %d", len(tc.expected.NameServers), len(result.NameServers))
-			} else {
-				for i, ns := range tc.expected.NameServers {
-					if result.NameServers[i] != ns {
-						t.Errorf("Expected nameserver '%s', got '%s'", ns, result.NameServers[i])
-					}
-				}
-			}
-			if len(result.Statuses) != len(tc.expected.Statuses) {
-				t.Errorf("Expected %d statuses, got %d", len(tc.expected.Statuses), len(result.Statuses))
-			} else {
-				for i, status := range tc.expected.Statuses {
-					if result.Statuses[i] != status {
-						t.Errorf("Expected status '%s', got '%s'", status, result.Statuses[i])
-					}
-				}
-			}
+			assertROParsedWhois(t, result, tc.expected)
 		})
 	}
 }
@@ -112,9 +71,70 @@ func TestROTLDParser_ParseUnregistered(t *testing.T) {
 				t.Fatalf("Failed to parse whois data: %v", err)
 			}
 
-			if len(result.Statuses) != 1 || result.Statuses[0] != "free" {
-				t.Errorf("Expected status 'free', got %v", result.Statuses)
-			}
+			assertROUnregisteredDomain(t, result)
 		})
+	}
+}
+
+func assertROParsedWhois(t *testing.T, result, expected *ParsedWhois) {
+	if result.DomainName != expected.DomainName {
+		t.Errorf("Expected domain name '%s', got '%s'", expected.DomainName, result.DomainName)
+	}
+	if result.CreatedDateRaw != expected.CreatedDateRaw {
+		t.Errorf("Expected created date '%s', got '%s'", expected.CreatedDateRaw, result.CreatedDateRaw)
+	}
+	if result.ExpiredDateRaw != expected.ExpiredDateRaw {
+		t.Errorf("Expected expired date '%s', got '%s'", expected.ExpiredDateRaw, result.ExpiredDateRaw)
+	}
+	assertRORegistrar(t, result.Registrar, expected.Registrar)
+	if result.Dnssec != expected.Dnssec {
+		t.Errorf("Expected DNSSEC '%s', got '%s'", expected.Dnssec, result.Dnssec)
+	}
+	assertRONameservers(t, result.NameServers, expected.NameServers)
+	assertROStatuses(t, result.Statuses, expected.Statuses)
+}
+
+func assertRORegistrar(t *testing.T, actual, expected *Registrar) {
+	if expected != nil {
+		if actual == nil {
+			t.Error("Expected registrar, got nil")
+		} else {
+			if expected.Name != actual.Name {
+				t.Errorf("Expected registrar name '%s', got '%s'", expected.Name, actual.Name)
+			}
+			if expected.URL != actual.URL {
+				t.Errorf("Expected registrar URL '%s', got '%s'", expected.URL, actual.URL)
+			}
+		}
+	}
+}
+
+func assertRONameservers(t *testing.T, actual, expected []string) {
+	if len(actual) != len(expected) {
+		t.Errorf("Expected %d nameservers, got %d", len(expected), len(actual))
+		return
+	}
+	for i, ns := range expected {
+		if actual[i] != ns {
+			t.Errorf("Expected nameserver '%s', got '%s'", ns, actual[i])
+		}
+	}
+}
+
+func assertROStatuses(t *testing.T, actual, expected []string) {
+	if len(actual) != len(expected) {
+		t.Errorf("Expected %d statuses, got %d", len(expected), len(actual))
+		return
+	}
+	for i, status := range expected {
+		if actual[i] != status {
+			t.Errorf("Expected status '%s', got '%s'", status, actual[i])
+		}
+	}
+}
+
+func assertROUnregisteredDomain(t *testing.T, result *ParsedWhois) {
+	if len(result.Statuses) != 1 || result.Statuses[0] != "free" {
+		t.Errorf("Expected status 'free', got %v", result.Statuses)
 	}
 }

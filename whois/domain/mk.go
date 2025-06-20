@@ -32,11 +32,23 @@ func (mkw *MKTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	var domainFields = make(map[string]string)
 
 	// First pass: collect top-level fields from the first non-comment, non-blank line until the next blank line
+	mkw.processDomainFields(lines, domainFields)
+
+	// Second pass: process sections
+	mkw.processSections(lines, contactMap, nssetMap)
+
+	// Assign domain fields
+	mkw.assignDomainFields(domainFields, contactMap, nssetMap, parsedWhois)
+
+	return parsedWhois, nil
+}
+
+func (mkw *MKTLDParser) processDomainFields(lines []string, domainFields map[string]string) {
 	inDomainBlock := false
 	for i := 0; i < len(lines); i++ {
 		line := strings.TrimSpace(lines[i])
 		if !inDomainBlock {
-			if line == "" || strings.HasPrefix(line, "%") {
+			if mkw.skipLine(line) {
 				continue
 			}
 			inDomainBlock = true
@@ -58,13 +70,18 @@ func (mkw *MKTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 			domainFields[key] = val
 		}
 	}
+}
 
-	// Second pass: process sections
+func (mkw *MKTLDParser) skipLine(line string) bool {
+	return line == "" || strings.HasPrefix(line, "%")
+}
+
+func (mkw *MKTLDParser) processSections(lines []string, contactMap map[string]*Contact, nssetMap map[string][]string) {
 	var currentSection string
 	var currentHandle string
 	for i := 0; i < len(lines); i++ {
 		line := strings.TrimSpace(lines[i])
-		if line == "" || strings.HasPrefix(line, "%") {
+		if mkw.skipLine(line) {
 			continue
 		}
 		if !strings.Contains(line, ":") {
@@ -76,41 +93,62 @@ func (mkw *MKTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 		}
 		key := strings.TrimSpace(parts[0])
 		val := strings.TrimSpace(parts[1])
-		if key == "contact" {
-			currentSection = "contact"
-			currentHandle = strings.TrimSpace(val)
-			contactMap[currentHandle] = &Contact{}
-			continue
-		} else if key == "nsset" {
-			currentSection = "nsset"
-			currentHandle = strings.TrimSpace(val)
-			nssetMap[currentHandle] = []string{}
+		if mkw.handleSectionChange(key, val, &currentSection, &currentHandle, contactMap, nssetMap) {
 			continue
 		}
-		if currentSection == "contact" {
-			c := contactMap[currentHandle]
-			switch key {
-			case "org":
-				c.Organization = val
-			case "name":
-				c.Name = val
-			case "address":
-				c.Street = append(c.Street, val)
-			case "phone":
-				c.Phone = val
-			case "fax-no":
-				c.Fax = val
-			case "e-mail":
-				c.Email = val
-			}
-		} else if currentSection == "nsset" {
-			if key == "nserver" {
-				nssetMap[currentHandle] = append(nssetMap[currentHandle], val)
-			}
-		}
+		mkw.parseSectionFields(key, val, currentSection, currentHandle, contactMap, nssetMap)
 	}
+}
 
-	// Assign domain fields
+func (mkw *MKTLDParser) handleSectionChange(key, val string, currentSection, currentHandle *string, contactMap map[string]*Contact, nssetMap map[string][]string) bool {
+	switch key {
+	case "contact":
+		*currentSection = "contact"
+		*currentHandle = strings.TrimSpace(val)
+		contactMap[*currentHandle] = &Contact{}
+		return true
+	case "nsset":
+		*currentSection = "nsset"
+		*currentHandle = strings.TrimSpace(val)
+		nssetMap[*currentHandle] = []string{}
+		return true
+	}
+	return false
+}
+
+func (mkw *MKTLDParser) parseSectionFields(key, val, currentSection, currentHandle string, contactMap map[string]*Contact, nssetMap map[string][]string) {
+	switch currentSection {
+	case "contact":
+		mkw.parseContactField(key, val, contactMap[currentHandle])
+	case "nsset":
+		mkw.parseNameserverField(key, val, currentHandle, nssetMap)
+	}
+}
+
+func (mkw *MKTLDParser) parseContactField(key, val string, c *Contact) {
+	switch key {
+	case "org":
+		c.Organization = val
+	case "name":
+		c.Name = val
+	case "address":
+		c.Street = append(c.Street, val)
+	case "phone":
+		c.Phone = val
+	case "fax-no":
+		c.Fax = val
+	case "e-mail":
+		c.Email = val
+	}
+}
+
+func (mkw *MKTLDParser) parseNameserverField(key, val, currentHandle string, nssetMap map[string][]string) {
+	if key == "nserver" {
+		nssetMap[currentHandle] = append(nssetMap[currentHandle], val)
+	}
+}
+
+func (mkw *MKTLDParser) assignDomainFields(domainFields map[string]string, contactMap map[string]*Contact, nssetMap map[string][]string, parsedWhois *ParsedWhois) {
 	if v, ok := domainFields["domain"]; ok {
 		parsedWhois.DomainName = v
 	}
@@ -129,7 +167,11 @@ func (mkw *MKTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	if v, ok := domainFields["expire"]; ok {
 		parsedWhois.ExpiredDateRaw = v
 	}
-	// Assign contacts
+	mkw.assignContacts(domainFields, contactMap, parsedWhois)
+	mkw.assignNameservers(domainFields, nssetMap, parsedWhois)
+}
+
+func (mkw *MKTLDParser) assignContacts(domainFields map[string]string, contactMap map[string]*Contact, parsedWhois *ParsedWhois) {
 	if v, ok := domainFields["registrant"]; ok {
 		if parsedWhois.Contacts == nil {
 			parsedWhois.Contacts = &Contacts{}
@@ -146,15 +188,15 @@ func (mkw *MKTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 			parsedWhois.Contacts.Admin = c
 		}
 	}
-	// Assign nameservers
+}
+
+func (mkw *MKTLDParser) assignNameservers(domainFields map[string]string, nssetMap map[string][]string, parsedWhois *ParsedWhois) {
 	if v, ok := domainFields["nsset"]; ok {
 		v = strings.TrimSpace(v)
 		if nsservers, ok := nssetMap[v]; ok {
 			parsedWhois.NameServers = nsservers
 		}
 	}
-
-	return parsedWhois, nil
 }
 
 func getMKValue(line string) string {

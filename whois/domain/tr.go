@@ -128,29 +128,7 @@ func (p *TRTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 		if line == "" {
 			continue
 		}
-		if strings.HasPrefix(line, "** Domain Name:") {
-			parsed.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "** Domain Name:"))
-			continue
-		}
-		if strings.HasPrefix(line, "Domain Status:") {
-			status := strings.TrimSpace(strings.TrimPrefix(line, "Domain Status:"))
-			if status != "" {
-				parsed.Statuses = append(parsed.Statuses, status)
-			}
-			continue
-		}
-		if strings.HasPrefix(line, "Frozen Status:") {
-			frozen := strings.TrimSpace(strings.TrimPrefix(line, "Frozen Status:"))
-			if frozen != "-" && frozen != "" {
-				parsed.Statuses = append(parsed.Statuses, "Frozen: "+frozen)
-			}
-			continue
-		}
-		if strings.HasPrefix(line, "Transfer Status:") {
-			transfer := strings.TrimSpace(strings.TrimPrefix(line, "Transfer Status:"))
-			if transfer != "" {
-				parsed.Statuses = append(parsed.Statuses, "Transfer: "+transfer)
-			}
+		if p.parseTopLevelFields(line, parsed) {
 			continue
 		}
 		if p.handleSection(line, &section) {
@@ -182,4 +160,31 @@ func (p *TRTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	parsed.ExpiredDate, _ = utils.GuessTimeFmtAndConvert(parsed.ExpiredDateRaw, WhoisTimeFmt)
 
 	return parsed, nil
+}
+
+func (p *TRTLDParser) parseTopLevelFields(line string, parsed *ParsedWhois) bool {
+	switch {
+	case strings.HasPrefix(line, "** Domain Name:"):
+		parsed.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "** Domain Name:"))
+		return true
+	case strings.HasPrefix(line, "Domain Status:"):
+		status := strings.TrimSpace(strings.TrimPrefix(line, "Domain Status:"))
+		if status != "" {
+			parsed.Statuses = append(parsed.Statuses, status)
+		}
+		return true
+	case strings.HasPrefix(line, "Frozen Status:"):
+		frozen := strings.TrimSpace(strings.TrimPrefix(line, "Frozen Status:"))
+		if frozen != "-" && frozen != "" {
+			parsed.Statuses = append(parsed.Statuses, "Frozen: "+frozen)
+		}
+		return true
+	case strings.HasPrefix(line, "Transfer Status:"):
+		transfer := strings.TrimSpace(strings.TrimPrefix(line, "Transfer Status:"))
+		if transfer != "" {
+			parsed.Statuses = append(parsed.Statuses, "Transfer: "+transfer)
+		}
+		return true
+	}
+	return false
 }

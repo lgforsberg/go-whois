@@ -38,55 +38,86 @@ func (p *TZTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	}
 
 	lines := strings.Split(rawtext, "\n")
-	var (
-		domain, registrant, registrar, nsset, adminC string
-		created, expire                              string
-		contactSections                              = map[string][]string{}
-		nssetSections                                = map[string][]string{}
-	)
 
-	// First pass: collect main fields and section start indices
+	mainFields := p.parseMainFields(lines)
+	contactSections := p.collectContactSections(lines)
+	nssetSections := p.collectNssetSections(lines)
+
+	parsed.DomainName = mainFields.domain
+	parsed.CreatedDateRaw = mainFields.created
+	parsed.ExpiredDateRaw = mainFields.expire
+	parsed.Registrar.Name = mainFields.registrar
+
+	// Parse contacts
+	if mainFields.registrant != "" {
+		parsed.Contacts.Registrant = parseTZContact(contactSections[mainFields.registrant])
+	}
+	if mainFields.adminC != "" {
+		parsed.Contacts.Admin = parseTZContact(contactSections[mainFields.adminC])
+	}
+
+	// Parse nameservers from nsset
+	if mainFields.nsset != "" {
+		parsed.NameServers = parseTZNameServers(nssetSections[mainFields.nsset])
+	}
+
+	// Add date format conversion
+	parsed.CreatedDate, _ = utils.GuessTimeFmtAndConvert(parsed.CreatedDateRaw, WhoisTimeFmt)
+	parsed.ExpiredDate, _ = utils.GuessTimeFmtAndConvert(parsed.ExpiredDateRaw, WhoisTimeFmt)
+
+	return parsed, nil
+}
+
+type tzMainFields struct {
+	domain, registrant, registrar, nsset, adminC string
+	created, expire                              string
+}
+
+func (p *TZTLDParser) parseMainFields(lines []string) tzMainFields {
+	var fields tzMainFields
 	for i := 0; i < len(lines); i++ {
 		line := strings.TrimSpace(lines[i])
 		if line == "" || strings.HasPrefix(line, "%") {
 			continue
 		}
 		if strings.HasPrefix(line, "domain:") {
-			domain = strings.TrimSpace(strings.TrimPrefix(line, "domain:"))
+			fields.domain = strings.TrimSpace(strings.TrimPrefix(line, "domain:"))
 			continue
 		}
 		if strings.HasPrefix(line, "registrant:") {
-			registrant = strings.TrimSpace(strings.TrimPrefix(line, "registrant:"))
+			fields.registrant = strings.TrimSpace(strings.TrimPrefix(line, "registrant:"))
 			continue
 		}
 		if strings.HasPrefix(line, "admin-c:") {
-			if adminC == "" {
-				adminC = strings.TrimSpace(strings.TrimPrefix(line, "admin-c:"))
-			} // Only first admin-c for now
+			if fields.adminC == "" {
+				fields.adminC = strings.TrimSpace(strings.TrimPrefix(line, "admin-c:"))
+			}
 			continue
 		}
-		if strings.HasPrefix(line, "nsset:") && domain != "" {
-			// Only set nsset from the main record (before any contact/nsset sections)
-			if nsset == "" {
-				nsset = strings.TrimSpace(strings.TrimPrefix(line, "nsset:"))
+		if strings.HasPrefix(line, "nsset:") && fields.domain != "" {
+			if fields.nsset == "" {
+				fields.nsset = strings.TrimSpace(strings.TrimPrefix(line, "nsset:"))
 			}
 			continue
 		}
 		if strings.HasPrefix(line, "registrar:") {
-			registrar = strings.TrimSpace(strings.TrimPrefix(line, "registrar:"))
+			fields.registrar = strings.TrimSpace(strings.TrimPrefix(line, "registrar:"))
 			continue
 		}
 		if strings.HasPrefix(line, "registered:") {
-			created = strings.TrimSpace(strings.TrimPrefix(line, "registered:"))
+			fields.created = strings.TrimSpace(strings.TrimPrefix(line, "registered:"))
 			continue
 		}
 		if strings.HasPrefix(line, "expire:") {
-			expire = strings.TrimSpace(strings.TrimPrefix(line, "expire:"))
+			fields.expire = strings.TrimSpace(strings.TrimPrefix(line, "expire:"))
 			continue
 		}
 	}
+	return fields
+}
 
-	// Second pass: collect contact and nsset sections
+func (p *TZTLDParser) collectContactSections(lines []string) map[string][]string {
+	contactSections := map[string][]string{}
 	for i := 0; i < len(lines); i++ {
 		line := strings.TrimSpace(lines[i])
 		if line == "" || strings.HasPrefix(line, "%") {
@@ -104,6 +135,16 @@ func (p *TZTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 				section = append(section, l)
 			}
 			contactSections[id] = section
+		}
+	}
+	return contactSections
+}
+
+func (p *TZTLDParser) collectNssetSections(lines []string) map[string][]string {
+	nssetSections := map[string][]string{}
+	for i := 0; i < len(lines); i++ {
+		line := strings.TrimSpace(lines[i])
+		if line == "" || strings.HasPrefix(line, "%") {
 			continue
 		}
 		if strings.HasPrefix(line, "nsset:") {
@@ -118,33 +159,9 @@ func (p *TZTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 				section = append(section, l)
 			}
 			nssetSections[id] = section
-			continue
 		}
 	}
-
-	parsed.DomainName = domain
-	parsed.CreatedDateRaw = created
-	parsed.ExpiredDateRaw = expire
-	parsed.Registrar.Name = registrar
-
-	// Parse contacts
-	if registrant != "" {
-		parsed.Contacts.Registrant = parseTZContact(contactSections[registrant])
-	}
-	if adminC != "" {
-		parsed.Contacts.Admin = parseTZContact(contactSections[adminC])
-	}
-
-	// Parse nameservers from nsset
-	if nsset != "" {
-		parsed.NameServers = parseTZNameServers(nssetSections[nsset])
-	}
-
-	// Add date format conversion
-	parsed.CreatedDate, _ = utils.GuessTimeFmtAndConvert(parsed.CreatedDateRaw, WhoisTimeFmt)
-	parsed.ExpiredDate, _ = utils.GuessTimeFmtAndConvert(parsed.ExpiredDateRaw, WhoisTimeFmt)
-
-	return parsed, nil
+	return nssetSections
 }
 
 func parseTZContact(lines []string) *Contact {

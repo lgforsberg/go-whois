@@ -43,116 +43,16 @@ func (p *SNTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 
 	for i := 0; i < len(lines); i++ {
 		line := strings.TrimSpace(lines[i])
-		if line == "" || strings.HasPrefix(line, "=") || strings.HasPrefix(line, ">>>") {
+		if p.skipLine(line) {
 			continue
 		}
-		if strings.HasPrefix(line, "Nom de domaine:") {
-			parsed.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "Nom de domaine:"))
+		if p.parseDomainFields(line, parsed) {
 			continue
 		}
-		if strings.HasPrefix(line, "Date de création:") {
-			parsed.CreatedDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Date de création:"))
+		if p.handleSectionChange(line, &section) {
 			continue
 		}
-		if strings.HasPrefix(line, "Dernière modification:") {
-			parsed.UpdatedDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Dernière modification:"))
-			continue
-		}
-		if strings.HasPrefix(line, "Date d'expiration:") {
-			parsed.ExpiredDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Date d'expiration:"))
-			continue
-		}
-		if strings.HasPrefix(line, "Registrar:") {
-			parsed.Registrar.Name = strings.TrimSpace(strings.TrimPrefix(line, "Registrar:"))
-			continue
-		}
-		if strings.HasPrefix(line, "Statut:") {
-			status := strings.TrimSpace(strings.TrimPrefix(line, "Statut:"))
-			if status != "" {
-				parsed.Statuses = append(parsed.Statuses, status)
-			}
-			continue
-		}
-		if strings.HasPrefix(line, "Serveur de noms:") {
-			ns := strings.TrimSpace(strings.TrimPrefix(line, "Serveur de noms:"))
-			if ns != "" {
-				parsed.NameServers = append(parsed.NameServers, ns)
-			}
-			continue
-		}
-		if strings.HasPrefix(line, "DNSSEC:") {
-			parsed.Dnssec = strings.TrimSpace(strings.TrimPrefix(line, "DNSSEC:"))
-			continue
-		}
-		if line == "[BILLING_C]" {
-			section = "billing"
-			continue
-		}
-		if line == "[TECH_C]" {
-			section = "tech"
-			continue
-		}
-		if line == "[HOLDER]" {
-			section = "holder"
-			continue
-		}
-		if line == "[ADMIN_C]" {
-			section = "admin"
-			continue
-		}
-
-		// Parse contact sections
-		var c *Contact
-		if section == "billing" {
-			c = &billing
-		} else if section == "tech" {
-			c = &tech
-		} else if section == "holder" {
-			c = &holder
-		} else if section == "admin" {
-			c = &admin
-		} else {
-			continue
-		}
-
-		if strings.HasPrefix(line, "ID Contact:") {
-			c.ID = strings.TrimSpace(strings.TrimPrefix(line, "ID Contact:"))
-			continue
-		}
-		if strings.HasPrefix(line, "Nom:") {
-			c.Name = strings.TrimSpace(strings.TrimPrefix(line, "Nom:"))
-			continue
-		}
-		if strings.HasPrefix(line, "Adresse:") {
-			c.Street = append(c.Street, strings.TrimSpace(strings.TrimPrefix(line, "Adresse:")))
-			continue
-		}
-		if strings.HasPrefix(line, "Code postal:") {
-			c.Postal = strings.TrimSpace(strings.TrimPrefix(line, "Code postal:"))
-			continue
-		}
-		if strings.HasPrefix(line, "Ville:") {
-			c.City = strings.TrimSpace(strings.TrimPrefix(line, "Ville:"))
-			continue
-		}
-		if strings.HasPrefix(line, "Pays:") {
-			c.Country = strings.TrimSpace(strings.TrimPrefix(line, "Pays:"))
-			continue
-		}
-		if strings.HasPrefix(line, "Téléphone:") {
-			c.Phone = strings.TrimSpace(strings.TrimPrefix(line, "Téléphone:"))
-			continue
-		}
-		if strings.HasPrefix(line, "Fax:") {
-			c.Fax = strings.TrimSpace(strings.TrimPrefix(line, "Fax:"))
-			continue
-		}
-		if strings.HasPrefix(line, "Courriel:") {
-			c.Email = strings.TrimSpace(strings.TrimPrefix(line, "Courriel:"))
-			continue
-		}
-		if strings.HasPrefix(line, "Type:") {
-			c.Organization = strings.TrimSpace(strings.TrimPrefix(line, "Type:"))
+		if p.parseContactFields(line, section, &billing, &tech, &holder, &admin) {
 			continue
 		}
 	}
@@ -176,4 +76,116 @@ func (p *SNTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	parsed.ExpiredDate, _ = utils.GuessTimeFmtAndConvert(parsed.ExpiredDateRaw, WhoisTimeFmt)
 
 	return parsed, nil
+}
+
+func (p *SNTLDParser) skipLine(line string) bool {
+	return line == "" || strings.HasPrefix(line, "=") || strings.HasPrefix(line, ">>>")
+}
+
+func (p *SNTLDParser) parseDomainFields(line string, parsed *ParsedWhois) bool {
+	switch {
+	case strings.HasPrefix(line, "Nom de domaine:"):
+		parsed.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "Nom de domaine:"))
+		return true
+	case strings.HasPrefix(line, "Date de création:"):
+		parsed.CreatedDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Date de création:"))
+		return true
+	case strings.HasPrefix(line, "Dernière modification:"):
+		parsed.UpdatedDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Dernière modification:"))
+		return true
+	case strings.HasPrefix(line, "Date d'expiration:"):
+		parsed.ExpiredDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Date d'expiration:"))
+		return true
+	case strings.HasPrefix(line, "Registrar:"):
+		parsed.Registrar.Name = strings.TrimSpace(strings.TrimPrefix(line, "Registrar:"))
+		return true
+	case strings.HasPrefix(line, "Statut:"):
+		status := strings.TrimSpace(strings.TrimPrefix(line, "Statut:"))
+		if status != "" {
+			parsed.Statuses = append(parsed.Statuses, status)
+		}
+		return true
+	case strings.HasPrefix(line, "Serveur de noms:"):
+		ns := strings.TrimSpace(strings.TrimPrefix(line, "Serveur de noms:"))
+		if ns != "" {
+			parsed.NameServers = append(parsed.NameServers, ns)
+		}
+		return true
+	case strings.HasPrefix(line, "DNSSEC:"):
+		parsed.Dnssec = strings.TrimSpace(strings.TrimPrefix(line, "DNSSEC:"))
+		return true
+	}
+	return false
+}
+
+func (p *SNTLDParser) handleSectionChange(line string, section *string) bool {
+	switch line {
+	case "[BILLING_C]":
+		*section = "billing"
+		return true
+	case "[TECH_C]":
+		*section = "tech"
+		return true
+	case "[HOLDER]":
+		*section = "holder"
+		return true
+	case "[ADMIN_C]":
+		*section = "admin"
+		return true
+	}
+	return false
+}
+
+func (p *SNTLDParser) parseContactFields(line, section string, billing, tech, holder, admin *Contact) bool {
+	var c *Contact
+	switch section {
+	case "billing":
+		c = billing
+	case "tech":
+		c = tech
+	case "holder":
+		c = holder
+	case "admin":
+		c = admin
+	default:
+		return false
+	}
+
+	return p.assignContactField(line, c)
+}
+
+func (p *SNTLDParser) assignContactField(line string, c *Contact) bool {
+	switch {
+	case strings.HasPrefix(line, "ID Contact:"):
+		c.ID = strings.TrimSpace(strings.TrimPrefix(line, "ID Contact:"))
+		return true
+	case strings.HasPrefix(line, "Nom:"):
+		c.Name = strings.TrimSpace(strings.TrimPrefix(line, "Nom:"))
+		return true
+	case strings.HasPrefix(line, "Adresse:"):
+		c.Street = append(c.Street, strings.TrimSpace(strings.TrimPrefix(line, "Adresse:")))
+		return true
+	case strings.HasPrefix(line, "Code postal:"):
+		c.Postal = strings.TrimSpace(strings.TrimPrefix(line, "Code postal:"))
+		return true
+	case strings.HasPrefix(line, "Ville:"):
+		c.City = strings.TrimSpace(strings.TrimPrefix(line, "Ville:"))
+		return true
+	case strings.HasPrefix(line, "Pays:"):
+		c.Country = strings.TrimSpace(strings.TrimPrefix(line, "Pays:"))
+		return true
+	case strings.HasPrefix(line, "Téléphone:"):
+		c.Phone = strings.TrimSpace(strings.TrimPrefix(line, "Téléphone:"))
+		return true
+	case strings.HasPrefix(line, "Fax:"):
+		c.Fax = strings.TrimSpace(strings.TrimPrefix(line, "Fax:"))
+		return true
+	case strings.HasPrefix(line, "Courriel:"):
+		c.Email = strings.TrimSpace(strings.TrimPrefix(line, "Courriel:"))
+		return true
+	case strings.HasPrefix(line, "Type:"):
+		c.Organization = strings.TrimSpace(strings.TrimPrefix(line, "Type:"))
+		return true
+	}
+	return false
 }

@@ -4,10 +4,7 @@ import (
 	"testing"
 )
 
-func TestMKTLDParser_Parse(t *testing.T) {
-	parser := NewMKTLDParser()
-
-	rawtext := `% Domain Information over Whois protocol
+const mkTestRawtext = `% Domain Information over Whois protocol
 % 
 % Whoisd Server Version: 3.9.0
 % Timestamp: Thu Jun 19 02:21:43 2025
@@ -56,11 +53,12 @@ created:      17.04.2014 12:50:22
 changed:      17.04.2014 21:02:14
 `
 
-	parsedWhois, err := parser.GetParsedWhois(rawtext)
+func TestMKTLDParser_Parse_DomainFields(t *testing.T) {
+	parser := NewMKTLDParser()
+	parsedWhois, err := parser.GetParsedWhois(mkTestRawtext)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
-
 	if parsedWhois.DomainName != "google.mk" {
 		t.Errorf("Expected domain name 'google.mk', got '%s'", parsedWhois.DomainName)
 	}
@@ -73,6 +71,14 @@ changed:      17.04.2014 21:02:14
 	if parsedWhois.ExpiredDateRaw != "13.05.2026" {
 		t.Errorf("Expected expired date '13.05.2026', got '%s'", parsedWhois.ExpiredDateRaw)
 	}
+}
+
+func TestMKTLDParser_Parse_Contacts(t *testing.T) {
+	parser := NewMKTLDParser()
+	parsedWhois, err := parser.GetParsedWhois(mkTestRawtext)
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
 	if parsedWhois.Contacts == nil || parsedWhois.Contacts.Registrant == nil {
 		t.Fatal("Expected registrant contact to be parsed")
 	}
@@ -84,6 +90,14 @@ changed:      17.04.2014 21:02:14
 	}
 	if parsedWhois.Contacts.Registrant.Email != "ccops@markmonitor.com" {
 		t.Errorf("Expected registrant email 'ccops@markmonitor.com', got '%s'", parsedWhois.Contacts.Registrant.Email)
+	}
+}
+
+func TestMKTLDParser_Parse_Nameservers(t *testing.T) {
+	parser := NewMKTLDParser()
+	parsedWhois, err := parser.GetParsedWhois(mkTestRawtext)
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
 	}
 	if len(parsedWhois.NameServers) != 2 {
 		t.Errorf("Expected 2 nameservers, got %d", len(parsedWhois.NameServers))

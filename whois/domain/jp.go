@@ -51,65 +51,20 @@ func (jpw *JPTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 
-		// Parse domain name
-		if strings.HasPrefix(line, "[Domain Name]") {
-			domainStr := strings.TrimSpace(strings.TrimPrefix(line, "[Domain Name]"))
-			parsedWhois.DomainName = domainStr
+		if jpw.parseDomainName(line, parsedWhois) {
+			continue
 		}
-
-		// Parse registrant name (use Japanese field, fallback to English)
-		if strings.HasPrefix(line, "[登録者名]") {
-			registrantStr := strings.TrimSpace(strings.TrimPrefix(line, "[登録者名]"))
-			if parsedWhois.Contacts == nil {
-				parsedWhois.Contacts = &Contacts{}
-			}
-			if parsedWhois.Contacts.Registrant == nil {
-				parsedWhois.Contacts.Registrant = &Contact{}
-			}
-			parsedWhois.Contacts.Registrant.Name = registrantStr
-		} else if strings.HasPrefix(line, "[Registrant]") && (parsedWhois.Contacts == nil || parsedWhois.Contacts.Registrant == nil || parsedWhois.Contacts.Registrant.Name == "") {
-			registrantStr := strings.TrimSpace(strings.TrimPrefix(line, "[Registrant]"))
-			if parsedWhois.Contacts == nil {
-				parsedWhois.Contacts = &Contacts{}
-			}
-			if parsedWhois.Contacts.Registrant == nil {
-				parsedWhois.Contacts.Registrant = &Contact{}
-			}
-			parsedWhois.Contacts.Registrant.Name = registrantStr
+		if jpw.parseRegistrant(line, parsedWhois) {
+			continue
 		}
-
-		// Parse name servers
-		if strings.HasPrefix(line, "[Name Server]") {
-			nsLine := strings.TrimSpace(strings.TrimPrefix(line, "[Name Server]"))
-			if nsLine != "" {
-				parsedWhois.NameServers = append(parsedWhois.NameServers, nsLine)
-			}
+		if jpw.parseNameServers(line, parsedWhois) {
+			continue
 		}
-
-		// Parse dates
-		if strings.HasPrefix(line, "[登録年月日]") {
-			dateStr := strings.TrimSpace(strings.TrimPrefix(line, "[登録年月日]"))
-			parsedWhois.CreatedDateRaw = dateStr
-			parsedWhois.CreatedDate, _ = utils.ConvTimeFmt(dateStr, jpTimeFmt, WhoisTimeFmt)
-		} else if strings.HasPrefix(line, "[有効期限]") {
-			dateStr := strings.TrimSpace(strings.TrimPrefix(line, "[有効期限]"))
-			parsedWhois.ExpiredDateRaw = dateStr
-			parsedWhois.ExpiredDate, _ = utils.ConvTimeFmt(dateStr, jpTimeFmt, WhoisTimeFmt)
-		} else if strings.HasPrefix(line, "[最終更新]") {
-			dateStr := strings.TrimSpace(strings.TrimPrefix(line, "[最終更新]"))
-			parsedWhois.UpdatedDateRaw = dateStr
-			// Convert JST to UTC for the parsed date
-			if t, err := time.Parse(jpUpdatedFmt, dateStr); err == nil {
-				// JST is UTC+9, so subtract 9 hours to get UTC
-				utcTime := t.Add(-9 * time.Hour)
-				parsedWhois.UpdatedDate = utcTime.Format(WhoisTimeFmt)
-			}
+		if jpw.parseDates(line, parsedWhois) {
+			continue
 		}
-
-		// Parse status
-		if strings.HasPrefix(line, "[状態]") {
-			statusStr := strings.TrimSpace(strings.TrimPrefix(line, "[状態]"))
-			parsedWhois.Statuses = []string{statusStr}
+		if jpw.parseStatus(line, parsedWhois) {
+			continue
 		}
 	}
 
@@ -119,4 +74,84 @@ func (jpw *JPTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	}
 
 	return parsedWhois, nil
+}
+
+func (jpw *JPTLDParser) parseDomainName(line string, parsedWhois *ParsedWhois) bool {
+	if strings.HasPrefix(line, "[Domain Name]") {
+		domainStr := strings.TrimSpace(strings.TrimPrefix(line, "[Domain Name]"))
+		parsedWhois.DomainName = domainStr
+		return true
+	}
+	return false
+}
+
+func (jpw *JPTLDParser) parseRegistrant(line string, parsedWhois *ParsedWhois) bool {
+	switch {
+	case strings.HasPrefix(line, "[登録者名]"):
+		registrantStr := strings.TrimSpace(strings.TrimPrefix(line, "[登録者名]"))
+		jpw.ensureRegistrant(parsedWhois)
+		parsedWhois.Contacts.Registrant.Name = registrantStr
+		return true
+	case strings.HasPrefix(line, "[Registrant]") && (parsedWhois.Contacts == nil || parsedWhois.Contacts.Registrant == nil || parsedWhois.Contacts.Registrant.Name == ""):
+		registrantStr := strings.TrimSpace(strings.TrimPrefix(line, "[Registrant]"))
+		jpw.ensureRegistrant(parsedWhois)
+		parsedWhois.Contacts.Registrant.Name = registrantStr
+		return true
+	}
+	return false
+}
+
+func (jpw *JPTLDParser) ensureRegistrant(parsedWhois *ParsedWhois) {
+	if parsedWhois.Contacts == nil {
+		parsedWhois.Contacts = &Contacts{}
+	}
+	if parsedWhois.Contacts.Registrant == nil {
+		parsedWhois.Contacts.Registrant = &Contact{}
+	}
+}
+
+func (jpw *JPTLDParser) parseNameServers(line string, parsedWhois *ParsedWhois) bool {
+	if strings.HasPrefix(line, "[Name Server]") {
+		nsLine := strings.TrimSpace(strings.TrimPrefix(line, "[Name Server]"))
+		if nsLine != "" {
+			parsedWhois.NameServers = append(parsedWhois.NameServers, nsLine)
+		}
+		return true
+	}
+	return false
+}
+
+func (jpw *JPTLDParser) parseDates(line string, parsedWhois *ParsedWhois) bool {
+	switch {
+	case strings.HasPrefix(line, "[登録年月日]"):
+		dateStr := strings.TrimSpace(strings.TrimPrefix(line, "[登録年月日]"))
+		parsedWhois.CreatedDateRaw = dateStr
+		parsedWhois.CreatedDate, _ = utils.ConvTimeFmt(dateStr, jpTimeFmt, WhoisTimeFmt)
+		return true
+	case strings.HasPrefix(line, "[有効期限]"):
+		dateStr := strings.TrimSpace(strings.TrimPrefix(line, "[有効期限]"))
+		parsedWhois.ExpiredDateRaw = dateStr
+		parsedWhois.ExpiredDate, _ = utils.ConvTimeFmt(dateStr, jpTimeFmt, WhoisTimeFmt)
+		return true
+	case strings.HasPrefix(line, "[最終更新]"):
+		dateStr := strings.TrimSpace(strings.TrimPrefix(line, "[最終更新]"))
+		parsedWhois.UpdatedDateRaw = dateStr
+		// Convert JST to UTC for the parsed date
+		if t, err := time.Parse(jpUpdatedFmt, dateStr); err == nil {
+			// JST is UTC+9, so subtract 9 hours to get UTC
+			utcTime := t.Add(-9 * time.Hour)
+			parsedWhois.UpdatedDate = utcTime.Format(WhoisTimeFmt)
+		}
+		return true
+	}
+	return false
+}
+
+func (jpw *JPTLDParser) parseStatus(line string, parsedWhois *ParsedWhois) bool {
+	if strings.HasPrefix(line, "[状態]") {
+		statusStr := strings.TrimSpace(strings.TrimPrefix(line, "[状態]"))
+		parsedWhois.Statuses = []string{statusStr}
+		return true
+	}
+	return false
 }

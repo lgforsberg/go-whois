@@ -34,139 +34,117 @@ func (kzw *KZTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 			continue
 		}
 
-		if strings.HasPrefix(line, "Domain Name") {
-			parsedWhois.DomainName = getKZValue(line)
-		} else if line == "Organization Using Domain Name" {
-			section = "organization"
-		} else if line == "Administrative Contact/Agent" {
-			section = "admin"
-			if parsedWhois.Contacts == nil {
-				parsedWhois.Contacts = &Contacts{}
-			}
-			if parsedWhois.Contacts.Admin == nil {
-				parsedWhois.Contacts.Admin = &Contact{}
-			}
-		} else if line == "Nameserver in listed order" {
-			section = "nameservers"
-		} else if strings.HasPrefix(line, "Domain created") {
-			parsedWhois.CreatedDateRaw = getKZValue(line)
-		} else if strings.HasPrefix(line, "Last modified") {
-			parsedWhois.UpdatedDateRaw = getKZValue(line)
-		} else if strings.HasPrefix(line, "Domain status") {
-			status := getKZValue(line)
-			if status != "" {
-				parsedWhois.Statuses = append(parsedWhois.Statuses, status)
-			}
-		} else if strings.HasPrefix(line, "Current Registar") {
-			if parsedWhois.Registrar == nil {
-				parsedWhois.Registrar = &Registrar{}
-			}
-			parsedWhois.Registrar.Name = getKZValue(line)
-		} else {
-			switch section {
-			case "organization":
-				if strings.HasPrefix(line, "Name") {
-					if parsedWhois.Contacts == nil {
-						parsedWhois.Contacts = &Contacts{}
-					}
-					if parsedWhois.Contacts.Registrant == nil {
-						parsedWhois.Contacts.Registrant = &Contact{}
-					}
-					parsedWhois.Contacts.Registrant.Name = getKZValue(line)
-				} else if strings.HasPrefix(line, "Organization Name") {
-					if parsedWhois.Contacts == nil {
-						parsedWhois.Contacts = &Contacts{}
-					}
-					if parsedWhois.Contacts.Registrant == nil {
-						parsedWhois.Contacts.Registrant = &Contact{}
-					}
-					parsedWhois.Contacts.Registrant.Organization = getKZValue(line)
-				} else if strings.HasPrefix(line, "Street Address") {
-					if parsedWhois.Contacts == nil {
-						parsedWhois.Contacts = &Contacts{}
-					}
-					if parsedWhois.Contacts.Registrant == nil {
-						parsedWhois.Contacts.Registrant = &Contact{}
-					}
-					parsedWhois.Contacts.Registrant.Street = []string{getKZValue(line)}
-				} else if strings.HasPrefix(line, "City") {
-					if parsedWhois.Contacts == nil {
-						parsedWhois.Contacts = &Contacts{}
-					}
-					if parsedWhois.Contacts.Registrant == nil {
-						parsedWhois.Contacts.Registrant = &Contact{}
-					}
-					parsedWhois.Contacts.Registrant.City = getKZValue(line)
-				} else if strings.HasPrefix(line, "State") {
-					if parsedWhois.Contacts == nil {
-						parsedWhois.Contacts = &Contacts{}
-					}
-					if parsedWhois.Contacts.Registrant == nil {
-						parsedWhois.Contacts.Registrant = &Contact{}
-					}
-					parsedWhois.Contacts.Registrant.State = getKZValue(line)
-				} else if strings.HasPrefix(line, "Postal Code") {
-					if parsedWhois.Contacts == nil {
-						parsedWhois.Contacts = &Contacts{}
-					}
-					if parsedWhois.Contacts.Registrant == nil {
-						parsedWhois.Contacts.Registrant = &Contact{}
-					}
-					parsedWhois.Contacts.Registrant.Postal = getKZValue(line)
-				} else if strings.HasPrefix(line, "Country") {
-					if parsedWhois.Contacts == nil {
-						parsedWhois.Contacts = &Contacts{}
-					}
-					if parsedWhois.Contacts.Registrant == nil {
-						parsedWhois.Contacts.Registrant = &Contact{}
-					}
-					parsedWhois.Contacts.Registrant.Country = getKZValue(line)
-				}
-			case "admin":
-				if strings.HasPrefix(line, "Name") {
-					if parsedWhois.Contacts == nil {
-						parsedWhois.Contacts = &Contacts{}
-					}
-					if parsedWhois.Contacts.Admin == nil {
-						parsedWhois.Contacts.Admin = &Contact{}
-					}
-					parsedWhois.Contacts.Admin.Name = getKZValue(line)
-				} else if strings.HasPrefix(line, "Phone Number") {
-					if parsedWhois.Contacts == nil {
-						parsedWhois.Contacts = &Contacts{}
-					}
-					if parsedWhois.Contacts.Admin == nil {
-						parsedWhois.Contacts.Admin = &Contact{}
-					}
-					parsedWhois.Contacts.Admin.Phone = getKZValue(line)
-				} else if strings.HasPrefix(line, "Fax Number") {
-					if parsedWhois.Contacts == nil {
-						parsedWhois.Contacts = &Contacts{}
-					}
-					if parsedWhois.Contacts.Admin == nil {
-						parsedWhois.Contacts.Admin = &Contact{}
-					}
-					parsedWhois.Contacts.Admin.Fax = getKZValue(line)
-				} else if strings.HasPrefix(line, "Email Address") {
-					if parsedWhois.Contacts == nil {
-						parsedWhois.Contacts = &Contacts{}
-					}
-					if parsedWhois.Contacts.Admin == nil {
-						parsedWhois.Contacts.Admin = &Contact{}
-					}
-					parsedWhois.Contacts.Admin.Email = getKZValue(line)
-				}
-			case "nameservers":
-				if strings.HasPrefix(line, "Primary server") {
-					parsedWhois.NameServers = append(parsedWhois.NameServers, getKZValue(line))
-				} else if strings.HasPrefix(line, "Secondary server") {
-					parsedWhois.NameServers = append(parsedWhois.NameServers, getKZValue(line))
-				}
-			}
+		if kzw.handleSectionHeaders(line, parsedWhois, &section) {
+			continue
 		}
+
+		kzw.handleSectionContent(line, section, parsedWhois)
 	}
 
 	return parsedWhois, nil
+}
+
+func (kzw *KZTLDParser) handleSectionHeaders(line string, parsedWhois *ParsedWhois, section *string) bool {
+	switch {
+	case strings.HasPrefix(line, "Domain Name"):
+		parsedWhois.DomainName = getKZValue(line)
+		return true
+	case line == "Organization Using Domain Name":
+		*section = "organization"
+		return true
+	case line == "Administrative Contact/Agent":
+		*section = "admin"
+		kzw.ensureContacts(parsedWhois)
+		if parsedWhois.Contacts.Admin == nil {
+			parsedWhois.Contacts.Admin = &Contact{}
+		}
+		return true
+	case line == "Nameserver in listed order":
+		*section = "nameservers"
+		return true
+	case strings.HasPrefix(line, "Domain created"):
+		parsedWhois.CreatedDateRaw = getKZValue(line)
+		return true
+	case strings.HasPrefix(line, "Last modified"):
+		parsedWhois.UpdatedDateRaw = getKZValue(line)
+		return true
+	case strings.HasPrefix(line, "Domain status"):
+		status := getKZValue(line)
+		if status != "" {
+			parsedWhois.Statuses = append(parsedWhois.Statuses, status)
+		}
+		return true
+	case strings.HasPrefix(line, "Current Registar"):
+		if parsedWhois.Registrar == nil {
+			parsedWhois.Registrar = &Registrar{}
+		}
+		parsedWhois.Registrar.Name = getKZValue(line)
+		return true
+	}
+	return false
+}
+
+func (kzw *KZTLDParser) ensureContacts(parsedWhois *ParsedWhois) {
+	if parsedWhois.Contacts == nil {
+		parsedWhois.Contacts = &Contacts{}
+	}
+}
+
+func (kzw *KZTLDParser) handleSectionContent(line, section string, parsedWhois *ParsedWhois) {
+	switch section {
+	case "organization":
+		kzw.handleOrganizationSection(line, parsedWhois)
+	case "admin":
+		kzw.handleAdminSection(line, parsedWhois)
+	case "nameservers":
+		kzw.handleNameserversSection(line, parsedWhois)
+	}
+}
+
+func (kzw *KZTLDParser) handleOrganizationSection(line string, parsedWhois *ParsedWhois) {
+	kzw.ensureContacts(parsedWhois)
+	if parsedWhois.Contacts.Registrant == nil {
+		parsedWhois.Contacts.Registrant = &Contact{}
+	}
+	if strings.HasPrefix(line, "Name") {
+		parsedWhois.Contacts.Registrant.Name = getKZValue(line)
+	} else if strings.HasPrefix(line, "Organization Name") {
+		parsedWhois.Contacts.Registrant.Organization = getKZValue(line)
+	} else if strings.HasPrefix(line, "Street Address") {
+		parsedWhois.Contacts.Registrant.Street = []string{getKZValue(line)}
+	} else if strings.HasPrefix(line, "City") {
+		parsedWhois.Contacts.Registrant.City = getKZValue(line)
+	} else if strings.HasPrefix(line, "State") {
+		parsedWhois.Contacts.Registrant.State = getKZValue(line)
+	} else if strings.HasPrefix(line, "Postal Code") {
+		parsedWhois.Contacts.Registrant.Postal = getKZValue(line)
+	} else if strings.HasPrefix(line, "Country") {
+		parsedWhois.Contacts.Registrant.Country = getKZValue(line)
+	}
+}
+
+func (kzw *KZTLDParser) handleAdminSection(line string, parsedWhois *ParsedWhois) {
+	kzw.ensureContacts(parsedWhois)
+	if parsedWhois.Contacts.Admin == nil {
+		parsedWhois.Contacts.Admin = &Contact{}
+	}
+	if strings.HasPrefix(line, "Name") {
+		parsedWhois.Contacts.Admin.Name = getKZValue(line)
+	} else if strings.HasPrefix(line, "Phone Number") {
+		parsedWhois.Contacts.Admin.Phone = getKZValue(line)
+	} else if strings.HasPrefix(line, "Fax Number") {
+		parsedWhois.Contacts.Admin.Fax = getKZValue(line)
+	} else if strings.HasPrefix(line, "Email Address") {
+		parsedWhois.Contacts.Admin.Email = getKZValue(line)
+	}
+}
+
+func (kzw *KZTLDParser) handleNameserversSection(line string, parsedWhois *ParsedWhois) {
+	if strings.HasPrefix(line, "Primary server") {
+		parsedWhois.NameServers = append(parsedWhois.NameServers, getKZValue(line))
+	} else if strings.HasPrefix(line, "Secondary server") {
+		parsedWhois.NameServers = append(parsedWhois.NameServers, getKZValue(line))
+	}
 }
 
 func getKZValue(line string) string {

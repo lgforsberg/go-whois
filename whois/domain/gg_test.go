@@ -68,12 +68,22 @@ register. Access may be withdrawn or restricted at any time.
 		t.Errorf("Expected no error, got %v", err)
 	}
 
-	if parsedWhois.DomainName != "google.gg" {
-		t.Errorf("Expected domain name to be 'google.gg', got '%s'", parsedWhois.DomainName)
+	assertGGRegisteredDomain(t, parsedWhois)
+
+	// Test unregistered domain (case10)
+	rawtextFree := `NOT FOUND`
+
+	parsedWhoisFree, err := parser.GetParsedWhois(rawtextFree)
+	if err != nil {
+		t.Errorf("Expected no error for free domain, got %v", err)
 	}
 
-	if len(parsedWhois.Statuses) != 4 {
-		t.Errorf("Expected 4 statuses, got %d", len(parsedWhois.Statuses))
+	assertGGUnregisteredDomain(t, parsedWhoisFree)
+}
+
+func assertGGRegisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
+	if parsedWhois.DomainName != "google.gg" {
+		t.Errorf("Expected domain name to be 'google.gg', got '%s'", parsedWhois.DomainName)
 	}
 
 	expectedStatuses := []string{
@@ -82,11 +92,7 @@ register. Access may be withdrawn or restricted at any time.
 		"Update Prohibited by Registrar",
 		"Transfer Prohibited by Registrar",
 	}
-	for i, status := range expectedStatuses {
-		if parsedWhois.Statuses[i] != status {
-			t.Errorf("Expected status %d to be '%s', got '%s'", i, status, parsedWhois.Statuses[i])
-		}
-	}
+	assertStringSliceEqualGG(t, parsedWhois.Statuses, expectedStatuses, "status")
 
 	if parsedWhois.Contacts == nil || parsedWhois.Contacts.Registrant == nil {
 		t.Errorf("Expected registrant contact to be present")
@@ -109,39 +115,36 @@ register. Access may be withdrawn or restricted at any time.
 		t.Errorf("Expected registrar URL to be 'http://www.markmonitor.com', got '%s'", parsedWhois.Registrar.URL)
 	}
 
-	if len(parsedWhois.NameServers) != 4 {
-		t.Errorf("Expected 4 name servers, got %d", len(parsedWhois.NameServers))
-	}
-
 	expectedNS := []string{"ns1.google.com", "ns2.google.com", "ns3.google.com", "ns4.google.com"}
-	for i, ns := range expectedNS {
-		if parsedWhois.NameServers[i] != ns {
-			t.Errorf("Expected name server %d to be '%s', got '%s'", i, ns, parsedWhois.NameServers[i])
-		}
-	}
+	assertStringSliceEqualGG(t, parsedWhois.NameServers, expectedNS, "name server")
 
 	if parsedWhois.CreatedDateRaw != "30th April 2003 at 00:00:00.000" {
 		t.Errorf("Expected created date raw to be '30th April 2003 at 00:00:00.000', got '%s'", parsedWhois.CreatedDateRaw)
 	}
+}
 
-	// Test unregistered domain (case10)
-	rawtextFree := `NOT FOUND`
-
-	parsedWhoisFree, err := parser.GetParsedWhois(rawtextFree)
-	if err != nil {
-		t.Errorf("Expected no error for free domain, got %v", err)
+func assertGGUnregisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
+	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "free" {
+		t.Errorf("Expected status to be 'free', got %v", parsedWhois.Statuses)
 	}
 
-	if len(parsedWhoisFree.Statuses) != 1 || parsedWhoisFree.Statuses[0] != "free" {
-		t.Errorf("Expected status to be 'free', got %v", parsedWhoisFree.Statuses)
+	if len(parsedWhois.NameServers) != 0 {
+		t.Errorf("Expected no name servers for free domain, got %d", len(parsedWhois.NameServers))
 	}
 
-	// Verify that free domains have no nameservers or dates
-	if len(parsedWhoisFree.NameServers) != 0 {
-		t.Errorf("Expected no name servers for free domain, got %d", len(parsedWhoisFree.NameServers))
+	if parsedWhois.CreatedDateRaw != "" {
+		t.Errorf("Expected no created date for free domain, got '%s'", parsedWhois.CreatedDateRaw)
 	}
+}
 
-	if parsedWhoisFree.CreatedDateRaw != "" {
-		t.Errorf("Expected no created date for free domain, got '%s'", parsedWhoisFree.CreatedDateRaw)
+func assertStringSliceEqualGG(t *testing.T, actual, expected []string, label string) {
+	if len(actual) != len(expected) {
+		t.Errorf("Expected %d %s(s), got %d", len(expected), label, len(actual))
+		return
+	}
+	for i, v := range expected {
+		if i < len(actual) && actual[i] != v {
+			t.Errorf("Expected %s %d to be '%s', got '%s'", label, i, v, actual[i])
+		}
 	}
 }

@@ -30,16 +30,26 @@ func (amw *AMTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 		return nil, err
 	}
 
-	var contactFlg string
 	contactsMap := map[string]map[string]interface{}{}
 	lines := strings.Split(rawtext, "\n")
+	amw.parseDNSServers(lines, parsedWhois)
+	amw.parseContacts(lines, contactsMap)
+
+	contacts, err := map2ParsedContacts(contactsMap)
+	if err == nil {
+		parsedWhois.Contacts = contacts
+	}
+	sort.Strings(parsedWhois.NameServers)
+	return parsedWhois, nil
+}
+
+func (amw *AMTLDParser) parseDNSServers(lines []string, parsedWhois *ParsedWhois) {
 	for idx, line := range lines {
 		if IsCommentLine(line) {
 			continue
 		}
 		line = strings.TrimSpace(line)
-		switch keyword := strings.TrimRight(line, ":"); keyword {
-		case "DNS servers":
+		if strings.TrimRight(line, ":") == "DNS servers" {
 			for i := 1; i <= maxNServer; i++ {
 				ns := strings.TrimSpace(lines[idx+i])
 				if len(ns) == 0 {
@@ -47,6 +57,18 @@ func (amw *AMTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 				}
 				parsedWhois.NameServers = append(parsedWhois.NameServers, ns)
 			}
+		}
+	}
+}
+
+func (amw *AMTLDParser) parseContacts(lines []string, contactsMap map[string]map[string]interface{}) {
+	var contactFlg string
+	for idx, line := range lines {
+		if IsCommentLine(line) {
+			continue
+		}
+		line = strings.TrimSpace(line)
+		switch keyword := strings.TrimRight(line, ":"); keyword {
 		case "Registrant":
 			contactFlg = REGISTRANT
 			contactsMap[REGISTRANT] = make(map[string]interface{})
@@ -71,13 +93,6 @@ func (amw *AMTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 					contactsMap[contactFlg]["email"] = keyword
 				}
 			}
-
 		}
 	}
-	contacts, err := map2ParsedContacts(contactsMap)
-	if err == nil {
-		parsedWhois.Contacts = contacts
-	}
-	sort.Strings(parsedWhois.NameServers)
-	return parsedWhois, nil
 }

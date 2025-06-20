@@ -53,37 +53,7 @@ func TestQATLDParser_Parse(t *testing.T) {
 				t.Fatalf("Failed to parse whois data: %v", err)
 			}
 
-			if result.DomainName != tc.expected.DomainName {
-				t.Errorf("Expected domain name '%s', got '%s'", tc.expected.DomainName, result.DomainName)
-			}
-			if result.UpdatedDateRaw != tc.expected.UpdatedDateRaw {
-				t.Errorf("Expected updated date '%s', got '%s'", tc.expected.UpdatedDateRaw, result.UpdatedDateRaw)
-			}
-			if len(result.Statuses) != len(tc.expected.Statuses) {
-				t.Errorf("Expected %d statuses, got %d", len(tc.expected.Statuses), len(result.Statuses))
-			} else {
-				for i, status := range tc.expected.Statuses {
-					if result.Statuses[i] != status {
-						t.Errorf("Expected status '%s', got '%s'", status, result.Statuses[i])
-					}
-				}
-			}
-			if len(result.NameServers) != len(tc.expected.NameServers) {
-				t.Errorf("Expected %d nameservers, got %d", len(tc.expected.NameServers), len(result.NameServers))
-			} else {
-				for i, ns := range tc.expected.NameServers {
-					if result.NameServers[i] != ns {
-						t.Errorf("Expected nameserver '%s', got '%s'", ns, result.NameServers[i])
-					}
-				}
-			}
-			if tc.expected.Registrar != nil {
-				if result.Registrar == nil {
-					t.Error("Expected registrar, got nil")
-				} else if tc.expected.Registrar.Name != result.Registrar.Name {
-					t.Errorf("Expected registrar name '%s', got '%s'", tc.expected.Registrar.Name, result.Registrar.Name)
-				}
-			}
+			assertQAParsedWhois(t, result, tc.expected)
 		})
 	}
 }
@@ -110,9 +80,59 @@ func TestQATLDParser_ParseUnregistered(t *testing.T) {
 				t.Fatalf("Failed to parse whois data: %v", err)
 			}
 
-			if len(result.Statuses) != 1 || result.Statuses[0] != "free" {
-				t.Errorf("Expected status 'free', got %v", result.Statuses)
-			}
+			assertQAUnregisteredDomain(t, result)
 		})
+	}
+}
+
+func assertQAParsedWhois(t *testing.T, result, expected *ParsedWhois) {
+	if result.DomainName != expected.DomainName {
+		t.Errorf("Expected domain name '%s', got '%s'", expected.DomainName, result.DomainName)
+	}
+	if result.UpdatedDateRaw != expected.UpdatedDateRaw {
+		t.Errorf("Expected updated date '%s', got '%s'", expected.UpdatedDateRaw, result.UpdatedDateRaw)
+	}
+	assertQAStatuses(t, result.Statuses, expected.Statuses)
+	assertQANameservers(t, result.NameServers, expected.NameServers)
+	assertQARegistrar(t, result.Registrar, expected.Registrar)
+}
+
+func assertQAStatuses(t *testing.T, actual, expected []string) {
+	if len(actual) != len(expected) {
+		t.Errorf("Expected %d statuses, got %d", len(expected), len(actual))
+		return
+	}
+	for i, status := range expected {
+		if actual[i] != status {
+			t.Errorf("Expected status '%s', got '%s'", status, actual[i])
+		}
+	}
+}
+
+func assertQANameservers(t *testing.T, actual, expected []string) {
+	if len(actual) != len(expected) {
+		t.Errorf("Expected %d nameservers, got %d", len(expected), len(actual))
+		return
+	}
+	for i, ns := range expected {
+		if actual[i] != ns {
+			t.Errorf("Expected nameserver '%s', got '%s'", ns, actual[i])
+		}
+	}
+}
+
+func assertQARegistrar(t *testing.T, actual, expected *Registrar) {
+	if expected != nil {
+		if actual == nil {
+			t.Error("Expected registrar, got nil")
+		} else if expected.Name != actual.Name {
+			t.Errorf("Expected registrar name '%s', got '%s'", expected.Name, actual.Name)
+		}
+	}
+}
+
+func assertQAUnregisteredDomain(t *testing.T, result *ParsedWhois) {
+	if len(result.Statuses) != 1 || result.Statuses[0] != "free" {
+		t.Errorf("Expected status 'free', got %v", result.Statuses)
 	}
 }

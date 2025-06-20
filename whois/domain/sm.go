@@ -35,7 +35,7 @@ func (p *SMTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	}
 
 	lines := strings.Split(rawtext, "\n")
-	var section string
+	section := ""
 	var owner Contact
 	var tech Contact
 
@@ -44,83 +44,25 @@ func (p *SMTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 		if line == "" {
 			continue
 		}
-		if strings.HasPrefix(line, "Domain Name:") {
-			parsed.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "Domain Name:"))
+		if p.parseTopLevelFields(line, parsed) {
 			continue
 		}
-		if strings.HasPrefix(line, "Registration date:") {
-			parsed.CreatedDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Registration date:"))
+		if sec := p.handleSectionChange(line); sec != "" {
+			section = sec
 			continue
 		}
-		if strings.HasPrefix(line, "Status:") {
-			status := strings.TrimSpace(strings.TrimPrefix(line, "Status:"))
-			if status != "" {
-				parsed.Statuses = append(parsed.Statuses, status)
-			}
-			continue
-		}
-		if line == "Owner:" {
-			section = "owner"
-			continue
-		}
-		if line == "Technical Contact:" {
-			section = "tech"
-			continue
-		}
-		if line == "DNS Servers:" {
-			section = "dns"
-			continue
-		}
-
-		// Parse section details
 		if section == "owner" {
-			if owner.Name == "" {
-				owner.Name = line
+			if p.parseOwnerSection(line, &owner) {
 				continue
 			}
-			if strings.HasPrefix(line, "Phone:") {
-				owner.Phone = strings.TrimSpace(strings.TrimPrefix(line, "Phone:"))
-				continue
-			}
-			if strings.HasPrefix(line, "Fax:") {
-				owner.Fax = strings.TrimSpace(strings.TrimPrefix(line, "Fax:"))
-				continue
-			}
-			if strings.HasPrefix(line, "Email:") {
-				owner.Email = strings.TrimSpace(strings.TrimPrefix(line, "Email:"))
-				continue
-			}
-			// Address lines
-			owner.Street = append(owner.Street, line)
-			continue
 		}
 		if section == "tech" {
-			if tech.Name == "" {
-				tech.Name = line
+			if p.parseTechSection(line, &tech) {
 				continue
 			}
-			if tech.Organization == "" {
-				tech.Organization = line
-				continue
-			}
-			if strings.HasPrefix(line, "Phone:") {
-				tech.Phone = strings.TrimSpace(strings.TrimPrefix(line, "Phone:"))
-				continue
-			}
-			if strings.HasPrefix(line, "Fax:") {
-				tech.Fax = strings.TrimSpace(strings.TrimPrefix(line, "Fax:"))
-				continue
-			}
-			if strings.HasPrefix(line, "Email:") {
-				tech.Email = strings.TrimSpace(strings.TrimPrefix(line, "Email:"))
-				continue
-			}
-			// Address lines
-			tech.Street = append(tech.Street, line)
-			continue
 		}
 		if section == "dns" {
-			parsed.NameServers = append(parsed.NameServers, line)
+			p.parseDNSSection(line, parsed)
 			continue
 		}
 	}
@@ -136,4 +78,86 @@ func (p *SMTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	parsed.CreatedDate, _ = utils.GuessTimeFmtAndConvert(parsed.CreatedDateRaw, WhoisTimeFmt)
 
 	return parsed, nil
+}
+
+func (p *SMTLDParser) parseTopLevelFields(line string, parsed *ParsedWhois) bool {
+	switch {
+	case strings.HasPrefix(line, "Domain Name:"):
+		parsed.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "Domain Name:"))
+		return true
+	case strings.HasPrefix(line, "Registration date:"):
+		parsed.CreatedDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Registration date:"))
+		return true
+	case strings.HasPrefix(line, "Status:"):
+		status := strings.TrimSpace(strings.TrimPrefix(line, "Status:"))
+		if status != "" {
+			parsed.Statuses = append(parsed.Statuses, status)
+		}
+		return true
+	}
+	return false
+}
+
+func (p *SMTLDParser) handleSectionChange(line string) string {
+	switch line {
+	case "Owner:":
+		return "owner"
+	case "Technical Contact:":
+		return "tech"
+	case "DNS Servers:":
+		return "dns"
+	}
+	return ""
+}
+
+func (p *SMTLDParser) parseOwnerSection(line string, owner *Contact) bool {
+	if owner.Name == "" {
+		owner.Name = line
+		return true
+	}
+	if strings.HasPrefix(line, "Phone:") {
+		owner.Phone = strings.TrimSpace(strings.TrimPrefix(line, "Phone:"))
+		return true
+	}
+	if strings.HasPrefix(line, "Fax:") {
+		owner.Fax = strings.TrimSpace(strings.TrimPrefix(line, "Fax:"))
+		return true
+	}
+	if strings.HasPrefix(line, "Email:") {
+		owner.Email = strings.TrimSpace(strings.TrimPrefix(line, "Email:"))
+		return true
+	}
+	// Address lines
+	owner.Street = append(owner.Street, line)
+	return true
+}
+
+func (p *SMTLDParser) parseTechSection(line string, tech *Contact) bool {
+	if tech.Name == "" {
+		tech.Name = line
+		return true
+	}
+	if tech.Organization == "" {
+		tech.Organization = line
+		return true
+	}
+	if strings.HasPrefix(line, "Phone:") {
+		tech.Phone = strings.TrimSpace(strings.TrimPrefix(line, "Phone:"))
+		return true
+	}
+	if strings.HasPrefix(line, "Fax:") {
+		tech.Fax = strings.TrimSpace(strings.TrimPrefix(line, "Fax:"))
+		return true
+	}
+	if strings.HasPrefix(line, "Email:") {
+		tech.Email = strings.TrimSpace(strings.TrimPrefix(line, "Email:"))
+		return true
+	}
+	// Address lines
+	tech.Street = append(tech.Street, line)
+	return true
+}
+
+func (p *SMTLDParser) parseDNSSection(line string, parsed *ParsedWhois) {
+	parsed.NameServers = append(parsed.NameServers, line)
 }

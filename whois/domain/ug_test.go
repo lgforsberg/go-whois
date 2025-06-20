@@ -67,6 +67,33 @@ Information Last Updated:       2025-03-04 21:48:52
 		t.Errorf("Expected no error, got %v", err)
 	}
 
+	assertUGRegisteredDomain(t, parsed)
+}
+
+func TestUGTLDParserUnregistered(t *testing.T) {
+	parser := NewUGTLDParser()
+
+	// Test unregistered domain
+	whoisText := `
+                **********************************************************
+                *            The UG ccTLD Registry Database              *
+                **********************************************************
+
+                Domain Name: sdfasdf-sdf-sdf-sdf-sdf.ug
+                >>> The domain contains special characters not allowed.
+                >>> This domain violates registry policy.
+                >>> Last update of WHOIS database: 2025-06-19T00:46:35 <<<
+            `
+
+	parsed, err := parser.GetParsedWhois(whoisText)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+
+	assertUGUnregisteredDomain(t, parsed)
+}
+
+func assertUGRegisteredDomain(t *testing.T, parsed *ParsedWhois) {
 	if parsed.DomainName != "google.ug" {
 		t.Errorf("Expected domain name 'google.ug', got '%s'", parsed.DomainName)
 	}
@@ -84,15 +111,46 @@ Information Last Updated:       2025-03-04 21:48:52
 	}
 
 	expectedNS := []string{"ns1.google.com", "ns2.google.com", "ns3.google.com"}
-	if len(parsed.NameServers) != len(expectedNS) {
-		t.Errorf("Expected %d nameservers, got %d", len(expectedNS), len(parsed.NameServers))
-	}
-	for i, ns := range expectedNS {
-		if parsed.NameServers[i] != ns {
-			t.Errorf("Expected nameserver '%s', got '%s'", ns, parsed.NameServers[i])
-		}
+	assertStringSliceEqualUG(t, parsed.NameServers, expectedNS, "nameserver")
+
+	assertUGContacts(t, parsed)
+}
+
+func assertUGUnregisteredDomain(t *testing.T, parsed *ParsedWhois) {
+	if parsed.DomainName != "" {
+		t.Errorf("Expected empty domain name for unregistered domain, got '%s'", parsed.DomainName)
 	}
 
+	if parsed.CreatedDateRaw != "" {
+		t.Errorf("Expected empty creation date for unregistered domain, got '%s'", parsed.CreatedDateRaw)
+	}
+
+	if len(parsed.Statuses) != 0 {
+		t.Errorf("Expected no statuses for unregistered domain, got %v", parsed.Statuses)
+	}
+
+	if parsed.Registrar.Name != "" {
+		t.Errorf("Expected empty registrar for unregistered domain, got '%s'", parsed.Registrar.Name)
+	}
+
+	if len(parsed.NameServers) != 0 {
+		t.Errorf("Expected no nameservers for unregistered domain, got %v", parsed.NameServers)
+	}
+
+	if parsed.Contacts.Registrant != nil {
+		t.Error("Expected no registrant contact for unregistered domain")
+	}
+
+	if parsed.Contacts.Admin != nil {
+		t.Error("Expected no admin contact for unregistered domain")
+	}
+
+	if parsed.Contacts.Tech != nil {
+		t.Error("Expected no tech contact for unregistered domain")
+	}
+}
+
+func assertUGContacts(t *testing.T, parsed *ParsedWhois) {
 	// Check registrant contact
 	if parsed.Contacts.Registrant == nil {
 		t.Error("Expected registrant contact to be present")
@@ -136,55 +194,14 @@ Information Last Updated:       2025-03-04 21:48:52
 	}
 }
 
-func TestUGTLDParserUnregistered(t *testing.T) {
-	parser := NewUGTLDParser()
-
-	// Test unregistered domain
-	whoisText := `
-                **********************************************************
-                *            The UG ccTLD Registry Database              *
-                **********************************************************
-
-                Domain Name: sdfasdf-sdf-sdf-sdf-sdf.ug
-                >>> The domain contains special characters not allowed.
-                >>> This domain violates registry policy.
-                >>> Last update of WHOIS database: 2025-06-19T00:46:35 <<<
-            `
-
-	parsed, err := parser.GetParsedWhois(whoisText)
-	if err != nil {
-		t.Errorf("Expected no error, got %v", err)
+func assertStringSliceEqualUG(t *testing.T, actual, expected []string, label string) {
+	if len(actual) != len(expected) {
+		t.Errorf("Expected %d %s(s), got %d", len(expected), label, len(actual))
+		return
 	}
-
-	if parsed.DomainName != "" {
-		t.Errorf("Expected empty domain name for unregistered domain, got '%s'", parsed.DomainName)
-	}
-
-	if parsed.CreatedDateRaw != "" {
-		t.Errorf("Expected empty creation date for unregistered domain, got '%s'", parsed.CreatedDateRaw)
-	}
-
-	if len(parsed.Statuses) != 0 {
-		t.Errorf("Expected no statuses for unregistered domain, got %v", parsed.Statuses)
-	}
-
-	if parsed.Registrar.Name != "" {
-		t.Errorf("Expected empty registrar for unregistered domain, got '%s'", parsed.Registrar.Name)
-	}
-
-	if len(parsed.NameServers) != 0 {
-		t.Errorf("Expected no nameservers for unregistered domain, got %v", parsed.NameServers)
-	}
-
-	if parsed.Contacts.Registrant != nil {
-		t.Error("Expected no registrant contact for unregistered domain")
-	}
-
-	if parsed.Contacts.Admin != nil {
-		t.Error("Expected no admin contact for unregistered domain")
-	}
-
-	if parsed.Contacts.Tech != nil {
-		t.Error("Expected no tech contact for unregistered domain")
+	for i, v := range expected {
+		if i < len(actual) && actual[i] != v {
+			t.Errorf("Expected %s '%s', got '%s'", label, v, actual[i])
+		}
 	}
 }

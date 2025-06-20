@@ -23,11 +23,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	fset := flag.NewFlagSetWithEnvPrefix(os.Args[0], "WHOIS", flag.ExitOnError)
-	domainOrIP := fset.String("q", "", "domain to query")
-	whoisServer := fset.String("server", "", "optional, specify whois server")
-	timeout := fset.Duration("timeout", defaultTimeout, "timeout for WHOIS query, default 5s")
-	fset.Parse(os.Args[1:])
+	_, domainOrIP, whoisServer, timeout := setup()
 
 	if len(*domainOrIP) == 0 {
 		fmt.Println("Usage: ./whois -q <domain or ip>")
@@ -53,42 +49,60 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	if !utils.IsIP(*domainOrIP) {
-		pslist, err := utils.GetPublicSuffixs(*domainOrIP)
-		if err != nil && len(pslist) == 0 {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		logger.WithFields(logrus.Fields{"query": *domainOrIP, "public_suffixs": pslist}).Info("perform WHOIS query")
-		dmWhois, err := dialer.QueryPublicSuffixs(context.Background(), pslist, *whoisServer)
-		if err != nil {
-			if err != whois.ErrDomainIPNotFound {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			logger.Info(err)
-		}
-		out, err := json.MarshalIndent(dmWhois, "", "  ")
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		fmt.Println(string(out))
+		handleDomainQuery(domainOrIP, whoisServer, logger, dialer)
 	} else {
-		logger.WithFields(logrus.Fields{"query": *domainOrIP}).Info("perform WHOIS query")
-		ipWhois, err := dialer.QueryIP(context.Background(), *domainOrIP, *whoisServer)
-		if err != nil {
-			if err != whois.ErrDomainIPNotFound {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			logger.Info(err)
-		}
-		out, err := json.MarshalIndent(ipWhois, "", "  ")
-		if err != nil {
+		handleIPQuery(domainOrIP, whoisServer, logger, dialer)
+	}
+}
+
+func setup() (*flag.FlagSet, *string, *string, *time.Duration) {
+	fset := flag.NewFlagSetWithEnvPrefix(os.Args[0], "WHOIS", flag.ExitOnError)
+	domainOrIP := fset.String("q", "", "domain to query")
+	whoisServer := fset.String("server", "", "optional, specify whois server")
+	timeout := fset.Duration("timeout", defaultTimeout, "timeout for WHOIS query, default 5s")
+	fset.Parse(os.Args[1:])
+	return fset, domainOrIP, whoisServer, timeout
+}
+
+func handleDomainQuery(domainOrIP, whoisServer *string, logger *logrus.Logger, dialer *whois.Client) {
+	pslist, err := utils.GetPublicSuffixs(*domainOrIP)
+	if err != nil && len(pslist) == 0 {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	logger.WithFields(logrus.Fields{"query": *domainOrIP, "public_suffixs": pslist}).Info("perform WHOIS query")
+	dmWhois, err := dialer.QueryPublicSuffixs(context.Background(), pslist, *whoisServer)
+	if err != nil {
+		if err != whois.ErrDomainIPNotFound {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Println(string(out))
+		logger.Info(err)
 	}
+	out, err := json.MarshalIndent(dmWhois, "", "  ")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println(string(out))
+}
+
+func handleIPQuery(domainOrIP, whoisServer *string, logger *logrus.Logger, dialer *whois.Client) {
+	logger.WithFields(logrus.Fields{"query": *domainOrIP}).Info("perform WHOIS query")
+	ipWhois, err := dialer.QueryIP(context.Background(), *domainOrIP, *whoisServer)
+	if err != nil {
+		if err != whois.ErrDomainIPNotFound {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		logger.Info(err)
+	}
+	out, err := json.MarshalIndent(ipWhois, "", "  ")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println(string(out))
 }

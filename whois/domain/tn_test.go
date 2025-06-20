@@ -75,6 +75,12 @@ Name................: ns2.google.com.
 		t.Errorf("Expected no error, got %v", err)
 	}
 
+	assertTNBasicFields(t, parsed)
+	assertTNContacts(t, parsed)
+	assertTNNameServers(t, parsed)
+}
+
+func assertTNBasicFields(t *testing.T, parsed *ParsedWhois) {
 	if parsed.DomainName != "google.tn" {
 		t.Errorf("Expected domain name 'google.tn', got '%s'", parsed.DomainName)
 	}
@@ -94,69 +100,68 @@ Name................: ns2.google.com.
 	if parsed.Dnssec != "unsigned" {
 		t.Errorf("Expected DNSSEC 'unsigned', got '%s'", parsed.Dnssec)
 	}
+}
 
-	// Check nameservers
+func assertTNContacts(t *testing.T, parsed *ParsedWhois) {
+	assertTNRegistrantContact(t, parsed)
+	assertTNAdminContact(t, parsed)
+	assertTNTechContact(t, parsed)
+}
+
+func assertTNRegistrantContact(t *testing.T, parsed *ParsedWhois) {
+	if parsed.Contacts.Registrant == nil {
+		t.Error("Expected registrant contact to be present")
+		return
+	}
+
+	registrant := parsed.Contacts.Registrant
+	assertTNContactFields(t, registrant, "registrant", "Google LLC", "1600 Amphitheatre Parkway, Mountain View, CA 94043 US", "+1.6502530000", "dns-admin@google.com")
+}
+
+func assertTNAdminContact(t *testing.T, parsed *ParsedWhois) {
+	if parsed.Contacts.Admin == nil {
+		t.Error("Expected admin contact to be present")
+		return
+	}
+
+	admin := parsed.Contacts.Admin
+	assertTNContactFields(t, admin, "admin", "Abu ghazalah intellectual property", "P.O.Box 1, Montplaisir 1073, Tunis, Tunisia", "71 90 3141", "tunisia@agip.com")
+}
+
+func assertTNTechContact(t *testing.T, parsed *ParsedWhois) {
+	if parsed.Contacts.Tech == nil {
+		t.Error("Expected tech contact to be present")
+		return
+	}
+
+	tech := parsed.Contacts.Tech
+	assertTNContactFields(t, tech, "tech", "MarkMonitor Inc.", "391 N. Ancestor Pl., Boise, ID 83704 US", "+1.2083895740", "ccops@markmonitor.com")
+}
+
+func assertTNContactFields(t *testing.T, contact *Contact, contactType, expectedName, expectedAddress, expectedPhone, expectedEmail string) {
+	if contact.Name != expectedName {
+		t.Errorf("Expected %s name '%s', got '%s'", contactType, expectedName, contact.Name)
+	}
+	if len(contact.Street) == 0 || contact.Street[0] != expectedAddress {
+		t.Errorf("Expected %s address '%s', got %v", contactType, expectedAddress, contact.Street)
+	}
+	if contact.Phone != expectedPhone {
+		t.Errorf("Expected %s phone '%s', got '%s'", contactType, expectedPhone, contact.Phone)
+	}
+	if contact.Email != expectedEmail {
+		t.Errorf("Expected %s email '%s', got '%s'", contactType, expectedEmail, contact.Email)
+	}
+}
+
+func assertTNNameServers(t *testing.T, parsed *ParsedWhois) {
 	expectedNS := []string{"ns4.google.com.", "ns1.google.com.", "ns3.google.com.", "ns2.google.com."}
 	if len(parsed.NameServers) != len(expectedNS) {
 		t.Errorf("Expected %d nameservers, got %d", len(expectedNS), len(parsed.NameServers))
+		return
 	}
 	for i, ns := range expectedNS {
 		if parsed.NameServers[i] != ns {
 			t.Errorf("Expected nameserver '%s', got '%s'", ns, parsed.NameServers[i])
-		}
-	}
-
-	// Check registrant contact
-	if parsed.Contacts.Registrant == nil {
-		t.Error("Expected registrant contact to be present")
-	} else {
-		if parsed.Contacts.Registrant.Name != "Google LLC" {
-			t.Errorf("Expected registrant name 'Google LLC', got '%s'", parsed.Contacts.Registrant.Name)
-		}
-		if len(parsed.Contacts.Registrant.Street) == 0 || parsed.Contacts.Registrant.Street[0] != "1600 Amphitheatre Parkway, Mountain View, CA 94043 US" {
-			t.Errorf("Expected registrant address '1600 Amphitheatre Parkway, Mountain View, CA 94043 US', got %v", parsed.Contacts.Registrant.Street)
-		}
-		if parsed.Contacts.Registrant.Phone != "+1.6502530000" {
-			t.Errorf("Expected registrant phone '+1.6502530000', got '%s'", parsed.Contacts.Registrant.Phone)
-		}
-		if parsed.Contacts.Registrant.Email != "dns-admin@google.com" {
-			t.Errorf("Expected registrant email 'dns-admin@google.com', got '%s'", parsed.Contacts.Registrant.Email)
-		}
-	}
-
-	// Check admin contact
-	if parsed.Contacts.Admin == nil {
-		t.Error("Expected admin contact to be present")
-	} else {
-		if parsed.Contacts.Admin.Name != "Abu ghazalah intellectual property" {
-			t.Errorf("Expected admin name 'Abu ghazalah intellectual property', got '%s'", parsed.Contacts.Admin.Name)
-		}
-		if len(parsed.Contacts.Admin.Street) == 0 || parsed.Contacts.Admin.Street[0] != "P.O.Box 1, Montplaisir 1073, Tunis, Tunisia" {
-			t.Errorf("Expected admin address 'P.O.Box 1, Montplaisir 1073, Tunis, Tunisia', got %v", parsed.Contacts.Admin.Street)
-		}
-		if parsed.Contacts.Admin.Phone != "71 90 3141" {
-			t.Errorf("Expected admin phone '71 90 3141', got '%s'", parsed.Contacts.Admin.Phone)
-		}
-		if parsed.Contacts.Admin.Email != "tunisia@agip.com" {
-			t.Errorf("Expected admin email 'tunisia@agip.com', got '%s'", parsed.Contacts.Admin.Email)
-		}
-	}
-
-	// Check tech contact
-	if parsed.Contacts.Tech == nil {
-		t.Error("Expected tech contact to be present")
-	} else {
-		if parsed.Contacts.Tech.Name != "MarkMonitor Inc." {
-			t.Errorf("Expected tech name 'MarkMonitor Inc.', got '%s'", parsed.Contacts.Tech.Name)
-		}
-		if len(parsed.Contacts.Tech.Street) == 0 || parsed.Contacts.Tech.Street[0] != "391 N. Ancestor Pl., Boise, ID 83704 US" {
-			t.Errorf("Expected tech address '391 N. Ancestor Pl., Boise, ID 83704 US', got %v", parsed.Contacts.Tech.Street)
-		}
-		if parsed.Contacts.Tech.Phone != "+1.2083895740" {
-			t.Errorf("Expected tech phone '+1.2083895740', got '%s'", parsed.Contacts.Tech.Phone)
-		}
-		if parsed.Contacts.Tech.Email != "ccops@markmonitor.com" {
-			t.Errorf("Expected tech email 'ccops@markmonitor.com', got '%s'", parsed.Contacts.Tech.Email)
 		}
 	}
 }

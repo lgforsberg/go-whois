@@ -41,28 +41,7 @@ Changed: 2018-03-12T21:44:25+01:00`
 		t.Errorf("Expected no error for case1, got %v", err)
 	}
 
-	if parsedWhois1.DomainName != "google.de" {
-		t.Errorf("Expected domain name to be 'google.de', got '%s'", parsedWhois1.DomainName)
-	}
-
-	if len(parsedWhois1.NameServers) != 4 {
-		t.Errorf("Expected 4 name servers, got %d", len(parsedWhois1.NameServers))
-	}
-
-	expectedNS1 := []string{"ns1.google.com", "ns2.google.com", "ns3.google.com", "ns4.google.com"}
-	for i, ns := range expectedNS1 {
-		if parsedWhois1.NameServers[i] != ns {
-			t.Errorf("Expected name server %d to be '%s', got '%s'", i, ns, parsedWhois1.NameServers[i])
-		}
-	}
-
-	if len(parsedWhois1.Statuses) != 1 || parsedWhois1.Statuses[0] != "connect" {
-		t.Errorf("Expected status to be 'connect', got %v", parsedWhois1.Statuses)
-	}
-
-	if parsedWhois1.UpdatedDateRaw != "2018-03-12T21:44:25+01:00" {
-		t.Errorf("Expected updated date raw to be '2018-03-12T21:44:25+01:00', got '%s'", parsedWhois1.UpdatedDateRaw)
-	}
+	assertDERegisteredDomain(t, parsedWhois1, "google.de", []string{"ns1.google.com", "ns2.google.com", "ns3.google.com", "ns4.google.com"}, "connect", "2018-03-12T21:44:25+01:00")
 
 	// Test registered domain with 2 nameservers (case6)
 	rawtext2 := `% Restricted rights.
@@ -93,20 +72,7 @@ Changed: 2019-04-24T18:48:13+02:00`
 		t.Errorf("Expected no error for case6, got %v", err)
 	}
 
-	if parsedWhois2.DomainName != "org.de" {
-		t.Errorf("Expected domain name to be 'org.de', got '%s'", parsedWhois2.DomainName)
-	}
-
-	if len(parsedWhois2.NameServers) != 2 {
-		t.Errorf("Expected 2 name servers, got %d", len(parsedWhois2.NameServers))
-	}
-
-	expectedNS2 := []string{"ns1.sedoparking.com", "ns2.sedoparking.com"}
-	for i, ns := range expectedNS2 {
-		if parsedWhois2.NameServers[i] != ns {
-			t.Errorf("Expected name server %d to be '%s', got '%s'", i, ns, parsedWhois2.NameServers[i])
-		}
-	}
+	assertDERegisteredDomain(t, parsedWhois2, "org.de", []string{"ns1.sedoparking.com", "ns2.sedoparking.com"}, "connect", "2019-04-24T18:48:13+02:00")
 
 	// Test registered domain with Dnskey field (case3)
 	rawtext3 := `% Restricted rights.
@@ -140,20 +106,7 @@ Changed: 2020-05-28T14:29:55+02:00`
 		t.Errorf("Expected no error for case3, got %v", err)
 	}
 
-	if parsedWhois3.DomainName != "nic.de" {
-		t.Errorf("Expected domain name to be 'nic.de', got '%s'", parsedWhois3.DomainName)
-	}
-
-	if len(parsedWhois3.NameServers) != 4 {
-		t.Errorf("Expected 4 name servers, got %d", len(parsedWhois3.NameServers))
-	}
-
-	expectedNS3 := []string{"ns1.denic.de", "ns2.denic.de", "ns3.denic.de", "ns4.denic.net"}
-	for i, ns := range expectedNS3 {
-		if parsedWhois3.NameServers[i] != ns {
-			t.Errorf("Expected name server %d to be '%s', got '%s'", i, ns, parsedWhois3.NameServers[i])
-		}
-	}
+	assertDERegisteredDomain(t, parsedWhois3, "nic.de", []string{"ns1.denic.de", "ns2.denic.de", "ns3.denic.de", "ns4.denic.net"}, "connect", "2020-05-28T14:29:55+02:00")
 
 	// Test unregistered domain (case8)
 	rawtextFree := `Domain: sdfsdfsdfsdfsdfsdf1212.de
@@ -164,22 +117,7 @@ Status: free`
 		t.Errorf("Expected no error for free domain, got %v", err)
 	}
 
-	if parsedWhoisFree.DomainName != "sdfsdfsdfsdfsdfsdf1212.de" {
-		t.Errorf("Expected domain name to be 'sdfsdfsdfsdfsdfsdf1212.de', got '%s'", parsedWhoisFree.DomainName)
-	}
-
-	if len(parsedWhoisFree.Statuses) != 1 || parsedWhoisFree.Statuses[0] != "free" {
-		t.Errorf("Expected status to be 'free', got %v", parsedWhoisFree.Statuses)
-	}
-
-	// Verify that free domains have no nameservers or dates
-	if len(parsedWhoisFree.NameServers) != 0 {
-		t.Errorf("Expected no name servers for free domain, got %d", len(parsedWhoisFree.NameServers))
-	}
-
-	if parsedWhoisFree.UpdatedDateRaw != "" {
-		t.Errorf("Expected no updated date for free domain, got '%s'", parsedWhoisFree.UpdatedDateRaw)
-	}
+	assertDEUnregisteredDomain(t, parsedWhoisFree, "sdfsdfsdfsdfsdfsdf1212.de")
 
 	// Test another unregistered domain (case11)
 	rawtextFree2 := `Domain: jthsitshtkckthst124312.de
@@ -190,11 +128,48 @@ Status: free`
 		t.Errorf("Expected no error for free domain case11, got %v", err)
 	}
 
-	if parsedWhoisFree2.DomainName != "jthsitshtkckthst124312.de" {
-		t.Errorf("Expected domain name to be 'jthsitshtkckthst124312.de', got '%s'", parsedWhoisFree2.DomainName)
+	assertDEUnregisteredDomain(t, parsedWhoisFree2, "jthsitshtkckthst124312.de")
+}
+
+func assertDERegisteredDomain(t *testing.T, parsedWhois *ParsedWhois, expectedDomain string, expectedNS []string, expectedStatus string, expectedUpdatedDate string) {
+	if parsedWhois.DomainName != expectedDomain {
+		t.Errorf("Expected domain name to be '%s', got '%s'", expectedDomain, parsedWhois.DomainName)
 	}
 
-	if len(parsedWhoisFree2.Statuses) != 1 || parsedWhoisFree2.Statuses[0] != "free" {
-		t.Errorf("Expected status to be 'free', got %v", parsedWhoisFree2.Statuses)
+	if len(parsedWhois.NameServers) != len(expectedNS) {
+		t.Errorf("Expected %d name servers, got %d", len(expectedNS), len(parsedWhois.NameServers))
+	}
+
+	for i, ns := range expectedNS {
+		if parsedWhois.NameServers[i] != ns {
+			t.Errorf("Expected name server %d to be '%s', got '%s'", i, ns, parsedWhois.NameServers[i])
+		}
+	}
+
+	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != expectedStatus {
+		t.Errorf("Expected status to be '%s', got %v", expectedStatus, parsedWhois.Statuses)
+	}
+
+	if parsedWhois.UpdatedDateRaw != expectedUpdatedDate {
+		t.Errorf("Expected updated date raw to be '%s', got '%s'", expectedUpdatedDate, parsedWhois.UpdatedDateRaw)
+	}
+}
+
+func assertDEUnregisteredDomain(t *testing.T, parsedWhois *ParsedWhois, expectedDomain string) {
+	if parsedWhois.DomainName != expectedDomain {
+		t.Errorf("Expected domain name to be '%s', got '%s'", expectedDomain, parsedWhois.DomainName)
+	}
+
+	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "free" {
+		t.Errorf("Expected status to be 'free', got %v", parsedWhois.Statuses)
+	}
+
+	// Verify that free domains have no nameservers or dates
+	if len(parsedWhois.NameServers) != 0 {
+		t.Errorf("Expected no name servers for free domain, got %d", len(parsedWhois.NameServers))
+	}
+
+	if parsedWhois.UpdatedDateRaw != "" {
+		t.Errorf("Expected no updated date for free domain, got '%s'", parsedWhois.UpdatedDateRaw)
 	}
 }

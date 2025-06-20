@@ -50,63 +50,15 @@ Current Registar: KAZNIC`
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
+	assertKZBasicFields(t, parsedWhois)
+	assertKZContacts(t, parsedWhois)
+	assertKZNameServers(t, parsedWhois)
+}
+
+func assertKZBasicFields(t *testing.T, parsedWhois *ParsedWhois) {
 	// Check domain name
 	if parsedWhois.DomainName != "google.kz" {
 		t.Errorf("Expected domain name 'google.kz', got '%s'", parsedWhois.DomainName)
-	}
-
-	// Check registrant contact
-	if parsedWhois.Contacts == nil || parsedWhois.Contacts.Registrant == nil {
-		t.Fatal("Expected registrant contact to be parsed")
-	}
-	if parsedWhois.Contacts.Registrant.Name != "Google Inc." {
-		t.Errorf("Expected registrant name 'Google Inc.', got '%s'", parsedWhois.Contacts.Registrant.Name)
-	}
-	if parsedWhois.Contacts.Registrant.Organization != "Google Inc." {
-		t.Errorf("Expected registrant organization 'Google Inc.', got '%s'", parsedWhois.Contacts.Registrant.Organization)
-	}
-	if parsedWhois.Contacts.Registrant.Street[0] != "2400 E. Bayshore Pkwy" {
-		t.Errorf("Expected registrant street '2400 E. Bayshore Pkwy', got '%s'", parsedWhois.Contacts.Registrant.Street[0])
-	}
-	if parsedWhois.Contacts.Registrant.City != "Mountain View" {
-		t.Errorf("Expected registrant city 'Mountain View', got '%s'", parsedWhois.Contacts.Registrant.City)
-	}
-	if parsedWhois.Contacts.Registrant.State != "CA" {
-		t.Errorf("Expected registrant state 'CA', got '%s'", parsedWhois.Contacts.Registrant.State)
-	}
-	if parsedWhois.Contacts.Registrant.Postal != "94043" {
-		t.Errorf("Expected registrant postal '94043', got '%s'", parsedWhois.Contacts.Registrant.Postal)
-	}
-	if parsedWhois.Contacts.Registrant.Country != "US" {
-		t.Errorf("Expected registrant country 'US', got '%s'", parsedWhois.Contacts.Registrant.Country)
-	}
-
-	// Check admin contact
-	if parsedWhois.Contacts.Admin == nil {
-		t.Fatal("Expected admin contact to be parsed")
-	}
-	if parsedWhois.Contacts.Admin.Name != "DNS Admin" {
-		t.Errorf("Expected admin name 'DNS Admin', got '%s'", parsedWhois.Contacts.Admin.Name)
-	}
-	if parsedWhois.Contacts.Admin.Phone != "+1.6502530000" {
-		t.Errorf("Expected admin phone '+1.6502530000', got '%s'", parsedWhois.Contacts.Admin.Phone)
-	}
-	if parsedWhois.Contacts.Admin.Fax != "+1.6506188571" {
-		t.Errorf("Expected admin fax '+1.6506188571', got '%s'", parsedWhois.Contacts.Admin.Fax)
-	}
-	if parsedWhois.Contacts.Admin.Email != "ccops@markmonitor.com" {
-		t.Errorf("Expected admin email 'ccops@markmonitor.com', got '%s'", parsedWhois.Contacts.Admin.Email)
-	}
-
-	// Check name servers
-	if len(parsedWhois.NameServers) != 2 {
-		t.Errorf("Expected 2 name servers, got %d", len(parsedWhois.NameServers))
-	}
-	if parsedWhois.NameServers[0] != "ns1.google.com" {
-		t.Errorf("Expected first nameserver 'ns1.google.com', got '%s'", parsedWhois.NameServers[0])
-	}
-	if parsedWhois.NameServers[1] != "ns2.google.com" {
-		t.Errorf("Expected second nameserver 'ns2.google.com', got '%s'", parsedWhois.NameServers[1])
 	}
 
 	// Check dates
@@ -131,6 +83,72 @@ Current Registar: KAZNIC`
 	}
 	if parsedWhois.Registrar.Name != "KAZNIC" {
 		t.Errorf("Expected registrar name 'KAZNIC', got '%s'", parsedWhois.Registrar.Name)
+	}
+}
+
+func assertKZContacts(t *testing.T, parsedWhois *ParsedWhois) {
+	assertKZRegistrant(t, parsedWhois)
+	assertKZAdmin(t, parsedWhois)
+}
+
+func assertKZRegistrant(t *testing.T, parsedWhois *ParsedWhois) {
+	if parsedWhois.Contacts == nil || parsedWhois.Contacts.Registrant == nil {
+		t.Fatal("Expected registrant contact to be parsed")
+	}
+	registrant := parsedWhois.Contacts.Registrant
+	if registrant.Name != "Google Inc." {
+		t.Errorf("Expected registrant name 'Google Inc.', got '%s'", registrant.Name)
+	}
+	if registrant.Organization != "Google Inc." {
+		t.Errorf("Expected registrant organization 'Google Inc.', got '%s'", registrant.Organization)
+	}
+	if registrant.Street[0] != "2400 E. Bayshore Pkwy" {
+		t.Errorf("Expected registrant street '2400 E. Bayshore Pkwy', got '%s'", registrant.Street[0])
+	}
+	if registrant.City != "Mountain View" {
+		t.Errorf("Expected registrant city 'Mountain View', got '%s'", registrant.City)
+	}
+	if registrant.State != "CA" {
+		t.Errorf("Expected registrant state 'CA', got '%s'", registrant.State)
+	}
+	if registrant.Postal != "94043" {
+		t.Errorf("Expected registrant postal '94043', got '%s'", registrant.Postal)
+	}
+	if registrant.Country != "US" {
+		t.Errorf("Expected registrant country 'US', got '%s'", registrant.Country)
+	}
+}
+
+func assertKZAdmin(t *testing.T, parsedWhois *ParsedWhois) {
+	if parsedWhois.Contacts.Admin == nil {
+		t.Fatal("Expected admin contact to be parsed")
+	}
+	admin := parsedWhois.Contacts.Admin
+	if admin.Name != "DNS Admin" {
+		t.Errorf("Expected admin name 'DNS Admin', got '%s'", admin.Name)
+	}
+	if admin.Phone != "+1.6502530000" {
+		t.Errorf("Expected admin phone '+1.6502530000', got '%s'", admin.Phone)
+	}
+	if admin.Fax != "+1.6506188571" {
+		t.Errorf("Expected admin fax '+1.6506188571', got '%s'", admin.Fax)
+	}
+	if admin.Email != "ccops@markmonitor.com" {
+		t.Errorf("Expected admin email 'ccops@markmonitor.com', got '%s'", admin.Email)
+	}
+}
+
+func assertKZNameServers(t *testing.T, parsedWhois *ParsedWhois) {
+	// Check name servers
+	if len(parsedWhois.NameServers) != 2 {
+		t.Errorf("Expected 2 name servers, got %d", len(parsedWhois.NameServers))
+		return
+	}
+	if parsedWhois.NameServers[0] != "ns1.google.com" {
+		t.Errorf("Expected first nameserver 'ns1.google.com', got '%s'", parsedWhois.NameServers[0])
+	}
+	if parsedWhois.NameServers[1] != "ns2.google.com" {
+		t.Errorf("Expected second nameserver 'ns2.google.com', got '%s'", parsedWhois.NameServers[1])
 	}
 }
 

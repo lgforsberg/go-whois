@@ -48,140 +48,219 @@ func (p *UGTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 			continue
 		}
 
-		if strings.HasPrefix(line, "Domain name:") {
-			parsed.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "Domain name:"))
-			continue
-		}
-		if strings.HasPrefix(line, "Status:") {
-			status := strings.TrimSpace(strings.TrimPrefix(line, "Status:"))
-			if status != "" {
-				parsed.Statuses = append(parsed.Statuses, status)
-			}
-			continue
-		}
-		if strings.HasPrefix(line, "Registered On:") {
-			parsed.CreatedDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Registered On:"))
-			continue
-		}
-		if strings.HasPrefix(line, "Expires On:") {
-			parsed.ExpiredDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Expires On:"))
-			continue
-		}
-		if strings.HasPrefix(line, "Nameserver:") {
-			ns := strings.TrimSpace(strings.TrimPrefix(line, "Nameserver:"))
-			if ns != "" {
-				parsed.NameServers = append(parsed.NameServers, ns)
-			}
-			continue
-		}
-		if strings.HasPrefix(line, "Registrant Contact Information:") {
-			section = "registrant"
-			continue
-		}
-		if strings.HasPrefix(line, "Administrative Contact Information:") {
-			section = "admin"
-			continue
-		}
-		if strings.HasPrefix(line, "Technical Contact Information:") {
-			section = "tech"
+		if p.handleBasicFields(line, parsed) {
 			continue
 		}
 
-		// Parse contact sections
-		var c *Contact
-		if section == "registrant" {
-			c = &registrant
-		} else if section == "admin" {
-			c = &admin
-		} else if section == "tech" {
-			c = &tech
-		} else {
+		if p.handleSectionHeaders(line, &section) {
 			continue
 		}
 
-		if strings.HasPrefix(line, "Registrant Name:") || strings.HasPrefix(line, "Admin Name:") || strings.HasPrefix(line, "Tech Name:") {
-			name := strings.TrimSpace(strings.TrimPrefix(line, "Registrant Name:"))
-			name = strings.TrimSpace(strings.TrimPrefix(name, "Admin Name:"))
-			name = strings.TrimSpace(strings.TrimPrefix(name, "Tech Name:"))
-			if name != "" {
-				c.Name = name
-			}
-			continue
-		}
-		if strings.HasPrefix(line, "Registrant Organization:") || strings.HasPrefix(line, "Admin Organization:") || strings.HasPrefix(line, "Tech Organization:") {
-			org := strings.TrimSpace(strings.TrimPrefix(line, "Registrant Organization:"))
-			org = strings.TrimSpace(strings.TrimPrefix(org, "Admin Organization:"))
-			org = strings.TrimSpace(strings.TrimPrefix(org, "Tech Organization:"))
-			if org != "" {
-				c.Organization = org
-			}
-			continue
-		}
-		if strings.HasPrefix(line, "Registrant Country:") || strings.HasPrefix(line, "Admin Country:") || strings.HasPrefix(line, "Tech Country:") {
-			country := strings.TrimSpace(strings.TrimPrefix(line, "Registrant Country:"))
-			country = strings.TrimSpace(strings.TrimPrefix(country, "Admin Country:"))
-			country = strings.TrimSpace(strings.TrimPrefix(country, "Tech Country:"))
-			if country != "" && country != "UNKNOWN" {
-				c.Country = country
-			}
-			continue
-		}
-		if strings.HasPrefix(line, "Registrant State / Province:") || strings.HasPrefix(line, "Admin State / Province:") || strings.HasPrefix(line, "Tech State / Province:") {
-			state := strings.TrimSpace(strings.TrimPrefix(line, "Registrant State / Province:"))
-			state = strings.TrimSpace(strings.TrimPrefix(state, "Admin State / Province:"))
-			state = strings.TrimSpace(strings.TrimPrefix(state, "Tech State / Province:"))
-			if state != "" && state != "UNKNOWN" {
-				c.State = state
-			}
-			continue
-		}
-		if strings.HasPrefix(line, "Registrant City:") || strings.HasPrefix(line, "Admin City:") || strings.HasPrefix(line, "Tech City:") {
-			city := strings.TrimSpace(strings.TrimPrefix(line, "Registrant City:"))
-			city = strings.TrimSpace(strings.TrimPrefix(city, "Admin City:"))
-			city = strings.TrimSpace(strings.TrimPrefix(city, "Tech City:"))
-			if city != "" && city != "UNKNOWN" {
-				c.City = city
-			}
-			continue
-		}
-		if strings.HasPrefix(line, "Registrant Address:") || strings.HasPrefix(line, "Admin Address:") || strings.HasPrefix(line, "Tech Address:") {
-			addr := strings.TrimSpace(strings.TrimPrefix(line, "Registrant Address:"))
-			addr = strings.TrimSpace(strings.TrimPrefix(addr, "Admin Address:"))
-			addr = strings.TrimSpace(strings.TrimPrefix(addr, "Tech Address:"))
-			if addr != "" {
-				c.Street = append(c.Street, addr)
-			}
-			continue
-		}
-		if strings.HasPrefix(line, "Registrant Postal Code:") || strings.HasPrefix(line, "Admin Postal Code:") || strings.HasPrefix(line, "Tech Postal Code:") {
-			postal := strings.TrimSpace(strings.TrimPrefix(line, "Registrant Postal Code:"))
-			postal = strings.TrimSpace(strings.TrimPrefix(postal, "Admin Postal Code:"))
-			postal = strings.TrimSpace(strings.TrimPrefix(postal, "Tech Postal Code:"))
-			if postal != "" {
-				c.Postal = postal
-			}
-			continue
-		}
-		if strings.HasPrefix(line, "Registrant Phone:") || strings.HasPrefix(line, "Admin Phone:") || strings.HasPrefix(line, "Tech Phone:") {
-			phone := strings.TrimSpace(strings.TrimPrefix(line, "Registrant Phone:"))
-			phone = strings.TrimSpace(strings.TrimPrefix(phone, "Admin Phone:"))
-			phone = strings.TrimSpace(strings.TrimPrefix(phone, "Tech Phone:"))
-			if phone != "" && phone != "UNKNOWN" {
-				c.Phone = phone
-			}
-			continue
-		}
-		if strings.HasPrefix(line, "Registrant Email:") || strings.HasPrefix(line, "Admin Email:") || strings.HasPrefix(line, "Tech Email:") {
-			email := strings.TrimSpace(strings.TrimPrefix(line, "Registrant Email:"))
-			email = strings.TrimSpace(strings.TrimPrefix(email, "Admin Email:"))
-			email = strings.TrimSpace(strings.TrimPrefix(email, "Tech Email:"))
-			if email != "" {
-				c.Email = email
-			}
-			continue
-		}
+		p.handleContactFields(line, section, &registrant, &admin, &tech)
 	}
 
+	p.assignContacts(parsed, registrant, admin, tech)
+
+	// Add date format conversion
+	parsed.CreatedDate, _ = utils.GuessTimeFmtAndConvert(parsed.CreatedDateRaw, WhoisTimeFmt)
+	parsed.ExpiredDate, _ = utils.GuessTimeFmtAndConvert(parsed.ExpiredDateRaw, WhoisTimeFmt)
+
+	return parsed, nil
+}
+
+func (p *UGTLDParser) handleBasicFields(line string, parsed *ParsedWhois) bool {
+	switch {
+	case strings.HasPrefix(line, "Domain name:"):
+		parsed.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "Domain name:"))
+		return true
+	case strings.HasPrefix(line, "Status:"):
+		status := strings.TrimSpace(strings.TrimPrefix(line, "Status:"))
+		if status != "" {
+			parsed.Statuses = append(parsed.Statuses, status)
+		}
+		return true
+	case strings.HasPrefix(line, "Registered On:"):
+		parsed.CreatedDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Registered On:"))
+		return true
+	case strings.HasPrefix(line, "Expires On:"):
+		parsed.ExpiredDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Expires On:"))
+		return true
+	case strings.HasPrefix(line, "Nameserver:"):
+		ns := strings.TrimSpace(strings.TrimPrefix(line, "Nameserver:"))
+		if ns != "" {
+			parsed.NameServers = append(parsed.NameServers, ns)
+		}
+		return true
+	}
+	return false
+}
+
+func (p *UGTLDParser) handleSectionHeaders(line string, section *string) bool {
+	switch {
+	case strings.HasPrefix(line, "Registrant Contact Information:"):
+		*section = "registrant"
+		return true
+	case strings.HasPrefix(line, "Administrative Contact Information:"):
+		*section = "admin"
+		return true
+	case strings.HasPrefix(line, "Technical Contact Information:"):
+		*section = "tech"
+		return true
+	}
+	return false
+}
+
+func (p *UGTLDParser) handleContactFields(line, section string, registrant, admin, tech *Contact) {
+	var c *Contact
+	switch section {
+	case "registrant":
+		c = registrant
+	case "admin":
+		c = admin
+	case "tech":
+		c = tech
+	default:
+		return
+	}
+
+	p.parseContactField(line, c)
+}
+
+func (p *UGTLDParser) parseContactField(line string, c *Contact) {
+	if p.handleNameField(line, c) {
+		return
+	}
+	if p.handleOrganizationField(line, c) {
+		return
+	}
+	if p.handleCountryField(line, c) {
+		return
+	}
+	if p.handleStateField(line, c) {
+		return
+	}
+	if p.handleCityField(line, c) {
+		return
+	}
+	if p.handleAddressField(line, c) {
+		return
+	}
+	if p.handlePostalField(line, c) {
+		return
+	}
+	if p.handlePhoneField(line, c) {
+		return
+	}
+	p.handleEmailField(line, c)
+}
+
+func (p *UGTLDParser) handleNameField(line string, c *Contact) bool {
+	if strings.HasPrefix(line, "Registrant Name:") || strings.HasPrefix(line, "Admin Name:") || strings.HasPrefix(line, "Tech Name:") {
+		name := p.extractValue(line, "Registrant Name:", "Admin Name:", "Tech Name:")
+		if name != "" {
+			c.Name = name
+		}
+		return true
+	}
+	return false
+}
+
+func (p *UGTLDParser) handleOrganizationField(line string, c *Contact) bool {
+	if strings.HasPrefix(line, "Registrant Organization:") || strings.HasPrefix(line, "Admin Organization:") || strings.HasPrefix(line, "Tech Organization:") {
+		org := p.extractValue(line, "Registrant Organization:", "Admin Organization:", "Tech Organization:")
+		if org != "" {
+			c.Organization = org
+		}
+		return true
+	}
+	return false
+}
+
+func (p *UGTLDParser) handleCountryField(line string, c *Contact) bool {
+	if strings.HasPrefix(line, "Registrant Country:") || strings.HasPrefix(line, "Admin Country:") || strings.HasPrefix(line, "Tech Country:") {
+		country := p.extractValue(line, "Registrant Country:", "Admin Country:", "Tech Country:")
+		if country != "" && country != "UNKNOWN" {
+			c.Country = country
+		}
+		return true
+	}
+	return false
+}
+
+func (p *UGTLDParser) handleStateField(line string, c *Contact) bool {
+	if strings.HasPrefix(line, "Registrant State / Province:") || strings.HasPrefix(line, "Admin State / Province:") || strings.HasPrefix(line, "Tech State / Province:") {
+		state := p.extractValue(line, "Registrant State / Province:", "Admin State / Province:", "Tech State / Province:")
+		if state != "" && state != "UNKNOWN" {
+			c.State = state
+		}
+		return true
+	}
+	return false
+}
+
+func (p *UGTLDParser) handleCityField(line string, c *Contact) bool {
+	if strings.HasPrefix(line, "Registrant City:") || strings.HasPrefix(line, "Admin City:") || strings.HasPrefix(line, "Tech City:") {
+		city := p.extractValue(line, "Registrant City:", "Admin City:", "Tech City:")
+		if city != "" && city != "UNKNOWN" {
+			c.City = city
+		}
+		return true
+	}
+	return false
+}
+
+func (p *UGTLDParser) handleAddressField(line string, c *Contact) bool {
+	if strings.HasPrefix(line, "Registrant Address:") || strings.HasPrefix(line, "Admin Address:") || strings.HasPrefix(line, "Tech Address:") {
+		addr := p.extractValue(line, "Registrant Address:", "Admin Address:", "Tech Address:")
+		if addr != "" {
+			c.Street = append(c.Street, addr)
+		}
+		return true
+	}
+	return false
+}
+
+func (p *UGTLDParser) handlePostalField(line string, c *Contact) bool {
+	if strings.HasPrefix(line, "Registrant Postal Code:") || strings.HasPrefix(line, "Admin Postal Code:") || strings.HasPrefix(line, "Tech Postal Code:") {
+		postal := p.extractValue(line, "Registrant Postal Code:", "Admin Postal Code:", "Tech Postal Code:")
+		if postal != "" {
+			c.Postal = postal
+		}
+		return true
+	}
+	return false
+}
+
+func (p *UGTLDParser) handlePhoneField(line string, c *Contact) bool {
+	if strings.HasPrefix(line, "Registrant Phone:") || strings.HasPrefix(line, "Admin Phone:") || strings.HasPrefix(line, "Tech Phone:") {
+		phone := p.extractValue(line, "Registrant Phone:", "Admin Phone:", "Tech Phone:")
+		if phone != "" && phone != "UNKNOWN" {
+			c.Phone = phone
+		}
+		return true
+	}
+	return false
+}
+
+func (p *UGTLDParser) handleEmailField(line string, c *Contact) {
+	if strings.HasPrefix(line, "Registrant Email:") || strings.HasPrefix(line, "Admin Email:") || strings.HasPrefix(line, "Tech Email:") {
+		email := p.extractValue(line, "Registrant Email:", "Admin Email:", "Tech Email:")
+		if email != "" {
+			c.Email = email
+		}
+	}
+}
+
+func (p *UGTLDParser) extractValue(line string, prefixes ...string) string {
+	for _, prefix := range prefixes {
+		if strings.HasPrefix(line, prefix) {
+			return strings.TrimSpace(strings.TrimPrefix(line, prefix))
+		}
+	}
+	return ""
+}
+
+func (p *UGTLDParser) assignContacts(parsed *ParsedWhois, registrant, admin, tech Contact) {
 	if registrant.Name != "" || registrant.Organization != "" || registrant.Email != "" {
 		parsed.Contacts.Registrant = &registrant
 	}
@@ -191,10 +270,4 @@ func (p *UGTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	if tech.Name != "" || tech.Organization != "" || tech.Email != "" {
 		parsed.Contacts.Tech = &tech
 	}
-
-	// Add date format conversion
-	parsed.CreatedDate, _ = utils.GuessTimeFmtAndConvert(parsed.CreatedDateRaw, WhoisTimeFmt)
-	parsed.ExpiredDate, _ = utils.GuessTimeFmtAndConvert(parsed.ExpiredDateRaw, WhoisTimeFmt)
-
-	return parsed, nil
 }

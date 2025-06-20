@@ -58,58 +58,7 @@ created:      14.03.2024 11:16:43`
 		t.Errorf("Expected no error, got %v", err)
 	}
 
-	if parsedWhois.DomainName != "google.cr" {
-		t.Errorf("Expected domain name to be 'google.cr', got '%s'", parsedWhois.DomainName)
-	}
-
-	if len(parsedWhois.Statuses) != 5 {
-		t.Errorf("Expected 5 statuses, got %d", len(parsedWhois.Statuses))
-	}
-
-	expectedStatuses := []string{
-		"Administratively blocked",
-		"Deletion forbidden",
-		"Sponsoring registrar change forbidden",
-		"Update forbidden",
-		"Registrant change forbidden",
-	}
-	for i, status := range expectedStatuses {
-		if parsedWhois.Statuses[i] != status {
-			t.Errorf("Expected status %d to be '%s', got '%s'", i, status, parsedWhois.Statuses[i])
-		}
-	}
-
-	if parsedWhois.Registrar == nil || parsedWhois.Registrar.Name != "NIC-REG1" {
-		t.Errorf("Expected registrar name to be 'NIC-REG1', got '%s'", func() string {
-			if parsedWhois.Registrar == nil {
-				return "nil"
-			}
-			return parsedWhois.Registrar.Name
-		}())
-	}
-
-	if len(parsedWhois.NameServers) != 4 {
-		t.Errorf("Expected 4 name servers, got %d", len(parsedWhois.NameServers))
-	}
-
-	expectedNS := []string{"ns1.google.com", "ns2.google.com", "ns3.google.com", "ns4.google.com"}
-	for i, ns := range expectedNS {
-		if parsedWhois.NameServers[i] != ns {
-			t.Errorf("Expected name server %d to be '%s', got '%s'", i, ns, parsedWhois.NameServers[i])
-		}
-	}
-
-	if parsedWhois.CreatedDateRaw != "02.03.2008 18:00:00" {
-		t.Errorf("Expected created date raw to be '02.03.2008 18:00:00', got '%s'", parsedWhois.CreatedDateRaw)
-	}
-
-	if parsedWhois.UpdatedDateRaw != "26.05.2025 04:32:09" {
-		t.Errorf("Expected updated date raw to be '26.05.2025 04:32:09', got '%s'", parsedWhois.UpdatedDateRaw)
-	}
-
-	if parsedWhois.ExpiredDateRaw != "03.03.2026" {
-		t.Errorf("Expected expiration date raw to be '03.03.2026', got '%s'", parsedWhois.ExpiredDateRaw)
-	}
+	assertCRRegisteredDomain(t, parsedWhois)
 
 	// Test unregistered domain (case4)
 	rawtextFree := `% Domain Information over Whois protocol
@@ -125,24 +74,78 @@ created:      14.03.2024 11:16:43`
 		t.Errorf("Expected no error for free domain, got %v", err)
 	}
 
-	if len(parsedWhoisFree.Statuses) != 1 || parsedWhoisFree.Statuses[0] != "free" {
-		t.Errorf("Expected status to be 'free', got %v", parsedWhoisFree.Statuses)
+	assertCRUnregisteredDomain(t, parsedWhoisFree)
+}
+
+func assertCRRegisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
+	if parsedWhois.DomainName != "google.cr" {
+		t.Errorf("Expected domain name to be 'google.cr', got '%s'", parsedWhois.DomainName)
 	}
 
-	// Verify that free domains have no nameservers or dates
-	if len(parsedWhoisFree.NameServers) != 0 {
-		t.Errorf("Expected no name servers for free domain, got %d", len(parsedWhoisFree.NameServers))
+	expectedStatuses := []string{
+		"Administratively blocked",
+		"Deletion forbidden",
+		"Sponsoring registrar change forbidden",
+		"Update forbidden",
+		"Registrant change forbidden",
+	}
+	assertStringSliceEqualCR(t, parsedWhois.Statuses, expectedStatuses, "status")
+
+	if parsedWhois.Registrar == nil || parsedWhois.Registrar.Name != "NIC-REG1" {
+		t.Errorf("Expected registrar name to be 'NIC-REG1', got '%s'", func() string {
+			if parsedWhois.Registrar == nil {
+				return "nil"
+			}
+			return parsedWhois.Registrar.Name
+		}())
 	}
 
-	if parsedWhoisFree.CreatedDateRaw != "" {
-		t.Errorf("Expected no created date for free domain, got '%s'", parsedWhoisFree.CreatedDateRaw)
+	expectedNS := []string{"ns1.google.com", "ns2.google.com", "ns3.google.com", "ns4.google.com"}
+	assertStringSliceEqualCR(t, parsedWhois.NameServers, expectedNS, "name server")
+
+	if parsedWhois.CreatedDateRaw != "02.03.2008 18:00:00" {
+		t.Errorf("Expected created date raw to be '02.03.2008 18:00:00', got '%s'", parsedWhois.CreatedDateRaw)
 	}
 
-	if parsedWhoisFree.UpdatedDateRaw != "" {
-		t.Errorf("Expected no updated date for free domain, got '%s'", parsedWhoisFree.UpdatedDateRaw)
+	if parsedWhois.UpdatedDateRaw != "26.05.2025 04:32:09" {
+		t.Errorf("Expected updated date raw to be '26.05.2025 04:32:09', got '%s'", parsedWhois.UpdatedDateRaw)
 	}
 
-	if parsedWhoisFree.ExpiredDateRaw != "" {
-		t.Errorf("Expected no expiration date for free domain, got '%s'", parsedWhoisFree.ExpiredDateRaw)
+	if parsedWhois.ExpiredDateRaw != "03.03.2026" {
+		t.Errorf("Expected expiration date raw to be '03.03.2026', got '%s'", parsedWhois.ExpiredDateRaw)
+	}
+}
+
+func assertCRUnregisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
+	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "free" {
+		t.Errorf("Expected status to be 'free', got %v", parsedWhois.Statuses)
+	}
+
+	if len(parsedWhois.NameServers) != 0 {
+		t.Errorf("Expected no name servers for free domain, got %d", len(parsedWhois.NameServers))
+	}
+
+	if parsedWhois.CreatedDateRaw != "" {
+		t.Errorf("Expected no created date for free domain, got '%s'", parsedWhois.CreatedDateRaw)
+	}
+
+	if parsedWhois.UpdatedDateRaw != "" {
+		t.Errorf("Expected no updated date for free domain, got '%s'", parsedWhois.UpdatedDateRaw)
+	}
+
+	if parsedWhois.ExpiredDateRaw != "" {
+		t.Errorf("Expected no expiration date for free domain, got '%s'", parsedWhois.ExpiredDateRaw)
+	}
+}
+
+func assertStringSliceEqualCR(t *testing.T, actual, expected []string, label string) {
+	if len(actual) != len(expected) {
+		t.Errorf("Expected %d %s(s), got %d", len(expected), label, len(actual))
+		return
+	}
+	for i, v := range expected {
+		if i < len(actual) && actual[i] != v {
+			t.Errorf("Expected %s %d to be '%s', got '%s'", label, i, v, actual[i])
+		}
 	}
 }

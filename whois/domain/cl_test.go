@@ -42,6 +42,27 @@ Name server: ns4.google.com
 		t.Errorf("Expected no error, got %v", err)
 	}
 
+	assertCLRegisteredDomain(t, parsedWhois)
+
+	// Test unregistered domain (case8)
+	rawtextFree := `%%
+%% This is the NIC Chile Whois server (whois.nic.cl).
+%%
+%% Rights restricted by copyright.
+%% See https://www.nic.cl/normativa/politica-publicacion-de-datos-cl.pdf
+%%
+
+sdfsdfsdfsdfsdfsdf1212.cl: no entries found.`
+
+	parsedWhoisFree, err := parser.GetParsedWhois(rawtextFree)
+	if err != nil {
+		t.Errorf("Expected no error for free domain, got %v", err)
+	}
+
+	assertCLUnregisteredDomain(t, parsedWhoisFree)
+}
+
+func assertCLRegisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
 	if parsedWhois.DomainName != "google.cl" {
 		t.Errorf("Expected domain name to be 'google.cl', got '%s'", parsedWhois.DomainName)
 	}
@@ -74,16 +95,8 @@ Name server: ns4.google.com
 		t.Errorf("Expected registrar URL to be 'https://markmonitor.com/', got '%s'", parsedWhois.Registrar.URL)
 	}
 
-	if len(parsedWhois.NameServers) != 4 {
-		t.Errorf("Expected 4 name servers, got %d", len(parsedWhois.NameServers))
-	}
-
 	expectedNS := []string{"ns1.google.com", "ns2.google.com", "ns3.google.com", "ns4.google.com"}
-	for i, ns := range expectedNS {
-		if parsedWhois.NameServers[i] != ns {
-			t.Errorf("Expected name server %d to be '%s', got '%s'", i, ns, parsedWhois.NameServers[i])
-		}
-	}
+	assertStringSliceEqualCL(t, parsedWhois.NameServers, expectedNS, "name server")
 
 	if parsedWhois.CreatedDateRaw != "2002-10-22 17:48:23 CLST" {
 		t.Errorf("Expected created date raw to be '2002-10-22 17:48:23 CLST', got '%s'", parsedWhois.CreatedDateRaw)
@@ -92,36 +105,34 @@ Name server: ns4.google.com
 	if parsedWhois.ExpiredDateRaw != "2025-11-20 14:48:02 CLST" {
 		t.Errorf("Expected expiration date raw to be '2025-11-20 14:48:02 CLST', got '%s'", parsedWhois.ExpiredDateRaw)
 	}
+}
 
-	// Test unregistered domain (case8)
-	rawtextFree := `%%
-%% This is the NIC Chile Whois server (whois.nic.cl).
-%%
-%% Rights restricted by copyright.
-%% See https://www.nic.cl/normativa/politica-publicacion-de-datos-cl.pdf
-%%
-
-sdfsdfsdfsdfsdfsdf1212.cl: no entries found.`
-
-	parsedWhoisFree, err := parser.GetParsedWhois(rawtextFree)
-	if err != nil {
-		t.Errorf("Expected no error for free domain, got %v", err)
+func assertCLUnregisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
+	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "free" {
+		t.Errorf("Expected status to be 'free', got %v", parsedWhois.Statuses)
 	}
 
-	if len(parsedWhoisFree.Statuses) != 1 || parsedWhoisFree.Statuses[0] != "free" {
-		t.Errorf("Expected status to be 'free', got %v", parsedWhoisFree.Statuses)
+	if len(parsedWhois.NameServers) != 0 {
+		t.Errorf("Expected no name servers for free domain, got %d", len(parsedWhois.NameServers))
 	}
 
-	// Verify that free domains have no nameservers or dates
-	if len(parsedWhoisFree.NameServers) != 0 {
-		t.Errorf("Expected no name servers for free domain, got %d", len(parsedWhoisFree.NameServers))
+	if parsedWhois.CreatedDateRaw != "" {
+		t.Errorf("Expected no created date for free domain, got '%s'", parsedWhois.CreatedDateRaw)
 	}
 
-	if parsedWhoisFree.CreatedDateRaw != "" {
-		t.Errorf("Expected no created date for free domain, got '%s'", parsedWhoisFree.CreatedDateRaw)
+	if parsedWhois.ExpiredDateRaw != "" {
+		t.Errorf("Expected no expiration date for free domain, got '%s'", parsedWhois.ExpiredDateRaw)
 	}
+}
 
-	if parsedWhoisFree.ExpiredDateRaw != "" {
-		t.Errorf("Expected no expiration date for free domain, got '%s'", parsedWhoisFree.ExpiredDateRaw)
+func assertStringSliceEqualCL(t *testing.T, actual, expected []string, label string) {
+	if len(actual) != len(expected) {
+		t.Errorf("Expected %d %ss, got %d", len(expected), label, len(actual))
+		return
+	}
+	for i, v := range expected {
+		if i < len(actual) && actual[i] != v {
+			t.Errorf("Expected %s %d to be '%s', got '%s'", label, i, v, actual[i])
+		}
 	}
 }

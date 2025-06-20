@@ -54,36 +54,7 @@ Contact Information: [公開連絡窓口]
 		t.Errorf("Expected no error, got %v", err)
 	}
 
-	if parsedWhois.DomainName != "GOOGLE.JP" {
-		t.Errorf("Expected domain name to be 'GOOGLE.JP', got '%s'", parsedWhois.DomainName)
-	}
-
-	if len(parsedWhois.NameServers) != 4 {
-		t.Errorf("Expected 4 name servers, got %d", len(parsedWhois.NameServers))
-	}
-
-	expectedNS := []string{"ns1.google.com", "ns2.google.com", "ns3.google.com", "ns4.google.com"}
-	for i, ns := range expectedNS {
-		if parsedWhois.NameServers[i] != ns {
-			t.Errorf("Expected name server %d to be '%s', got '%s'", i, ns, parsedWhois.NameServers[i])
-		}
-	}
-
-	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "Active" {
-		t.Errorf("Expected status to be 'Active', got %v", parsedWhois.Statuses)
-	}
-
-	if parsedWhois.CreatedDateRaw != "2005/05/30" {
-		t.Errorf("Expected created date raw to be '2005/05/30', got '%s'", parsedWhois.CreatedDateRaw)
-	}
-
-	if parsedWhois.ExpiredDateRaw != "2026/05/31" {
-		t.Errorf("Expected expired date raw to be '2026/05/31', got '%s'", parsedWhois.ExpiredDateRaw)
-	}
-
-	if parsedWhois.UpdatedDateRaw != "2025/06/01 01:05:04 (JST)" {
-		t.Errorf("Expected updated date raw to be '2025/06/01 01:05:04 (JST)', got '%s'", parsedWhois.UpdatedDateRaw)
-	}
+	assertJPRegisteredDomain(t, parsedWhois, "GOOGLE.JP", []string{"ns1.google.com", "ns2.google.com", "ns3.google.com", "ns4.google.com"}, "2005/05/30", "2026/05/31", "2025/06/01 01:05:04 (JST)")
 
 	// Test unregistered domain (case8)
 	rawtextFree := `[ JPRS database provides information on network administration. Its use is    ]
@@ -111,24 +82,63 @@ JPRS WHOISは、JPRSが管理している以下のドメイン名に関する情
 		t.Errorf("Expected no error for free domain, got %v", err)
 	}
 
-	if len(parsedWhoisFree.Statuses) != 1 || parsedWhoisFree.Statuses[0] != "free" {
-		t.Errorf("Expected status to be 'free', got %v", parsedWhoisFree.Statuses)
+	assertJPUnregisteredDomain(t, parsedWhoisFree)
+}
+
+func assertJPRegisteredDomain(t *testing.T, parsedWhois *ParsedWhois, expectedDomain string, expectedNS []string, expectedCreated, expectedExpired, expectedUpdated string) {
+	if parsedWhois.DomainName != expectedDomain {
+		t.Errorf("Expected domain name to be '%s', got '%s'", expectedDomain, parsedWhois.DomainName)
 	}
 
-	// Verify that free domains have no nameservers or dates
-	if len(parsedWhoisFree.NameServers) != 0 {
-		t.Errorf("Expected no name servers for free domain, got %d", len(parsedWhoisFree.NameServers))
+	assertStringSliceEqualJP(t, parsedWhois.NameServers, expectedNS, "name server")
+
+	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "Active" {
+		t.Errorf("Expected status to be 'Active', got %v", parsedWhois.Statuses)
 	}
 
-	if parsedWhoisFree.CreatedDateRaw != "" {
-		t.Errorf("Expected no created date for free domain, got '%s'", parsedWhoisFree.CreatedDateRaw)
+	if parsedWhois.CreatedDateRaw != expectedCreated {
+		t.Errorf("Expected created date raw to be '%s', got '%s'", expectedCreated, parsedWhois.CreatedDateRaw)
 	}
 
-	if parsedWhoisFree.ExpiredDateRaw != "" {
-		t.Errorf("Expected no expired date for free domain, got '%s'", parsedWhoisFree.ExpiredDateRaw)
+	if parsedWhois.ExpiredDateRaw != expectedExpired {
+		t.Errorf("Expected expired date raw to be '%s', got '%s'", expectedExpired, parsedWhois.ExpiredDateRaw)
 	}
 
-	if parsedWhoisFree.UpdatedDateRaw != "" {
-		t.Errorf("Expected no updated date for free domain, got '%s'", parsedWhoisFree.UpdatedDateRaw)
+	if parsedWhois.UpdatedDateRaw != expectedUpdated {
+		t.Errorf("Expected updated date raw to be '%s', got '%s'", expectedUpdated, parsedWhois.UpdatedDateRaw)
+	}
+}
+
+func assertJPUnregisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
+	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "free" {
+		t.Errorf("Expected status to be 'free', got %v", parsedWhois.Statuses)
+	}
+
+	if len(parsedWhois.NameServers) != 0 {
+		t.Errorf("Expected no name servers for free domain, got %d", len(parsedWhois.NameServers))
+	}
+
+	if parsedWhois.CreatedDateRaw != "" {
+		t.Errorf("Expected no created date for free domain, got '%s'", parsedWhois.CreatedDateRaw)
+	}
+
+	if parsedWhois.ExpiredDateRaw != "" {
+		t.Errorf("Expected no expired date for free domain, got '%s'", parsedWhois.ExpiredDateRaw)
+	}
+
+	if parsedWhois.UpdatedDateRaw != "" {
+		t.Errorf("Expected no updated date for free domain, got '%s'", parsedWhois.UpdatedDateRaw)
+	}
+}
+
+func assertStringSliceEqualJP(t *testing.T, actual, expected []string, label string) {
+	if len(actual) != len(expected) {
+		t.Errorf("Expected %d %s(s), got %d", len(expected), label, len(actual))
+		return
+	}
+	for i, v := range expected {
+		if i < len(actual) && actual[i] != v {
+			t.Errorf("Expected %s %d to be '%s', got '%s'", label, i, v, actual[i])
+		}
 	}
 }

@@ -42,61 +42,12 @@ func (p *TMTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 		if line == "" {
 			continue
 		}
-
-		if strings.HasPrefix(line, "Domain :") {
-			parsed.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "Domain :"))
-			continue
-		}
-		if strings.HasPrefix(line, "Status :") {
-			status := strings.TrimSpace(strings.TrimPrefix(line, "Status :"))
-			if status != "" {
-				parsed.Statuses = append(parsed.Statuses, status)
-			}
-			continue
-		}
-		if strings.HasPrefix(line, "Expiry :") {
-			parsed.ExpiredDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Expiry :"))
-			continue
-		}
-		if strings.HasPrefix(line, "Owner Name") {
-			name := strings.TrimSpace(strings.TrimPrefix(line, "Owner Name"))
-			name = strings.TrimSpace(strings.TrimPrefix(name, ":"))
-			if name != "" {
-				registrant.Name = name
-			}
-			continue
-		}
-		if strings.HasPrefix(line, "Owner OrgName") {
-			org := strings.TrimSpace(strings.TrimPrefix(line, "Owner OrgName"))
-			org = strings.TrimSpace(strings.TrimPrefix(org, ":"))
-			if org != "" {
-				registrant.Organization = org
-			}
-			continue
-		}
-		if strings.HasPrefix(line, "Owner Addr") {
-			addr := strings.TrimSpace(strings.TrimPrefix(line, "Owner Addr"))
-			addr = strings.TrimSpace(strings.TrimPrefix(addr, ":"))
-			if addr != "" {
-				registrant.Street = append(registrant.Street, addr)
-			}
+		if p.parseTopLevelFields(line, &registrant, parsed) {
 			continue
 		}
 	}
 
-	// Dynamic name server detection
-	parsed.NameServers = nil
-	for _, line := range lines {
-		if strings.HasPrefix(line, "NS ") {
-			parts := strings.SplitN(line, ":", 2)
-			if len(parts) == 2 {
-				ns := strings.TrimSpace(parts[1])
-				if ns != "" {
-					parsed.NameServers = append(parsed.NameServers, ns)
-				}
-			}
-		}
-	}
+	parsed.NameServers = p.parseNameServers(lines)
 
 	if registrant.Name != "" || registrant.Organization != "" || len(registrant.Street) > 0 {
 		parsed.Contacts.Registrant = &registrant
@@ -106,4 +57,59 @@ func (p *TMTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	parsed.ExpiredDate, _ = utils.GuessTimeFmtAndConvert(parsed.ExpiredDateRaw, WhoisTimeFmt)
 
 	return parsed, nil
+}
+
+func (p *TMTLDParser) parseTopLevelFields(line string, registrant *Contact, parsed *ParsedWhois) bool {
+	switch {
+	case strings.HasPrefix(line, "Domain :"):
+		parsed.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "Domain :"))
+		return true
+	case strings.HasPrefix(line, "Status :"):
+		status := strings.TrimSpace(strings.TrimPrefix(line, "Status :"))
+		if status != "" {
+			parsed.Statuses = append(parsed.Statuses, status)
+		}
+		return true
+	case strings.HasPrefix(line, "Expiry :"):
+		parsed.ExpiredDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Expiry :"))
+		return true
+	case strings.HasPrefix(line, "Owner Name"):
+		name := strings.TrimSpace(strings.TrimPrefix(line, "Owner Name"))
+		name = strings.TrimSpace(strings.TrimPrefix(name, ":"))
+		if name != "" {
+			registrant.Name = name
+		}
+		return true
+	case strings.HasPrefix(line, "Owner OrgName"):
+		org := strings.TrimSpace(strings.TrimPrefix(line, "Owner OrgName"))
+		org = strings.TrimSpace(strings.TrimPrefix(org, ":"))
+		if org != "" {
+			registrant.Organization = org
+		}
+		return true
+	case strings.HasPrefix(line, "Owner Addr"):
+		addr := strings.TrimSpace(strings.TrimPrefix(line, "Owner Addr"))
+		addr = strings.TrimSpace(strings.TrimPrefix(addr, ":"))
+		if addr != "" {
+			registrant.Street = append(registrant.Street, addr)
+		}
+		return true
+	}
+	return false
+}
+
+func (p *TMTLDParser) parseNameServers(lines []string) []string {
+	var nameServers []string
+	for _, line := range lines {
+		if strings.HasPrefix(line, "NS ") {
+			parts := strings.SplitN(line, ":", 2)
+			if len(parts) == 2 {
+				ns := strings.TrimSpace(parts[1])
+				if ns != "" {
+					nameServers = append(nameServers, ns)
+				}
+			}
+		}
+	}
+	return nameServers
 }

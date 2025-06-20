@@ -39,49 +39,7 @@ func TestUZParser(t *testing.T) {
 		t.Errorf("Expected no error, got %v", err)
 	}
 
-	if parsed.DomainName != "GOOGLE.UZ" {
-		t.Errorf("Expected domain name 'GOOGLE.UZ', got '%s'", parsed.DomainName)
-	}
-
-	if parsed.Registrar == nil || parsed.Registrar.Name != "Tomas" {
-		t.Errorf("Expected registrar name 'Tomas', got '%v'", parsed.Registrar)
-	}
-
-	// Check that all expected nameservers are present (order may vary due to sorting)
-	expectedNS := []string{"ns1.google.com.", "ns2.google.com.", "not.defined.", "not.defined."}
-	if len(parsed.NameServers) != len(expectedNS) {
-		t.Errorf("Expected %d nameservers, got %d", len(expectedNS), len(parsed.NameServers))
-	}
-
-	// Check that all expected nameservers are present
-	for _, expectedNS := range expectedNS {
-		found := false
-		for _, actualNS := range parsed.NameServers {
-			if actualNS == expectedNS {
-				found = true
-				break
-			}
-		}
-		if !found {
-			t.Errorf("Expected nameserver '%s' not found in %v", expectedNS, parsed.NameServers)
-		}
-	}
-
-	if len(parsed.Statuses) != 1 || parsed.Statuses[0] != "ACTIVE" {
-		t.Errorf("Expected status 'ACTIVE', got %v", parsed.Statuses)
-	}
-
-	if parsed.UpdatedDateRaw != "25-Apr-2025" {
-		t.Errorf("Expected updated date '25-Apr-2025', got '%s'", parsed.UpdatedDateRaw)
-	}
-
-	if parsed.CreatedDateRaw != "13-Apr-2006" {
-		t.Errorf("Expected created date '13-Apr-2006', got '%s'", parsed.CreatedDateRaw)
-	}
-
-	if parsed.ExpiredDateRaw != "01-May-2026" {
-		t.Errorf("Expected expiry date '01-May-2026', got '%s'", parsed.ExpiredDateRaw)
-	}
+	assertUZRegisteredDomain(t, parsed, "GOOGLE.UZ", "Tomas", []string{"ns1.google.com.", "ns2.google.com.", "not.defined.", "not.defined."}, "13-Apr-2006", "25-Apr-2025", "01-May-2026")
 }
 
 func TestUZParserUnregistered(t *testing.T) {
@@ -106,8 +64,40 @@ Sorry, but domain: "jthsitshtkckthst124312.uz", not found in database
 		t.Errorf("Expected no error, got %v", err)
 	}
 
-	if parsed.DomainName != "jthsitshtkckthst124312.uz" {
-		t.Errorf("Expected domain name 'jthsitshtkckthst124312.uz', got '%s'", parsed.DomainName)
+	assertUZUnregisteredDomain(t, parsed, "jthsitshtkckthst124312.uz")
+}
+
+func assertUZRegisteredDomain(t *testing.T, parsed *ParsedWhois, expectedDomain, expectedRegistrar string, expectedNS []string, expectedCreated, expectedUpdated, expectedExpired string) {
+	if parsed.DomainName != expectedDomain {
+		t.Errorf("Expected domain name '%s', got '%s'", expectedDomain, parsed.DomainName)
+	}
+
+	if parsed.Registrar == nil || parsed.Registrar.Name != expectedRegistrar {
+		t.Errorf("Expected registrar name '%s', got '%v'", expectedRegistrar, parsed.Registrar)
+	}
+
+	assertUZNameservers(t, parsed, expectedNS)
+
+	if len(parsed.Statuses) != 1 || parsed.Statuses[0] != "ACTIVE" {
+		t.Errorf("Expected status 'ACTIVE', got %v", parsed.Statuses)
+	}
+
+	if parsed.UpdatedDateRaw != expectedUpdated {
+		t.Errorf("Expected updated date '%s', got '%s'", expectedUpdated, parsed.UpdatedDateRaw)
+	}
+
+	if parsed.CreatedDateRaw != expectedCreated {
+		t.Errorf("Expected created date '%s', got '%s'", expectedCreated, parsed.CreatedDateRaw)
+	}
+
+	if parsed.ExpiredDateRaw != expectedExpired {
+		t.Errorf("Expected expiry date '%s', got '%s'", expectedExpired, parsed.ExpiredDateRaw)
+	}
+}
+
+func assertUZUnregisteredDomain(t *testing.T, parsed *ParsedWhois, expectedDomain string) {
+	if parsed.DomainName != expectedDomain {
+		t.Errorf("Expected domain name '%s', got '%s'", expectedDomain, parsed.DomainName)
 	}
 
 	if parsed.CreatedDateRaw != "" {
@@ -124,5 +114,26 @@ Sorry, but domain: "jthsitshtkckthst124312.uz", not found in database
 
 	if len(parsed.NameServers) != 0 {
 		t.Errorf("Expected no nameservers for unregistered domain, got %v", parsed.NameServers)
+	}
+}
+
+func assertUZNameservers(t *testing.T, parsed *ParsedWhois, expectedNS []string) {
+	if len(parsed.NameServers) != len(expectedNS) {
+		t.Errorf("Expected %d nameservers, got %d", len(expectedNS), len(parsed.NameServers))
+		return
+	}
+
+	// Check that all expected nameservers are present (unordered)
+	for _, expectedNS := range expectedNS {
+		found := false
+		for _, actualNS := range parsed.NameServers {
+			if actualNS == expectedNS {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("Expected nameserver '%s' not found in %v", expectedNS, parsed.NameServers)
+		}
 	}
 }

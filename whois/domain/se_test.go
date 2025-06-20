@@ -49,47 +49,7 @@ registrar:        MarkMonitor Inc`
 		t.Errorf("Expected no error, got %v", err)
 	}
 
-	if parsedWhois.DomainName != "google.se" {
-		t.Errorf("Expected domain name to be 'google.se', got '%s'", parsedWhois.DomainName)
-	}
-
-	if len(parsedWhois.NameServers) != 4 {
-		t.Errorf("Expected 4 name servers, got %d", len(parsedWhois.NameServers))
-	}
-
-	expectedNS := []string{"ns1.google.com", "ns2.google.com", "ns3.google.com", "ns4.google.com"}
-	for i, ns := range expectedNS {
-		if parsedWhois.NameServers[i] != ns {
-			t.Errorf("Expected name server %d to be '%s', got '%s'", i, ns, parsedWhois.NameServers[i])
-		}
-	}
-
-	if len(parsedWhois.Statuses) != 3 {
-		t.Errorf("Expected 3 statuses, got %d", len(parsedWhois.Statuses))
-	}
-
-	expectedStatuses := []string{"serverUpdateProhibited", "serverDeleteProhibited", "serverTransferProhibited"}
-	for i, status := range expectedStatuses {
-		if parsedWhois.Statuses[i] != status {
-			t.Errorf("Expected status %d to be '%s', got '%s'", i, status, parsedWhois.Statuses[i])
-		}
-	}
-
-	if parsedWhois.CreatedDateRaw != "2003-08-27" {
-		t.Errorf("Expected created date raw to be '2003-08-27', got '%s'", parsedWhois.CreatedDateRaw)
-	}
-
-	if parsedWhois.UpdatedDateRaw != "2024-09-18" {
-		t.Errorf("Expected updated date raw to be '2024-09-18', got '%s'", parsedWhois.UpdatedDateRaw)
-	}
-
-	if parsedWhois.ExpiredDateRaw != "2025-10-20" {
-		t.Errorf("Expected expired date raw to be '2025-10-20', got '%s'", parsedWhois.ExpiredDateRaw)
-	}
-
-	if parsedWhois.Dnssec != "unsigned delegation" {
-		t.Errorf("Expected dnssec to be 'unsigned delegation', got '%s'", parsedWhois.Dnssec)
-	}
+	assertSERegisteredDomain(t, parsedWhois)
 
 	// Test unregistered domain (case8)
 	rawtextFree := `# Copyright (c) 1997- The Swedish Internet Foundation.
@@ -114,25 +74,68 @@ domain "sdfsdfsdfsdfsdfsdf1212.se" not found.`
 		t.Errorf("Expected no error for free domain, got %v", err)
 	}
 
-	if len(parsedWhoisFree.Statuses) != 1 || parsedWhoisFree.Statuses[0] != "free" {
-		t.Errorf("Expected status to be 'free', got %v", parsedWhoisFree.Statuses)
+	assertSEUnregisteredDomain(t, parsedWhoisFree)
+}
+
+func assertSERegisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
+	if parsedWhois.DomainName != "google.se" {
+		t.Errorf("Expected domain name to be 'google.se', got '%s'", parsedWhois.DomainName)
 	}
 
-	// Verify that free domains have no nameservers or dates
-	if len(parsedWhoisFree.NameServers) != 0 {
-		t.Errorf("Expected no name servers for free domain, got %d", len(parsedWhoisFree.NameServers))
+	expectedNS := []string{"ns1.google.com", "ns2.google.com", "ns3.google.com", "ns4.google.com"}
+	assertStringSliceEqualSE(t, parsedWhois.NameServers, expectedNS, "name server")
+
+	expectedStatuses := []string{"serverUpdateProhibited", "serverDeleteProhibited", "serverTransferProhibited"}
+	assertStringSliceEqualSE(t, parsedWhois.Statuses, expectedStatuses, "status")
+
+	if parsedWhois.CreatedDateRaw != "2003-08-27" {
+		t.Errorf("Expected created date raw to be '2003-08-27', got '%s'", parsedWhois.CreatedDateRaw)
 	}
 
-	if parsedWhoisFree.CreatedDateRaw != "" {
-		t.Errorf("Expected no created date for free domain, got '%s'", parsedWhoisFree.CreatedDateRaw)
+	if parsedWhois.UpdatedDateRaw != "2024-09-18" {
+		t.Errorf("Expected updated date raw to be '2024-09-18', got '%s'", parsedWhois.UpdatedDateRaw)
 	}
 
-	if parsedWhoisFree.UpdatedDateRaw != "" {
-		t.Errorf("Expected no updated date for free domain, got '%s'", parsedWhoisFree.UpdatedDateRaw)
+	if parsedWhois.ExpiredDateRaw != "2025-10-20" {
+		t.Errorf("Expected expired date raw to be '2025-10-20', got '%s'", parsedWhois.ExpiredDateRaw)
 	}
 
-	if parsedWhoisFree.ExpiredDateRaw != "" {
-		t.Errorf("Expected no expired date for free domain, got '%s'", parsedWhoisFree.ExpiredDateRaw)
+	if parsedWhois.Dnssec != "unsigned delegation" {
+		t.Errorf("Expected dnssec to be 'unsigned delegation', got '%s'", parsedWhois.Dnssec)
+	}
+}
+
+func assertSEUnregisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
+	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "free" {
+		t.Errorf("Expected status to be 'free', got %v", parsedWhois.Statuses)
+	}
+
+	if len(parsedWhois.NameServers) != 0 {
+		t.Errorf("Expected no name servers for free domain, got %d", len(parsedWhois.NameServers))
+	}
+
+	if parsedWhois.CreatedDateRaw != "" {
+		t.Errorf("Expected no created date for free domain, got '%s'", parsedWhois.CreatedDateRaw)
+	}
+
+	if parsedWhois.UpdatedDateRaw != "" {
+		t.Errorf("Expected no updated date for free domain, got '%s'", parsedWhois.UpdatedDateRaw)
+	}
+
+	if parsedWhois.ExpiredDateRaw != "" {
+		t.Errorf("Expected no expired date for free domain, got '%s'", parsedWhois.ExpiredDateRaw)
+	}
+}
+
+func assertStringSliceEqualSE(t *testing.T, actual, expected []string, label string) {
+	if len(actual) != len(expected) {
+		t.Errorf("Expected %d %s(s), got %d", len(expected), label, len(actual))
+		return
+	}
+	for i, v := range expected {
+		if i < len(actual) && actual[i] != v {
+			t.Errorf("Expected %s %d to be '%s', got '%s'", label, i, v, actual[i])
+		}
 	}
 }
 
@@ -174,32 +177,7 @@ registrar:        MarkMonitor Inc`
 		t.Errorf("Expected no error, got %v", err)
 	}
 
-	if parsedWhois.DomainName != "google.nu" {
-		t.Errorf("Expected domain name to be 'google.nu', got '%s'", parsedWhois.DomainName)
-	}
-
-	if len(parsedWhois.NameServers) != 4 {
-		t.Errorf("Expected 4 name servers, got %d", len(parsedWhois.NameServers))
-	}
-
-	expectedNS := []string{"ns1.google.com", "ns2.google.com", "ns3.google.com", "ns4.google.com"}
-	for i, ns := range expectedNS {
-		if parsedWhois.NameServers[i] != ns {
-			t.Errorf("Expected name server %d to be '%s', got '%s'", i, ns, parsedWhois.NameServers[i])
-		}
-	}
-
-	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "ok" {
-		t.Errorf("Expected status to be 'ok', got %v", parsedWhois.Statuses)
-	}
-
-	if parsedWhois.CreatedDateRaw != "1999-06-07" {
-		t.Errorf("Expected created date raw to be '1999-06-07', got '%s'", parsedWhois.CreatedDateRaw)
-	}
-
-	if parsedWhois.ExpiredDateRaw != "2026-06-07" {
-		t.Errorf("Expected expired date raw to be '2026-06-07', got '%s'", parsedWhois.ExpiredDateRaw)
-	}
+	assertNURegisteredDomain(t, parsedWhois)
 
 	// Test unregistered domain (case8)
 	rawtextFree := `# Copyright (c) 1997- The Swedish Internet Foundation.
@@ -224,20 +202,56 @@ domain "sdfsdfsdfsdfsdfsdf1212.nu" not found.`
 		t.Errorf("Expected no error for free domain, got %v", err)
 	}
 
-	if len(parsedWhoisFree.Statuses) != 1 || parsedWhoisFree.Statuses[0] != "free" {
-		t.Errorf("Expected status to be 'free', got %v", parsedWhoisFree.Statuses)
+	assertNUUnregisteredDomain(t, parsedWhoisFree)
+}
+
+func assertNURegisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
+	if parsedWhois.DomainName != "google.nu" {
+		t.Errorf("Expected domain name to be 'google.nu', got '%s'", parsedWhois.DomainName)
 	}
 
-	// Verify that free domains have no nameservers or dates
-	if len(parsedWhoisFree.NameServers) != 0 {
-		t.Errorf("Expected no name servers for free domain, got %d", len(parsedWhoisFree.NameServers))
+	expectedNS := []string{"ns1.google.com", "ns2.google.com", "ns3.google.com", "ns4.google.com"}
+	assertStringSliceEqualNU(t, parsedWhois.NameServers, expectedNS, "name server")
+
+	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "ok" {
+		t.Errorf("Expected status to be 'ok', got %v", parsedWhois.Statuses)
 	}
 
-	if parsedWhoisFree.CreatedDateRaw != "" {
-		t.Errorf("Expected no created date for free domain, got '%s'", parsedWhoisFree.CreatedDateRaw)
+	if parsedWhois.CreatedDateRaw != "1999-06-07" {
+		t.Errorf("Expected created date raw to be '1999-06-07', got '%s'", parsedWhois.CreatedDateRaw)
 	}
 
-	if parsedWhoisFree.ExpiredDateRaw != "" {
-		t.Errorf("Expected no expired date for free domain, got '%s'", parsedWhoisFree.ExpiredDateRaw)
+	if parsedWhois.ExpiredDateRaw != "2026-06-07" {
+		t.Errorf("Expected expired date raw to be '2026-06-07', got '%s'", parsedWhois.ExpiredDateRaw)
+	}
+}
+
+func assertNUUnregisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
+	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "free" {
+		t.Errorf("Expected status to be 'free', got %v", parsedWhois.Statuses)
+	}
+
+	if len(parsedWhois.NameServers) != 0 {
+		t.Errorf("Expected no name servers for free domain, got %d", len(parsedWhois.NameServers))
+	}
+
+	if parsedWhois.CreatedDateRaw != "" {
+		t.Errorf("Expected no created date for free domain, got '%s'", parsedWhois.CreatedDateRaw)
+	}
+
+	if parsedWhois.ExpiredDateRaw != "" {
+		t.Errorf("Expected no expired date for free domain, got '%s'", parsedWhois.ExpiredDateRaw)
+	}
+}
+
+func assertStringSliceEqualNU(t *testing.T, actual, expected []string, label string) {
+	if len(actual) != len(expected) {
+		t.Errorf("Expected %d %s(s), got %d", len(expected), label, len(actual))
+		return
+	}
+	for i, v := range expected {
+		if i < len(actual) && actual[i] != v {
+			t.Errorf("Expected %s %d to be '%s', got '%s'", label, i, v, actual[i])
+		}
 	}
 }

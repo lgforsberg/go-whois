@@ -34,31 +34,39 @@ DNSSEC: unsigned`
 		t.Errorf("Expected no error, got %v", err)
 	}
 
+	assertCNRegisteredDomain(t, parsedWhois)
+
+	// Test unregistered domain (case11)
+	rawtextFree := `No matching record.`
+
+	parsedWhoisFree, err := parser.GetParsedWhois(rawtextFree)
+	if err != nil {
+		t.Errorf("Expected no error for free domain, got %v", err)
+	}
+
+	assertCNUnregisteredDomain(t, parsedWhoisFree)
+
+	// Test another unregistered domain format (case3)
+	rawtextFree2 := `the Domain Name you apply can not be registered online. Please consult your Domain Name registrar`
+
+	parsedWhoisFree2, err := parser.GetParsedWhois(rawtextFree2)
+	if err != nil {
+		t.Errorf("Expected no error for free domain case3, got %v", err)
+	}
+
+	assertCNUnregisteredDomain(t, parsedWhoisFree2)
+}
+
+func assertCNRegisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
 	if parsedWhois.DomainName != "google.cn" {
 		t.Errorf("Expected domain name to be 'google.cn', got '%s'", parsedWhois.DomainName)
 	}
 
-	if len(parsedWhois.NameServers) != 4 {
-		t.Errorf("Expected 4 name servers, got %d", len(parsedWhois.NameServers))
-	}
-
 	expectedNS := []string{"ns2.google.com", "ns1.google.com", "ns3.google.com", "ns4.google.com"}
-	for i, ns := range expectedNS {
-		if parsedWhois.NameServers[i] != ns {
-			t.Errorf("Expected name server %d to be '%s', got '%s'", i, ns, parsedWhois.NameServers[i])
-		}
-	}
-
-	if len(parsedWhois.Statuses) != 5 {
-		t.Errorf("Expected 5 statuses, got %d", len(parsedWhois.Statuses))
-	}
+	assertStringSliceEqualCN(t, parsedWhois.NameServers, expectedNS, "name server")
 
 	expectedStatuses := []string{"clientDeleteProhibited", "serverDeleteProhibited", "serverUpdateProhibited", "clientTransferProhibited", "serverTransferProhibited"}
-	for i, status := range expectedStatuses {
-		if parsedWhois.Statuses[i] != status {
-			t.Errorf("Expected status %d to be '%s', got '%s'", i, status, parsedWhois.Statuses[i])
-		}
-	}
+	assertStringSliceEqualCN(t, parsedWhois.Statuses, expectedStatuses, "status")
 
 	if parsedWhois.CreatedDateRaw != "2003-03-17 12:20:05" {
 		t.Errorf("Expected created date raw to be '2003-03-17 12:20:05', got '%s'", parsedWhois.CreatedDateRaw)
@@ -71,41 +79,34 @@ DNSSEC: unsigned`
 	if parsedWhois.Dnssec != "unsigned" {
 		t.Errorf("Expected dnssec to be 'unsigned', got '%s'", parsedWhois.Dnssec)
 	}
+}
 
-	// Test unregistered domain (case11)
-	rawtextFree := `No matching record.`
-
-	parsedWhoisFree, err := parser.GetParsedWhois(rawtextFree)
-	if err != nil {
-		t.Errorf("Expected no error for free domain, got %v", err)
+func assertCNUnregisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
+	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "free" {
+		t.Errorf("Expected status to be 'free', got %v", parsedWhois.Statuses)
 	}
 
-	if len(parsedWhoisFree.Statuses) != 1 || parsedWhoisFree.Statuses[0] != "free" {
-		t.Errorf("Expected status to be 'free', got %v", parsedWhoisFree.Statuses)
+	if len(parsedWhois.NameServers) != 0 {
+		t.Errorf("Expected no name servers for free domain, got %d", len(parsedWhois.NameServers))
 	}
 
-	// Verify that free domains have no nameservers or dates
-	if len(parsedWhoisFree.NameServers) != 0 {
-		t.Errorf("Expected no name servers for free domain, got %d", len(parsedWhoisFree.NameServers))
+	if parsedWhois.CreatedDateRaw != "" {
+		t.Errorf("Expected no created date for free domain, got '%s'", parsedWhois.CreatedDateRaw)
 	}
 
-	if parsedWhoisFree.CreatedDateRaw != "" {
-		t.Errorf("Expected no created date for free domain, got '%s'", parsedWhoisFree.CreatedDateRaw)
+	if parsedWhois.ExpiredDateRaw != "" {
+		t.Errorf("Expected no expired date for free domain, got '%s'", parsedWhois.ExpiredDateRaw)
 	}
+}
 
-	if parsedWhoisFree.ExpiredDateRaw != "" {
-		t.Errorf("Expected no expired date for free domain, got '%s'", parsedWhoisFree.ExpiredDateRaw)
+func assertStringSliceEqualCN(t *testing.T, actual, expected []string, label string) {
+	if len(actual) != len(expected) {
+		t.Errorf("Expected %d %s(s), got %d", len(expected), label, len(actual))
+		return
 	}
-
-	// Test another unregistered domain format (case3)
-	rawtextFree2 := `the Domain Name you apply can not be registered online. Please consult your Domain Name registrar`
-
-	parsedWhoisFree2, err := parser.GetParsedWhois(rawtextFree2)
-	if err != nil {
-		t.Errorf("Expected no error for free domain case3, got %v", err)
-	}
-
-	if len(parsedWhoisFree2.Statuses) != 1 || parsedWhoisFree2.Statuses[0] != "free" {
-		t.Errorf("Expected status to be 'free', got %v", parsedWhoisFree2.Statuses)
+	for i, v := range expected {
+		if i < len(actual) && actual[i] != v {
+			t.Errorf("Expected %s %d to be '%s', got '%s'", label, i, v, actual[i])
+		}
 	}
 }

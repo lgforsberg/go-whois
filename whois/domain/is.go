@@ -27,32 +27,60 @@ func (isw *ISTLDParser) parseDomainSection(lines []string, parsedWhois *ParsedWh
 			continue
 		}
 		if !domainSectionDone {
-			if strings.HasPrefix(line, "domain:") {
-				parsedWhois.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "domain:"))
-			} else if strings.HasPrefix(line, "registrant:") {
-				handles["registrant"] = strings.TrimSpace(strings.TrimPrefix(line, "registrant:"))
-			} else if strings.HasPrefix(line, "admin-c:") {
-				handles["admin"] = strings.TrimSpace(strings.TrimPrefix(line, "admin-c:"))
-			} else if strings.HasPrefix(line, "tech-c:") {
-				handles["tech"] = strings.TrimSpace(strings.TrimPrefix(line, "tech-c:"))
-			} else if strings.HasPrefix(line, "zone-c:") {
-				handles["zone"] = strings.TrimSpace(strings.TrimPrefix(line, "zone-c:"))
-			} else if strings.HasPrefix(line, "billing-c:") {
-				handles["billing"] = strings.TrimSpace(strings.TrimPrefix(line, "billing-c:"))
-			} else if strings.HasPrefix(line, "nserver:") {
-				parsedWhois.NameServers = append(parsedWhois.NameServers, strings.TrimSpace(strings.TrimPrefix(line, "nserver:")))
-			} else if strings.HasPrefix(line, "dnssec:") {
-				parsedWhois.Dnssec = strings.TrimSpace(strings.TrimPrefix(line, "dnssec:"))
-			} else if strings.HasPrefix(line, "created:") {
-				parsedWhois.CreatedDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "created:"))
-			} else if strings.HasPrefix(line, "expires:") {
-				parsedWhois.ExpiredDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "expires:"))
-			} else if strings.HasPrefix(line, "source:") {
+			if isw.parseDomainFields(line, parsedWhois) {
+				continue
+			}
+			if isw.parseHandleReferences(line, handles) {
+				continue
+			}
+			if strings.HasPrefix(line, "source:") {
 				domainSectionDone = true
 			}
 		}
 	}
 	return handles, domainSectionDone
+}
+
+func (isw *ISTLDParser) parseDomainFields(line string, parsedWhois *ParsedWhois) bool {
+	switch {
+	case strings.HasPrefix(line, "domain:"):
+		parsedWhois.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "domain:"))
+		return true
+	case strings.HasPrefix(line, "nserver:"):
+		parsedWhois.NameServers = append(parsedWhois.NameServers, strings.TrimSpace(strings.TrimPrefix(line, "nserver:")))
+		return true
+	case strings.HasPrefix(line, "dnssec:"):
+		parsedWhois.Dnssec = strings.TrimSpace(strings.TrimPrefix(line, "dnssec:"))
+		return true
+	case strings.HasPrefix(line, "created:"):
+		parsedWhois.CreatedDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "created:"))
+		return true
+	case strings.HasPrefix(line, "expires:"):
+		parsedWhois.ExpiredDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "expires:"))
+		return true
+	}
+	return false
+}
+
+func (isw *ISTLDParser) parseHandleReferences(line string, handles map[string]string) bool {
+	switch {
+	case strings.HasPrefix(line, "registrant:"):
+		handles["registrant"] = strings.TrimSpace(strings.TrimPrefix(line, "registrant:"))
+		return true
+	case strings.HasPrefix(line, "admin-c:"):
+		handles["admin"] = strings.TrimSpace(strings.TrimPrefix(line, "admin-c:"))
+		return true
+	case strings.HasPrefix(line, "tech-c:"):
+		handles["tech"] = strings.TrimSpace(strings.TrimPrefix(line, "tech-c:"))
+		return true
+	case strings.HasPrefix(line, "zone-c:"):
+		handles["zone"] = strings.TrimSpace(strings.TrimPrefix(line, "zone-c:"))
+		return true
+	case strings.HasPrefix(line, "billing-c:"):
+		handles["billing"] = strings.TrimSpace(strings.TrimPrefix(line, "billing-c:"))
+		return true
+	}
+	return false
 }
 
 func (isw *ISTLDParser) parseRoleSections(lines []string) map[string]*Contact {
@@ -64,28 +92,61 @@ func (isw *ISTLDParser) parseRoleSections(lines []string) map[string]*Contact {
 		if line == "" || strings.HasPrefix(line, "%") {
 			continue
 		}
-		if strings.HasPrefix(line, "role:") {
-			currentContact = &Contact{}
-			currentContact.Organization = strings.TrimSpace(strings.TrimPrefix(line, "role:"))
-			currentHandle = ""
-		} else if strings.HasPrefix(line, "nic-hdl:") && currentContact != nil {
-			currentHandle = strings.TrimSpace(strings.TrimPrefix(line, "nic-hdl:"))
-		} else if strings.HasPrefix(line, "address:") && currentContact != nil {
-			addr := strings.TrimSpace(strings.TrimPrefix(line, "address:"))
-			if addr != "" {
-				currentContact.Street = append(currentContact.Street, addr)
-			}
-		} else if strings.HasPrefix(line, "phone:") && currentContact != nil {
-			currentContact.Phone = strings.TrimSpace(strings.TrimPrefix(line, "phone:"))
-		} else if strings.HasPrefix(line, "e-mail:") && currentContact != nil {
-			currentContact.Email = strings.TrimSpace(strings.TrimPrefix(line, "e-mail:"))
-		} else if strings.HasPrefix(line, "source:") && currentContact != nil && currentHandle != "" {
-			roleMap[currentHandle] = currentContact
+		if isw.parseRoleHeader(line, &currentContact, &currentHandle) {
+			continue
+		}
+		if isw.parseContactFields(line, currentContact) {
+			continue
+		}
+		if isw.finalizeContact(line, currentContact, currentHandle, roleMap) {
 			currentContact = nil
 			currentHandle = ""
 		}
 	}
 	return roleMap
+}
+
+func (isw *ISTLDParser) parseRoleHeader(line string, currentContact **Contact, currentHandle *string) bool {
+	switch {
+	case strings.HasPrefix(line, "role:"):
+		*currentContact = &Contact{}
+		(*currentContact).Organization = strings.TrimSpace(strings.TrimPrefix(line, "role:"))
+		*currentHandle = ""
+		return true
+	case strings.HasPrefix(line, "nic-hdl:") && *currentContact != nil:
+		*currentHandle = strings.TrimSpace(strings.TrimPrefix(line, "nic-hdl:"))
+		return true
+	}
+	return false
+}
+
+func (isw *ISTLDParser) parseContactFields(line string, currentContact *Contact) bool {
+	if currentContact == nil {
+		return false
+	}
+	switch {
+	case strings.HasPrefix(line, "address:"):
+		addr := strings.TrimSpace(strings.TrimPrefix(line, "address:"))
+		if addr != "" {
+			currentContact.Street = append(currentContact.Street, addr)
+		}
+		return true
+	case strings.HasPrefix(line, "phone:"):
+		currentContact.Phone = strings.TrimSpace(strings.TrimPrefix(line, "phone:"))
+		return true
+	case strings.HasPrefix(line, "e-mail:"):
+		currentContact.Email = strings.TrimSpace(strings.TrimPrefix(line, "e-mail:"))
+		return true
+	}
+	return false
+}
+
+func (isw *ISTLDParser) finalizeContact(line string, currentContact *Contact, currentHandle string, roleMap map[string]*Contact) bool {
+	if strings.HasPrefix(line, "source:") && currentContact != nil && currentHandle != "" {
+		roleMap[currentHandle] = currentContact
+		return true
+	}
+	return false
 }
 
 func (isw *ISTLDParser) mapHandlesToContacts(handles map[string]string, roleMap map[string]*Contact, parsedWhois *ParsedWhois) {

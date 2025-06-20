@@ -19,29 +19,8 @@ func TestISTLDParser_Parse(t *testing.T) {
 		t.Fatalf("Failed to parse whois data: %v", err)
 	}
 
-	if parsedWhois.DomainName != "google.is" {
-		t.Errorf("Expected domain name 'google.is', got '%s'", parsedWhois.DomainName)
-	}
-	if parsedWhois.CreatedDateRaw != "May 22 2002" {
-		t.Errorf("Expected created date 'May 22 2002', got '%s'", parsedWhois.CreatedDateRaw)
-	}
-	if parsedWhois.ExpiredDateRaw != "May 22 2026" {
-		t.Errorf("Expected expired date 'May 22 2026', got '%s'", parsedWhois.ExpiredDateRaw)
-	}
-	if len(parsedWhois.NameServers) != 2 || parsedWhois.NameServers[0] != "ns1.google.com" || parsedWhois.NameServers[1] != "ns2.google.com" {
-		t.Errorf("Expected name servers ['ns1.google.com', 'ns2.google.com'], got %v", parsedWhois.NameServers)
-	}
-	if parsedWhois.Contacts == nil || parsedWhois.Contacts.Registrant == nil {
-		t.Errorf("Expected registrant contact, got nil")
-	} else {
-		reg := parsedWhois.Contacts.Registrant
-		if reg.Organization != "Google LLC" {
-			t.Errorf("Expected registrant organization 'Google LLC', got '%s'", reg.Organization)
-		}
-		if reg.Email != "ccops@markmonitor.com" {
-			t.Errorf("Expected registrant email 'ccops@markmonitor.com', got '%s'", reg.Email)
-		}
-	}
+	assertISRegisteredDomain(t, parsedWhois, "google.is", "May 22 2002", "May 22 2026", []string{"ns1.google.com", "ns2.google.com"})
+	assertISRegistrantContact(t, parsedWhois, "Google LLC", "ccops@markmonitor.com")
 
 	// Test unregistered domain
 	data, err = os.ReadFile("testdata/is/case10.txt")
@@ -54,7 +33,51 @@ func TestISTLDParser_Parse(t *testing.T) {
 		t.Fatalf("Failed to parse whois data: %v", err)
 	}
 
+	assertISUnregisteredDomain(t, parsedWhois)
+}
+
+func assertISRegisteredDomain(t *testing.T, parsedWhois *ParsedWhois, expectedDomain, expectedCreated, expectedExpired string, expectedNS []string) {
+	if parsedWhois.DomainName != expectedDomain {
+		t.Errorf("Expected domain name '%s', got '%s'", expectedDomain, parsedWhois.DomainName)
+	}
+	if parsedWhois.CreatedDateRaw != expectedCreated {
+		t.Errorf("Expected created date '%s', got '%s'", expectedCreated, parsedWhois.CreatedDateRaw)
+	}
+	if parsedWhois.ExpiredDateRaw != expectedExpired {
+		t.Errorf("Expected expired date '%s', got '%s'", expectedExpired, parsedWhois.ExpiredDateRaw)
+	}
+	assertStringSliceEqualIS(t, parsedWhois.NameServers, expectedNS, "name server")
+}
+
+func assertISRegistrantContact(t *testing.T, parsedWhois *ParsedWhois, expectedOrg, expectedEmail string) {
+	if parsedWhois.Contacts == nil || parsedWhois.Contacts.Registrant == nil {
+		t.Errorf("Expected registrant contact, got nil")
+		return
+	}
+
+	reg := parsedWhois.Contacts.Registrant
+	if reg.Organization != expectedOrg {
+		t.Errorf("Expected registrant organization '%s', got '%s'", expectedOrg, reg.Organization)
+	}
+	if reg.Email != expectedEmail {
+		t.Errorf("Expected registrant email '%s', got '%s'", expectedEmail, reg.Email)
+	}
+}
+
+func assertISUnregisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
 	if len(parsedWhois.Statuses) == 0 || parsedWhois.Statuses[0] != "free" {
 		t.Errorf("Expected status 'free' for unregistered domain, got %v", parsedWhois.Statuses)
+	}
+}
+
+func assertStringSliceEqualIS(t *testing.T, actual, expected []string, label string) {
+	if len(actual) != len(expected) {
+		t.Errorf("Expected %d %s(s), got %d", len(expected), label, len(actual))
+		return
+	}
+	for i, v := range expected {
+		if i < len(actual) && actual[i] != v {
+			t.Errorf("Expected %s %d to be '%s', got '%s'", label, i, v, actual[i])
+		}
 	}
 }

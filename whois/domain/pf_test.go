@@ -103,89 +103,88 @@ func TestPFTLDParser_Parse(t *testing.T) {
 				t.Fatalf("Failed to parse whois data: %v", err)
 			}
 
-			if result.DomainName != tc.expected.DomainName {
-				t.Errorf("Expected domain name '%s', got '%s'", tc.expected.DomainName, result.DomainName)
-			}
-
-			if len(result.Statuses) != len(tc.expected.Statuses) {
-				t.Errorf("Expected %d statuses, got %d", len(tc.expected.Statuses), len(result.Statuses))
-			} else {
-				for i, status := range tc.expected.Statuses {
-					if result.Statuses[i] != status {
-						t.Errorf("Expected status '%s', got '%s'", status, result.Statuses[i])
-					}
-				}
-			}
-
-			if result.CreatedDateRaw != tc.expected.CreatedDateRaw {
-				t.Errorf("Expected created date '%s', got '%s'", tc.expected.CreatedDateRaw, result.CreatedDateRaw)
-			}
-
-			if result.UpdatedDateRaw != tc.expected.UpdatedDateRaw {
-				t.Errorf("Expected updated date '%s', got '%s'", tc.expected.UpdatedDateRaw, result.UpdatedDateRaw)
-			}
-
-			if result.ExpiredDateRaw != tc.expected.ExpiredDateRaw {
-				t.Errorf("Expected expired date '%s', got '%s'", tc.expected.ExpiredDateRaw, result.ExpiredDateRaw)
-			}
-
-			if len(result.NameServers) != len(tc.expected.NameServers) {
-				t.Errorf("Expected %d nameservers, got %d", len(tc.expected.NameServers), len(result.NameServers))
-			} else {
-				for i, ns := range tc.expected.NameServers {
-					if result.NameServers[i] != ns {
-						t.Errorf("Expected nameserver '%s', got '%s'", ns, result.NameServers[i])
-					}
-				}
-			}
-
-			// Test registrant contact
-			if tc.expected.Contacts != nil && tc.expected.Contacts.Registrant != nil {
-				if result.Contacts == nil || result.Contacts.Registrant == nil {
-					t.Error("Expected registrant contact, got nil")
-				} else {
-					expected := tc.expected.Contacts.Registrant
-					actual := result.Contacts.Registrant
-					if expected.Organization != actual.Organization {
-						t.Errorf("Expected registrant organization '%s', got '%s'", expected.Organization, actual.Organization)
-					}
-					if expected.Name != actual.Name {
-						t.Errorf("Expected registrant name '%s', got '%s'", expected.Name, actual.Name)
-					}
-					if expected.Email != actual.Email {
-						t.Errorf("Expected registrant email '%s', got '%s'", expected.Email, actual.Email)
-					}
-				}
-			}
-
-			// Test tech contact
-			if tc.expected.Contacts != nil && tc.expected.Contacts.Tech != nil {
-				if result.Contacts == nil || result.Contacts.Tech == nil {
-					t.Error("Expected tech contact, got nil")
-				} else {
-					expected := tc.expected.Contacts.Tech
-					actual := result.Contacts.Tech
-					if expected.Organization != actual.Organization {
-						t.Errorf("Expected tech organization '%s', got '%s'", expected.Organization, actual.Organization)
-					}
-					if expected.Name != actual.Name {
-						t.Errorf("Expected tech name '%s', got '%s'", expected.Name, actual.Name)
-					}
-					if expected.Email != actual.Email {
-						t.Errorf("Expected tech email '%s', got '%s'", expected.Email, actual.Email)
-					}
-				}
-			}
-
-			// Test registrar
-			if tc.expected.Registrar != nil {
-				if result.Registrar == nil {
-					t.Error("Expected registrar, got nil")
-				} else if tc.expected.Registrar.Name != result.Registrar.Name {
-					t.Errorf("Expected registrar name '%s', got '%s'", tc.expected.Registrar.Name, result.Registrar.Name)
-				}
-			}
+			assertPFBasicFields(t, result, tc.expected)
+			assertPFContacts(t, result, tc.expected)
+			assertPFRegistrar(t, result, tc.expected)
 		})
+	}
+}
+
+func assertPFBasicFields(t *testing.T, result, expected *ParsedWhois) {
+	if result.DomainName != expected.DomainName {
+		t.Errorf("Expected domain name '%s', got '%s'", expected.DomainName, result.DomainName)
+	}
+	assertPFStatuses(t, result, expected)
+	if result.CreatedDateRaw != expected.CreatedDateRaw {
+		t.Errorf("Expected created date '%s', got '%s'", expected.CreatedDateRaw, result.CreatedDateRaw)
+	}
+	if result.UpdatedDateRaw != expected.UpdatedDateRaw {
+		t.Errorf("Expected updated date '%s', got '%s'", expected.UpdatedDateRaw, result.UpdatedDateRaw)
+	}
+	if result.ExpiredDateRaw != expected.ExpiredDateRaw {
+		t.Errorf("Expected expired date '%s', got '%s'", expected.ExpiredDateRaw, result.ExpiredDateRaw)
+	}
+	assertPFNameServers(t, result, expected)
+}
+
+func assertPFStatuses(t *testing.T, result, expected *ParsedWhois) {
+	if len(result.Statuses) != len(expected.Statuses) {
+		t.Errorf("Expected %d statuses, got %d", len(expected.Statuses), len(result.Statuses))
+		return
+	}
+	for i, status := range expected.Statuses {
+		if result.Statuses[i] != status {
+			t.Errorf("Expected status '%s', got '%s'", status, result.Statuses[i])
+		}
+	}
+}
+
+func assertPFNameServers(t *testing.T, result, expected *ParsedWhois) {
+	if len(result.NameServers) != len(expected.NameServers) {
+		t.Errorf("Expected %d nameservers, got %d", len(expected.NameServers), len(result.NameServers))
+		return
+	}
+	for i, ns := range expected.NameServers {
+		if result.NameServers[i] != ns {
+			t.Errorf("Expected nameserver '%s', got '%s'", ns, result.NameServers[i])
+		}
+	}
+}
+
+func assertPFContacts(t *testing.T, result, expected *ParsedWhois) {
+	if expected.Contacts == nil {
+		return
+	}
+	assertPFContactWithEmail(t, "registrant", result.Contacts.Registrant, expected.Contacts.Registrant)
+	assertPFContactWithEmail(t, "tech", result.Contacts.Tech, expected.Contacts.Tech)
+}
+
+func assertPFContactWithEmail(t *testing.T, contactType string, actual, expected *Contact) {
+	if expected == nil {
+		return
+	}
+	if actual == nil {
+		t.Errorf("Expected %s contact, got nil", contactType)
+		return
+	}
+	if expected.Organization != actual.Organization {
+		t.Errorf("Expected %s organization '%s', got '%s'", contactType, expected.Organization, actual.Organization)
+	}
+	if expected.Name != actual.Name {
+		t.Errorf("Expected %s name '%s', got '%s'", contactType, expected.Name, actual.Name)
+	}
+	if expected.Email != actual.Email {
+		t.Errorf("Expected %s email '%s', got '%s'", contactType, expected.Email, actual.Email)
+	}
+}
+
+func assertPFRegistrar(t *testing.T, result, expected *ParsedWhois) {
+	if expected.Registrar != nil {
+		if result.Registrar == nil {
+			t.Error("Expected registrar, got nil")
+		} else if expected.Registrar.Name != result.Registrar.Name {
+			t.Errorf("Expected registrar name '%s', got '%s'", expected.Registrar.Name, result.Registrar.Name)
+		}
 	}
 }
 

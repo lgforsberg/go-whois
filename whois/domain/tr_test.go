@@ -55,6 +55,20 @@ Last Update Time: 2025-06-19T03:33:35+03:00
 		t.Errorf("Expected no error, got %v", err)
 	}
 
+	assertTRRegisteredDomain(t, parsed)
+}
+
+func TestTRTLDParserUnregistered(t *testing.T) {
+	parser := NewTRTLDParser()
+	whoisText := `No match found for nic.tr`
+	parsed, err := parser.GetParsedWhois(whoisText)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+	assertTRUnregisteredDomain(t, parsed)
+}
+
+func assertTRRegisteredDomain(t *testing.T, parsed *ParsedWhois) {
 	if parsed.DomainName != "google.tr" {
 		t.Errorf("Expected domain name 'google.tr', got '%s'", parsed.DomainName)
 	}
@@ -82,14 +96,7 @@ Last Update Time: 2025-06-19T03:33:35+03:00
 	}
 
 	expectedNS := []string{"ns1.googledomains.com", "ns2.googledomains.com", "ns3.googledomains.com", "ns4.googledomains.com"}
-	if len(parsed.NameServers) != len(expectedNS) {
-		t.Errorf("Expected %d nameservers, got %d", len(expectedNS), len(parsed.NameServers))
-	}
-	for i, ns := range expectedNS {
-		if parsed.NameServers[i] != ns {
-			t.Errorf("Expected nameserver '%s', got '%s'", ns, parsed.NameServers[i])
-		}
-	}
+	assertStringSliceEqualTR(t, parsed.NameServers, expectedNS, "nameserver")
 
 	if parsed.Contacts.Registrant == nil || parsed.Contacts.Registrant.Name != "Google LLC" {
 		t.Errorf("Expected registrant name 'Google LLC', got '%v'", parsed.Contacts.Registrant)
@@ -99,13 +106,7 @@ Last Update Time: 2025-06-19T03:33:35+03:00
 	}
 }
 
-func TestTRTLDParserUnregistered(t *testing.T) {
-	parser := NewTRTLDParser()
-	whoisText := `No match found for nic.tr`
-	parsed, err := parser.GetParsedWhois(whoisText)
-	if err != nil {
-		t.Errorf("Expected no error, got %v", err)
-	}
+func assertTRUnregisteredDomain(t *testing.T, parsed *ParsedWhois) {
 	if parsed.DomainName != "" {
 		t.Errorf("Expected empty domain name for unregistered domain, got '%s'", parsed.DomainName)
 	}
@@ -126,5 +127,17 @@ func TestTRTLDParserUnregistered(t *testing.T) {
 	}
 	if parsed.Contacts.Admin != nil {
 		t.Error("Expected no admin contact for unregistered domain")
+	}
+}
+
+func assertStringSliceEqualTR(t *testing.T, actual, expected []string, label string) {
+	if len(actual) != len(expected) {
+		t.Errorf("Expected %d %s(s), got %d", len(expected), label, len(actual))
+		return
+	}
+	for i, v := range expected {
+		if i < len(actual) && actual[i] != v {
+			t.Errorf("Expected %s '%s', got '%s'", label, v, actual[i])
+		}
 	}
 }

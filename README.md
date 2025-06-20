@@ -213,7 +213,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Removed whois server associated with `.mc`. Was `whois.ripe.net` but there is no official whois server for `.mc`
 - Fixed critical security vulnerabilities: added size limits to prevent memory exhaustion attacks, added HTTP timeouts, and fixed unsafe type assertions
 - Improved error handling in TLD parsers (`.hu`, `.au`, `.kr`) with input validation and proper date parsing
-
+- Refactoring of custom parsers and their respective tests to decrase function complexity.
+  
 ---
 
-*This fork maintains compatibility with the original library while adding security improvements and extended TLD support.* 
+*This fork maintains compatibility with usage of the original library while adding security improvements and extended TLD support.* 

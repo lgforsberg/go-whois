@@ -52,32 +52,7 @@ Last updated:    2025-01-27`
 		t.Errorf("Expected no error, got %v", err)
 	}
 
-	if parsedWhois.DomainName != "google.no" {
-		t.Errorf("Expected domain name to be 'google.no', got '%s'", parsedWhois.DomainName)
-	}
-
-	if len(parsedWhois.NameServers) != 4 {
-		t.Errorf("Expected 4 name servers, got %d", len(parsedWhois.NameServers))
-	}
-
-	expectedNS := []string{"NSGO26H-NORID", "NSGO27H-NORID", "NSGO28H-NORID", "NSGO29H-NORID"}
-	for i, ns := range expectedNS {
-		if parsedWhois.NameServers[i] != ns {
-			t.Errorf("Expected name server %d to be '%s', got '%s'", i, ns, parsedWhois.NameServers[i])
-		}
-	}
-
-	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "active" {
-		t.Errorf("Expected status to be 'active', got %v", parsedWhois.Statuses)
-	}
-
-	if parsedWhois.CreatedDateRaw != "2001-02-26" {
-		t.Errorf("Expected created date raw to be '2001-02-26', got '%s'", parsedWhois.CreatedDateRaw)
-	}
-
-	if parsedWhois.UpdatedDateRaw != "2025-01-27" {
-		t.Errorf("Expected updated date raw to be '2025-01-27', got '%s'", parsedWhois.UpdatedDateRaw)
-	}
+	assertNORegisteredDomain(t, parsedWhois, "google.no", []string{"NSGO26H-NORID", "NSGO27H-NORID", "NSGO28H-NORID", "NSGO29H-NORID"}, "2001-02-26", "2025-01-27")
 
 	// Test unregistered domain (case8)
 	rawtextFree := `% By looking up information in the domain registration directory
@@ -109,20 +84,55 @@ Last updated:    2025-01-27`
 		t.Errorf("Expected no error for free domain, got %v", err)
 	}
 
-	if len(parsedWhoisFree.Statuses) != 1 || parsedWhoisFree.Statuses[0] != "free" {
-		t.Errorf("Expected status to be 'free', got %v", parsedWhoisFree.Statuses)
+	assertNOUnregisteredDomain(t, parsedWhoisFree)
+}
+
+func assertNORegisteredDomain(t *testing.T, parsedWhois *ParsedWhois, expectedDomain string, expectedNS []string, expectedCreated, expectedUpdated string) {
+	if parsedWhois.DomainName != expectedDomain {
+		t.Errorf("Expected domain name to be '%s', got '%s'", expectedDomain, parsedWhois.DomainName)
 	}
 
-	// Verify that free domains have no nameservers or dates
-	if len(parsedWhoisFree.NameServers) != 0 {
-		t.Errorf("Expected no name servers for free domain, got %d", len(parsedWhoisFree.NameServers))
+	assertStringSliceEqualNO(t, parsedWhois.NameServers, expectedNS, "name server")
+
+	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "active" {
+		t.Errorf("Expected status to be 'active', got %v", parsedWhois.Statuses)
 	}
 
-	if parsedWhoisFree.CreatedDateRaw != "" {
-		t.Errorf("Expected no created date for free domain, got '%s'", parsedWhoisFree.CreatedDateRaw)
+	if parsedWhois.CreatedDateRaw != expectedCreated {
+		t.Errorf("Expected created date raw to be '%s', got '%s'", expectedCreated, parsedWhois.CreatedDateRaw)
 	}
 
-	if parsedWhoisFree.UpdatedDateRaw != "" {
-		t.Errorf("Expected no updated date for free domain, got '%s'", parsedWhoisFree.UpdatedDateRaw)
+	if parsedWhois.UpdatedDateRaw != expectedUpdated {
+		t.Errorf("Expected updated date raw to be '%s', got '%s'", expectedUpdated, parsedWhois.UpdatedDateRaw)
+	}
+}
+
+func assertNOUnregisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
+	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "free" {
+		t.Errorf("Expected status to be 'free', got %v", parsedWhois.Statuses)
+	}
+
+	if len(parsedWhois.NameServers) != 0 {
+		t.Errorf("Expected no name servers for free domain, got %d", len(parsedWhois.NameServers))
+	}
+
+	if parsedWhois.CreatedDateRaw != "" {
+		t.Errorf("Expected no created date for free domain, got '%s'", parsedWhois.CreatedDateRaw)
+	}
+
+	if parsedWhois.UpdatedDateRaw != "" {
+		t.Errorf("Expected no updated date for free domain, got '%s'", parsedWhois.UpdatedDateRaw)
+	}
+}
+
+func assertStringSliceEqualNO(t *testing.T, actual, expected []string, label string) {
+	if len(actual) != len(expected) {
+		t.Errorf("Expected %d %s(s), got %d", len(expected), label, len(actual))
+		return
+	}
+	for i, v := range expected {
+		if i < len(actual) && actual[i] != v {
+			t.Errorf("Expected %s %d to be '%s', got '%s'", label, i, v, actual[i])
+		}
 	}
 }

@@ -19,26 +19,8 @@ func TestKRTLDParser_Parse(t *testing.T) {
 		t.Fatalf("Failed to parse whois data: %v", err)
 	}
 
-	if parsedWhois.DomainName != "google.kr" {
-		t.Errorf("Expected domain name 'google.kr', got '%s'", parsedWhois.DomainName)
-	}
-	if parsedWhois.CreatedDateRaw != "2007. 03. 02." {
-		t.Errorf("Expected created date '2007. 03. 02.', got '%s'", parsedWhois.CreatedDateRaw)
-	}
-	if parsedWhois.ExpiredDateRaw != "2026. 03. 02." {
-		t.Errorf("Expected expired date '2026. 03. 02.', got '%s'", parsedWhois.ExpiredDateRaw)
-	}
-	if len(parsedWhois.NameServers) < 2 || parsedWhois.NameServers[0] != "ns1.google.com" || parsedWhois.NameServers[1] != "ns2.google.com" {
-		t.Errorf("Expected name servers ['ns1.google.com', 'ns2.google.com'], got %v", parsedWhois.NameServers)
-	}
-	if parsedWhois.Contacts == nil || parsedWhois.Contacts.Registrant == nil {
-		t.Errorf("Expected registrant contact, got nil")
-	} else {
-		reg := parsedWhois.Contacts.Registrant
-		if reg.Name != "Google Korea, LLC" {
-			t.Errorf("Expected registrant name 'Google Korea, LLC', got '%s'", reg.Name)
-		}
-	}
+	assertKRRegisteredDomain(t, parsedWhois, "google.kr", "2007. 03. 02.", "2026. 03. 02.", []string{"ns1.google.com", "ns2.google.com"})
+	assertKRRegistrantContact(t, parsedWhois, "Google Korea, LLC")
 
 	// Test unregistered domain
 	data, err = os.ReadFile("testdata/kr/case3.txt")
@@ -51,7 +33,48 @@ func TestKRTLDParser_Parse(t *testing.T) {
 		t.Fatalf("Failed to parse whois data: %v", err)
 	}
 
+	assertKRUnregisteredDomain(t, parsedWhois)
+}
+
+func assertKRRegisteredDomain(t *testing.T, parsedWhois *ParsedWhois, expectedDomain, expectedCreated, expectedExpired string, expectedNS []string) {
+	if parsedWhois.DomainName != expectedDomain {
+		t.Errorf("Expected domain name '%s', got '%s'", expectedDomain, parsedWhois.DomainName)
+	}
+	if parsedWhois.CreatedDateRaw != expectedCreated {
+		t.Errorf("Expected created date '%s', got '%s'", expectedCreated, parsedWhois.CreatedDateRaw)
+	}
+	if parsedWhois.ExpiredDateRaw != expectedExpired {
+		t.Errorf("Expected expired date '%s', got '%s'", expectedExpired, parsedWhois.ExpiredDateRaw)
+	}
+	assertKRNameservers(t, parsedWhois.NameServers, expectedNS)
+}
+
+func assertKRRegistrantContact(t *testing.T, parsedWhois *ParsedWhois, expectedName string) {
+	if parsedWhois.Contacts == nil || parsedWhois.Contacts.Registrant == nil {
+		t.Errorf("Expected registrant contact, got nil")
+		return
+	}
+
+	reg := parsedWhois.Contacts.Registrant
+	if reg.Name != expectedName {
+		t.Errorf("Expected registrant name '%s', got '%s'", expectedName, reg.Name)
+	}
+}
+
+func assertKRUnregisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
 	if len(parsedWhois.Statuses) == 0 || parsedWhois.Statuses[0] != "free" {
 		t.Errorf("Expected status 'free' for unregistered domain, got %v", parsedWhois.Statuses)
+	}
+}
+
+func assertKRNameservers(t *testing.T, actual, expected []string) {
+	if len(actual) < len(expected) {
+		t.Errorf("Expected at least %d nameservers, got %d", len(expected), len(actual))
+		return
+	}
+	for i, expectedNS := range expected {
+		if i < len(actual) && actual[i] != expectedNS {
+			t.Errorf("Expected nameserver %d to be '%s', got '%s'", i, expectedNS, actual[i])
+		}
 	}
 }

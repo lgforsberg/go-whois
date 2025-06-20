@@ -73,90 +73,69 @@ func TestSATLDParser_Parse(t *testing.T) {
 				t.Fatalf("Failed to parse whois data: %v", err)
 			}
 
-			if result.DomainName != tc.expected.DomainName {
-				t.Errorf("Expected domain name '%s', got '%s'", tc.expected.DomainName, result.DomainName)
-			}
-
-			if result.Dnssec != tc.expected.Dnssec {
-				t.Errorf("Expected DNSSEC '%s', got '%s'", tc.expected.Dnssec, result.Dnssec)
-			}
-
-			if len(result.NameServers) != len(tc.expected.NameServers) {
-				t.Errorf("Expected %d nameservers, got %d", len(tc.expected.NameServers), len(result.NameServers))
-			} else {
-				for i, ns := range tc.expected.NameServers {
-					if result.NameServers[i] != ns {
-						t.Errorf("Expected nameserver '%s', got '%s'", ns, result.NameServers[i])
-					}
-				}
-			}
-
-			// Test registrant contact
-			if tc.expected.Contacts != nil && tc.expected.Contacts.Registrant != nil {
-				if result.Contacts == nil || result.Contacts.Registrant == nil {
-					t.Error("Expected registrant contact, got nil")
-				} else {
-					expected := tc.expected.Contacts.Registrant
-					actual := result.Contacts.Registrant
-					if expected.Organization != actual.Organization {
-						t.Errorf("Expected registrant organization '%s', got '%s'", expected.Organization, actual.Organization)
-					}
-					if len(expected.Street) != len(actual.Street) {
-						t.Errorf("Expected %d registrant street lines, got %d", len(expected.Street), len(actual.Street))
-					} else {
-						for i, street := range expected.Street {
-							if actual.Street[i] != street {
-								t.Errorf("Expected registrant street '%s', got '%s'", street, actual.Street[i])
-							}
-						}
-					}
-				}
-			}
-
-			// Test admin contact
-			if tc.expected.Contacts != nil && tc.expected.Contacts.Admin != nil {
-				if result.Contacts == nil || result.Contacts.Admin == nil {
-					t.Error("Expected admin contact, got nil")
-				} else {
-					expected := tc.expected.Contacts.Admin
-					actual := result.Contacts.Admin
-					if expected.Name != actual.Name {
-						t.Errorf("Expected admin name '%s', got '%s'", expected.Name, actual.Name)
-					}
-					if len(expected.Street) != len(actual.Street) {
-						t.Errorf("Expected %d admin street lines, got %d", len(expected.Street), len(actual.Street))
-					} else {
-						for i, street := range expected.Street {
-							if actual.Street[i] != street {
-								t.Errorf("Expected admin street '%s', got '%s'", street, actual.Street[i])
-							}
-						}
-					}
-				}
-			}
-
-			// Test tech contact
-			if tc.expected.Contacts != nil && tc.expected.Contacts.Tech != nil {
-				if result.Contacts == nil || result.Contacts.Tech == nil {
-					t.Error("Expected tech contact, got nil")
-				} else {
-					expected := tc.expected.Contacts.Tech
-					actual := result.Contacts.Tech
-					if expected.Name != actual.Name {
-						t.Errorf("Expected tech name '%s', got '%s'", expected.Name, actual.Name)
-					}
-					if len(expected.Street) != len(actual.Street) {
-						t.Errorf("Expected %d tech street lines, got %d", len(expected.Street), len(actual.Street))
-					} else {
-						for i, street := range expected.Street {
-							if actual.Street[i] != street {
-								t.Errorf("Expected tech street '%s', got '%s'", street, actual.Street[i])
-							}
-						}
-					}
-				}
-			}
+			assertSABasicFields(t, result, tc.expected)
+			assertSAContacts(t, result, tc.expected)
 		})
+	}
+}
+
+func assertSABasicFields(t *testing.T, result, expected *ParsedWhois) {
+	if result.DomainName != expected.DomainName {
+		t.Errorf("Expected domain name '%s', got '%s'", expected.DomainName, result.DomainName)
+	}
+	if result.Dnssec != expected.Dnssec {
+		t.Errorf("Expected DNSSEC '%s', got '%s'", expected.Dnssec, result.Dnssec)
+	}
+	assertSANameServers(t, result, expected)
+}
+
+func assertSANameServers(t *testing.T, result, expected *ParsedWhois) {
+	if len(result.NameServers) != len(expected.NameServers) {
+		t.Errorf("Expected %d nameservers, got %d", len(expected.NameServers), len(result.NameServers))
+		return
+	}
+	for i, ns := range expected.NameServers {
+		if result.NameServers[i] != ns {
+			t.Errorf("Expected nameserver '%s', got '%s'", ns, result.NameServers[i])
+		}
+	}
+}
+
+func assertSAContacts(t *testing.T, result, expected *ParsedWhois) {
+	if expected.Contacts == nil {
+		return
+	}
+	assertSAContactWithStreet(t, "registrant", result.Contacts.Registrant, expected.Contacts.Registrant)
+	assertSAContactWithStreet(t, "admin", result.Contacts.Admin, expected.Contacts.Admin)
+	assertSAContactWithStreet(t, "tech", result.Contacts.Tech, expected.Contacts.Tech)
+}
+
+func assertSAContactWithStreet(t *testing.T, contactType string, actual, expected *Contact) {
+	if expected == nil {
+		return
+	}
+	if actual == nil {
+		t.Errorf("Expected %s contact, got nil", contactType)
+		return
+	}
+	if expected.Organization != actual.Organization {
+		t.Errorf("Expected %s organization '%s', got '%s'", contactType, expected.Organization, actual.Organization)
+	}
+	if expected.Name != actual.Name {
+		t.Errorf("Expected %s name '%s', got '%s'", contactType, expected.Name, actual.Name)
+	}
+	assertSAStreetAddress(t, contactType, actual.Street, expected.Street)
+}
+
+func assertSAStreetAddress(t *testing.T, contactType string, actual, expected []string) {
+	if len(expected) != len(actual) {
+		t.Errorf("Expected %d %s street lines, got %d", len(expected), contactType, len(actual))
+		return
+	}
+	for i, street := range expected {
+		if actual[i] != street {
+			t.Errorf("Expected %s street '%s', got '%s'", contactType, street, actual[i])
+		}
 	}
 }
 
