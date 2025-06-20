@@ -50,7 +50,7 @@ func GuessTimeFmt(timeStr string, loc *time.Location) (time.Time, error) {
 	return parsed, nil
 }
 
-// ConvTimeFmt converts time from input format to ouput format
+// ConvTimeFmt converts time from input format to output format
 func ConvTimeFmt(timeStr, inFmt, outFmt string) (string, error) {
 	v, err := time.Parse(inFmt, timeStr)
 	if err != nil {
@@ -59,7 +59,7 @@ func ConvTimeFmt(timeStr, inFmt, outFmt string) (string, error) {
 	return v.Format(outFmt), nil
 }
 
-// ConvTimeFmtInLocation converts time from input format with timezone to ouput format in UTC
+// ConvTimeFmtInLocation converts time from input format with timezone to output format in UTC
 func ConvTimeFmtInLocation(timeStr, inFmt, outFmt string, loc *time.Location) (string, error) {
 	v, err := time.ParseInLocation(inFmt, timeStr, loc)
 	if err != nil {

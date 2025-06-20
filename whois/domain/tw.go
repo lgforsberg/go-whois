@@ -23,7 +23,7 @@ var (
 )
 
 // the line after contact keyword: <name>  <email>
-// note: name and email is seperated by **two spaces**
+// note: name and email is separated by **two spaces**
 func isNameAndEmailContactLine(line string) (name, email string, isLine bool) {
 	nameAndMail := strings.Split(line, "  ")
 	if len(nameAndMail) != 2 {
