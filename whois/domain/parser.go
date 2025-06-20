@@ -286,87 +286,6 @@ func (wb *Parser) Do(rawtext string, stopFunc func(string) bool, specKeyMaps ...
 	// Initialize map to store whois information
 	wMap := make(map[string]interface{})
 
-	// Define function to map key name in raw text to whois json struct tag
-	fillWhoisMap := func(keyName, val string, overwriteIfExist bool) {
-		// Registrar
-		if strings.HasPrefix(keyName, "reg/") {
-			if _, ok := wMap[REGISTRAR]; !ok {
-				wMap[REGISTRAR] = make(map[string]string)
-			}
-			kn := strings.TrimLeft(keyName, "reg/")
-			if regMap, ok := wMap[REGISTRAR].(map[string]string); ok {
-				regMap[kn] = val
-			}
-			return
-		}
-		// Contacts
-		if strings.HasPrefix(keyName, "c/") {
-			if _, ok := wMap[CONTACTS]; !ok {
-				wMap[CONTACTS] = make(map[string]map[string]interface{})
-			}
-			for _, cKey := range []string{REGISTRANT, ADMIN, TECH, BILLING} {
-				contactPrefix := "c/" + cKey + "/"
-				if !strings.HasPrefix(keyName, contactPrefix) {
-					continue
-				}
-				if contactsMap, ok := wMap[CONTACTS].(map[string]map[string]interface{}); ok {
-					if _, ok := contactsMap[cKey]; !ok {
-						contactsMap[cKey] = make(map[string]interface{})
-					}
-					contactFieldKey := keyName[len(contactPrefix):]
-					switch contactFieldKey {
-					case "street":
-						if _, ok := contactsMap[cKey][contactFieldKey]; !ok {
-							contactsMap[cKey][contactFieldKey] = []string{}
-						}
-						if streetSlice, ok := contactsMap[cKey][contactFieldKey].([]string); ok {
-							contactsMap[cKey][contactFieldKey] = append(streetSlice, val)
-						}
-					default:
-						contactsMap[cKey][contactFieldKey] = val
-					}
-				}
-			}
-			return
-		}
-		switch keyName {
-		case "statuses":
-			// Trim link in status
-			// E.g., clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited
-			if _, ok := wMap[keyName]; !ok {
-				wMap[keyName] = []string{}
-			}
-			// if contains ",", split by ","
-			if strings.Index(val, ",") != -1 {
-				for _, status := range strings.Split(val, ",") {
-					if statusSlice, ok := wMap[keyName].([]string); ok {
-						wMap[keyName] = append(statusSlice, strings.TrimSpace(status))
-					}
-				}
-				return
-			}
-			statusValue := strings.Split(val, " ")[0]
-			if statusSlice, ok := wMap[keyName].([]string); ok {
-				wMap[keyName] = append(statusSlice, statusValue)
-			}
-		case "name_servers":
-			if _, ok := wMap[keyName]; !ok {
-				wMap[keyName] = []string{}
-			}
-			if nsSlice, ok := wMap[keyName].([]string); ok {
-				wMap[keyName] = append(nsSlice, val)
-			}
-		default:
-			if overwriteIfExist {
-				wMap[keyName] = val
-			} else {
-				if _, ok := wMap[keyName]; !ok {
-					wMap[keyName] = val
-				}
-			}
-		}
-	}
-
 	// Parsing raw text line by line
 	for _, line := range strings.Split(rawtext, "\n") {
 		line = strings.TrimSpace(line)
@@ -383,18 +302,19 @@ func (wb *Parser) Do(rawtext string, stopFunc func(string) bool, specKeyMaps ...
 
 		// Fill whois map using default key map
 		if keyName := mapRawtextKeyToStructKey(key); len(keyName) > 0 {
-			fillWhoisMap(keyName, val, false)
+			fillWhoisMap(wMap, keyName, val, false)
 		}
 		// Add special key maps to enrich default parsing result,
 		// which is useful for different TLDs to handle rawtext in different ways
 		if len(specKeyMaps) > 0 {
 			for _, specKeyMap := range specKeyMaps {
 				if keyName, ok := specKeyMap[key]; ok {
-					fillWhoisMap(keyName, val, true)
+					fillWhoisMap(wMap, keyName, val, true)
 				}
 			}
 		}
 	}
+
 	parsedWhois, err := map2ParsedWhois(wMap)
 	if err != nil {
 		return nil, err
@@ -402,16 +322,136 @@ func (wb *Parser) Do(rawtext string, stopFunc func(string) bool, specKeyMaps ...
 
 	// Since '...DateRaw' fields do not contains json struct tag, actual values are temporarily
 	// stored in '...Date' fields. Manually copied them back and try to parse date fields
+	processDateFields(parsedWhois)
+
+	sort.Strings(parsedWhois.NameServers)
+	sort.Strings(parsedWhois.Statuses)
+	return parsedWhois, nil
+}
+
+// fillWhoisMap maps key name in raw text to whois json struct tag
+func fillWhoisMap(wMap map[string]interface{}, keyName, val string, overwriteIfExist bool) {
+	// Registrar
+	if strings.HasPrefix(keyName, "reg/") {
+		fillRegistrarInfo(wMap, keyName, val)
+		return
+	}
+
+	// Contacts
+	if strings.HasPrefix(keyName, "c/") {
+		fillContactInfo(wMap, keyName, val)
+		return
+	}
+
+	// Other fields
+	fillOtherFields(wMap, keyName, val, overwriteIfExist)
+}
+
+func fillRegistrarInfo(wMap map[string]interface{}, keyName, val string) {
+	if _, ok := wMap[REGISTRAR]; !ok {
+		wMap[REGISTRAR] = make(map[string]string)
+	}
+	kn := strings.TrimLeft(keyName, "reg/")
+	if regMap, ok := wMap[REGISTRAR].(map[string]string); ok {
+		regMap[kn] = val
+	}
+}
+
+func fillContactInfo(wMap map[string]interface{}, keyName, val string) {
+	if _, ok := wMap[CONTACTS]; !ok {
+		wMap[CONTACTS] = make(map[string]map[string]interface{})
+	}
+
+	for _, cKey := range []string{REGISTRANT, ADMIN, TECH, BILLING} {
+		contactPrefix := "c/" + cKey + "/"
+		if !strings.HasPrefix(keyName, contactPrefix) {
+			continue
+		}
+
+		if contactsMap, ok := wMap[CONTACTS].(map[string]map[string]interface{}); ok {
+			if _, ok := contactsMap[cKey]; !ok {
+				contactsMap[cKey] = make(map[string]interface{})
+			}
+			contactFieldKey := keyName[len(contactPrefix):]
+			fillContactField(contactsMap[cKey], contactFieldKey, val)
+		}
+	}
+}
+
+func fillContactField(contactMap map[string]interface{}, fieldKey, val string) {
+	switch fieldKey {
+	case "street":
+		if _, ok := contactMap[fieldKey]; !ok {
+			contactMap[fieldKey] = []string{}
+		}
+		if streetSlice, ok := contactMap[fieldKey].([]string); ok {
+			contactMap[fieldKey] = append(streetSlice, val)
+		}
+	default:
+		contactMap[fieldKey] = val
+	}
+}
+
+func fillOtherFields(wMap map[string]interface{}, keyName, val string, overwriteIfExist bool) {
+	switch keyName {
+	case "statuses":
+		fillStatusesField(wMap, val)
+	case "name_servers":
+		fillNameServersField(wMap, val)
+	default:
+		fillDefaultField(wMap, keyName, val, overwriteIfExist)
+	}
+}
+
+func fillStatusesField(wMap map[string]interface{}, val string) {
+	if _, ok := wMap["statuses"]; !ok {
+		wMap["statuses"] = []string{}
+	}
+
+	// Trim link in status
+	// E.g., clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited
+	// if contains ",", split by ","
+	if strings.Index(val, ",") != -1 {
+		for _, status := range strings.Split(val, ",") {
+			if statusSlice, ok := wMap["statuses"].([]string); ok {
+				wMap["statuses"] = append(statusSlice, strings.TrimSpace(status))
+			}
+		}
+		return
+	}
+
+	statusValue := strings.Split(val, " ")[0]
+	if statusSlice, ok := wMap["statuses"].([]string); ok {
+		wMap["statuses"] = append(statusSlice, statusValue)
+	}
+}
+
+func fillNameServersField(wMap map[string]interface{}, val string) {
+	if _, ok := wMap["name_servers"]; !ok {
+		wMap["name_servers"] = []string{}
+	}
+	if nsSlice, ok := wMap["name_servers"].([]string); ok {
+		wMap["name_servers"] = append(nsSlice, val)
+	}
+}
+
+func fillDefaultField(wMap map[string]interface{}, keyName, val string, overwriteIfExist bool) {
+	if overwriteIfExist {
+		wMap[keyName] = val
+	} else {
+		if _, ok := wMap[keyName]; !ok {
+			wMap[keyName] = val
+		}
+	}
+}
+
+func processDateFields(parsedWhois *ParsedWhois) {
 	parsedWhois.CreatedDateRaw = parsedWhois.CreatedDate
 	parsedWhois.UpdatedDateRaw = parsedWhois.UpdatedDate
 	parsedWhois.ExpiredDateRaw = parsedWhois.ExpiredDate
 	parsedWhois.CreatedDate, _ = utils.GuessTimeFmtAndConvert(parsedWhois.CreatedDateRaw, WhoisTimeFmt)
 	parsedWhois.UpdatedDate, _ = utils.GuessTimeFmtAndConvert(parsedWhois.UpdatedDateRaw, WhoisTimeFmt)
 	parsedWhois.ExpiredDate, _ = utils.GuessTimeFmtAndConvert(parsedWhois.ExpiredDateRaw, WhoisTimeFmt)
-
-	sort.Strings(parsedWhois.NameServers)
-	sort.Strings(parsedWhois.Statuses)
-	return parsedWhois, nil
 }
 
 func map2ParsedWhois(wMap map[string]interface{}) (*ParsedWhois, error) {

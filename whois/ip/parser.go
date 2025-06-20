@@ -106,107 +106,149 @@ func (wp *Parser) Do(rawtext string, specKeyMaps ...map[string]string) (*ParsedW
 	var rs []Route
 	var nmap map[string]interface{}
 	block := false
+
 	for _, line := range strings.Split(rawtext, "\n") {
 		if strings.HasPrefix(line, "%") || strings.HasPrefix(line, "#") {
 			continue
 		}
+
 		if len(line) == 0 {
 			if nmap != nil {
-				if _, ok := nmap["inetnum"]; ok {
-					// Networks
-					ipn, err := map2ParsedNetwork(nmap)
-					if err != nil {
-						wp.logger.WithField("ip", wp.ip).WithError(err).Warn("convert map to Network")
-					}
-					ipn.convDate()
-					ns = append(ns, *ipn)
-				} else if val, ok := nmap["type"]; ok && val == "route" {
-					// Routes
-					ipr, err := map2ParsedRoute(nmap)
-					if err != nil {
-						wp.logger.WithField("ip", wp.ip).WithError(err).Warn("convert map to Route")
-					}
-					ipr.convDate()
-					ipr.Route = ipr.ID
-					rs = append(rs, *ipr)
-				} else {
-					// Contacts
-					ipc, err := map2ParsedContactIP(nmap)
-					if err != nil {
-						wp.logger.WithField("ip", wp.ip).WithError(err).Warn("convert map to Contact")
-					}
-					ipc.convDate()
-					cs = append(cs, *ipc)
-				}
+				processBlock(nmap, &ns, &cs, &rs, wp.ip, wp.logger)
 				nmap = nil
 			}
 			block = false
 			continue
 		}
+
 		if kv := strings.SplitN(line, ":", 2); len(kv) == 2 {
 			if !block {
 				nmap = make(map[string]interface{})
 				block = true
 			}
 			if block {
-				val := strings.TrimSpace(kv[1])
-				key, ok := DefaultIPKeyMap[kv[0]]
-				if !ok {
-					key = kv[0]
-				}
-				if strings.HasSuffix(key, "/id") {
-					if !strings.Contains(key, "+") {
-						nmap["type"] = key[:strings.Index(key, "/")]
-					}
-					nmap["id"] = val
-					continue
-				}
-				switch key {
-				case "descr", "remarks", "address", "phone", "fax",
-					"email", "admin", "tech", "notified_email", "abuse_mailbox",
-					"mnt_by", "ref", "auth":
-					if _, ok := nmap[key]; !ok {
-						nmap[key] = []string{}
-					}
-					nmap[key] = append(nmap[key].([]string), val)
-				case "inetnum":
-					nmap[key] = val
-					if fromAndTo := strings.Split(val, "-"); len(fromAndTo) == 2 {
-						nmap["range"] = map[string]interface{}{
-							"from": strings.TrimSpace(fromAndTo[0]),
-							"to":   strings.TrimSpace(fromAndTo[1]),
-						}
-					} else if strings.Contains(val, "/") {
-						nmap["range"] = map[string]interface{}{
-							"cidr": []string{val},
-						}
-					}
-				case "range/cidr":
-					var cidrs []string
-					for _, cidr := range strings.Split(val, ",") {
-						cidrs = append(cidrs, strings.TrimSpace(cidr))
-					}
-					nmap["range"].(map[string]interface{})["cidr"] = cidrs
-				case "name":
-					switch kv[0] {
-					case "person", "role":
-						nmap["type"] = kv[0]
-					}
-					nmap[key] = val
-				case "changed":
-					// represents 'updated_date' in whois.lacnic.net
-					if _, ok := nmap["updated_date"]; !ok {
-						if _, err := utils.GuessTimeFmtAndConvert(val, wd.WhoisTimeFmt); err == nil {
-							nmap["updated_date"] = val
-						}
-					}
-				default:
-					nmap[key] = val
-				}
+				processKeyValue(kv, nmap)
 			}
 		}
 	}
+
 	return &ParsedWhois{Networks: ns, Contacts: cs, Routes: rs}, nil
+}
+
+func processBlock(nmap map[string]interface{}, ns *[]Network, cs *[]Contact, rs *[]Route, ip string, logger logrus.FieldLogger) {
+	if _, ok := nmap["inetnum"]; ok {
+		// Networks
+		ipn, err := map2ParsedNetwork(nmap)
+		if err != nil {
+			logger.WithField("ip", ip).WithError(err).Warn("convert map to Network")
+		}
+		ipn.convDate()
+		*ns = append(*ns, *ipn)
+	} else if val, ok := nmap["type"]; ok && val == "route" {
+		// Routes
+		ipr, err := map2ParsedRoute(nmap)
+		if err != nil {
+			logger.WithField("ip", ip).WithError(err).Warn("convert map to Route")
+		}
+		ipr.convDate()
+		ipr.Route = ipr.ID
+		*rs = append(*rs, *ipr)
+	} else {
+		// Contacts
+		ipc, err := map2ParsedContactIP(nmap)
+		if err != nil {
+			logger.WithField("ip", ip).WithError(err).Warn("convert map to Contact")
+		}
+		ipc.convDate()
+		*cs = append(*cs, *ipc)
+	}
+}
+
+func processKeyValue(kv []string, nmap map[string]interface{}) {
+	val := strings.TrimSpace(kv[1])
+	key, ok := DefaultIPKeyMap[kv[0]]
+	if !ok {
+		key = kv[0]
+	}
+
+	if strings.HasSuffix(key, "/id") {
+		processIDField(key, val, nmap)
+		return
+	}
+
+	processFieldByType(key, val, kv[0], nmap)
+}
+
+func processIDField(key, val string, nmap map[string]interface{}) {
+	if !strings.Contains(key, "+") {
+		nmap["type"] = key[:strings.Index(key, "/")]
+	}
+	nmap["id"] = val
+}
+
+func processFieldByType(key, val, originalKey string, nmap map[string]interface{}) {
+	switch key {
+	case "descr", "remarks", "address", "phone", "fax",
+		"email", "admin", "tech", "notified_email", "abuse_mailbox",
+		"mnt_by", "ref", "auth":
+		processArrayField(key, val, nmap)
+	case "inetnum":
+		processInetnumField(val, nmap)
+	case "range/cidr":
+		processRangeCIDRField(val, nmap)
+	case "name":
+		processNameField(originalKey, val, nmap)
+	case "changed":
+		processChangedField(val, nmap)
+	default:
+		nmap[key] = val
+	}
+}
+
+func processArrayField(key, val string, nmap map[string]interface{}) {
+	if _, ok := nmap[key]; !ok {
+		nmap[key] = []string{}
+	}
+	nmap[key] = append(nmap[key].([]string), val)
+}
+
+func processInetnumField(val string, nmap map[string]interface{}) {
+	nmap["inetnum"] = val
+	if fromAndTo := strings.Split(val, "-"); len(fromAndTo) == 2 {
+		nmap["range"] = map[string]interface{}{
+			"from": strings.TrimSpace(fromAndTo[0]),
+			"to":   strings.TrimSpace(fromAndTo[1]),
+		}
+	} else if strings.Contains(val, "/") {
+		nmap["range"] = map[string]interface{}{
+			"cidr": []string{val},
+		}
+	}
+}
+
+func processRangeCIDRField(val string, nmap map[string]interface{}) {
+	var cidrs []string
+	for _, cidr := range strings.Split(val, ",") {
+		cidrs = append(cidrs, strings.TrimSpace(cidr))
+	}
+	nmap["range"].(map[string]interface{})["cidr"] = cidrs
+}
+
+func processNameField(originalKey, val string, nmap map[string]interface{}) {
+	switch originalKey {
+	case "person", "role":
+		nmap["type"] = originalKey
+	}
+	nmap["name"] = val
+}
+
+func processChangedField(val string, nmap map[string]interface{}) {
+	// represents 'updated_date' in whois.lacnic.net
+	if _, ok := nmap["updated_date"]; !ok {
+		if _, err := utils.GuessTimeFmtAndConvert(val, wd.WhoisTimeFmt); err == nil {
+			nmap["updated_date"] = val
+		}
+	}
 }
 
 func map2ParsedNetwork(wMap map[string]interface{}) (*Network, error) {

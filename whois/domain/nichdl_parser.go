@@ -75,6 +75,7 @@ func (nh *NicHdlParser) Do(rawtext string, stopFunc func(string) bool, specKeyMa
 		if IsCommentLine(line) {
 			continue
 		}
+
 		key, val, err := getKeyValFromLine(line)
 		if len(key) == 0 && len(currHdl) > 0 {
 			if hasParsedHdl == nil {
@@ -85,87 +86,15 @@ func (nh *NicHdlParser) Do(rawtext string, stopFunc func(string) bool, specKeyMa
 		if err != nil {
 			continue
 		}
+
 		if keyName, ok := nh.keyMap[key]; ok {
-			// Registrar
-			if strings.HasPrefix(keyName, "reg/") {
-				if _, ok := wMap[REGISTRAR]; !ok {
-					wMap[REGISTRAR] = make(map[string]string)
-				}
-				kn := strings.TrimLeft(keyName, "reg/")
-				wMap[REGISTRAR].(map[string]string)[kn] = val
-				if keyName == "reg/name" && len(strings.TrimSpace(lines[idx-1])) == 0 {
-					currHdl = val
-				}
-				continue
-			}
-			// Contacts
-			if strings.HasPrefix(keyName, "c/") {
-				if contactsMap == nil {
-					contactsMap = make(map[string]map[string]interface{})
-				}
-				switch keyName {
-				case "c/registrant/id":
-					if contactsMap[REGISTRANT] == nil {
-						contactsMap[REGISTRANT] = map[string]interface{}{"id": val}
-					}
-				case "c/admin/id":
-					if contactsMap[ADMIN] == nil {
-						contactsMap[ADMIN] = map[string]interface{}{"id": val}
-					}
-				case "c/tech/id":
-					if contactsMap[TECH] == nil {
-						contactsMap[TECH] = map[string]interface{}{"id": val}
-					}
-				case "c/billing/id":
-					if contactsMap[BILLING] == nil {
-						contactsMap[BILLING] = map[string]interface{}{"id": val}
-					}
-				}
-				continue
-			}
-			switch keyName {
-			case "name_servers", "statuses":
-				if _, ok := wMap[keyName]; !ok {
-					wMap[keyName] = []string{}
-				}
-				wMap[keyName] = append(wMap[keyName].([]string), val)
-			case "nic-hdl":
-				if len(strings.TrimSpace(lines[idx-1])) == 0 {
-					currHdl = val
-				}
-			default:
-				// only fill if keyName not exist in whois map
-				if _, ok := wMap[keyName]; !ok {
-					wMap[keyName] = val
-				}
-			}
+			processKeyMapField(keyName, val, key, idx, lines, &currHdl, wMap, &contactsMap)
 			continue
 		}
 
-		if ckey, ok := nh.contactKeyMap[key]; ok {
-			if len(currHdl) == 0 {
-				continue
-			}
-			if _, exist := hasParsedHdl[currHdl]; exist {
-				continue
-			}
-			for _, c := range []string{REGISTRANT, ADMIN, TECH, BILLING} {
-				if _, exist := contactsMap[c]; !exist {
-					continue
-				}
-				if v, exist := contactsMap[c]["id"]; exist && v == currHdl {
-					if ckey == "street" {
-						if _, ok := contactsMap[c][ckey]; !ok {
-							contactsMap[c][ckey] = []string{}
-						}
-						contactsMap[c][ckey] = append(contactsMap[c][ckey].([]string), val)
-						continue
-					}
-					contactsMap[c][ckey] = val
-				}
-			}
-		}
+		processContactKeyField(key, val, currHdl, hasParsedHdl, &contactsMap, nh.contactKeyMap)
 	}
+
 	wMap[CONTACTS] = contactsMap
 	parsedWhois, err := map2ParsedWhois(wMap)
 	if err != nil {
@@ -174,14 +103,125 @@ func (nh *NicHdlParser) Do(rawtext string, stopFunc func(string) bool, specKeyMa
 
 	// Since '...DateRaw' fields do not contains json struct tag, actual values are temporarily
 	// stored in '...Date' fields. Manually copied them back and try to parse date fields
+	processNicHdlDateFields(parsedWhois)
+
+	sort.Strings(parsedWhois.NameServers)
+	sort.Strings(parsedWhois.Statuses)
+	return parsedWhois, nil
+}
+
+func processKeyMapField(keyName, val, key string, idx int, lines []string, currHdl *string, wMap map[string]interface{}, contactsMap *map[string]map[string]interface{}) {
+	// Registrar
+	if strings.HasPrefix(keyName, "reg/") {
+		processRegistrarField(keyName, val, key, idx, lines, currHdl, wMap)
+		return
+	}
+
+	// Contacts
+	if strings.HasPrefix(keyName, "c/") {
+		processContactIDField(keyName, val, contactsMap)
+		return
+	}
+
+	// Other fields
+	processOtherKeyMapField(keyName, val, key, idx, lines, currHdl, wMap)
+}
+
+func processRegistrarField(keyName, val, key string, idx int, lines []string, currHdl *string, wMap map[string]interface{}) {
+	if _, ok := wMap[REGISTRAR]; !ok {
+		wMap[REGISTRAR] = make(map[string]string)
+	}
+	kn := strings.TrimLeft(keyName, "reg/")
+	wMap[REGISTRAR].(map[string]string)[kn] = val
+	if keyName == "reg/name" && len(strings.TrimSpace(lines[idx-1])) == 0 {
+		*currHdl = val
+	}
+}
+
+func processContactIDField(keyName, val string, contactsMap *map[string]map[string]interface{}) {
+	if *contactsMap == nil {
+		*contactsMap = make(map[string]map[string]interface{})
+	}
+
+	switch keyName {
+	case "c/registrant/id":
+		if (*contactsMap)[REGISTRANT] == nil {
+			(*contactsMap)[REGISTRANT] = map[string]interface{}{"id": val}
+		}
+	case "c/admin/id":
+		if (*contactsMap)[ADMIN] == nil {
+			(*contactsMap)[ADMIN] = map[string]interface{}{"id": val}
+		}
+	case "c/tech/id":
+		if (*contactsMap)[TECH] == nil {
+			(*contactsMap)[TECH] = map[string]interface{}{"id": val}
+		}
+	case "c/billing/id":
+		if (*contactsMap)[BILLING] == nil {
+			(*contactsMap)[BILLING] = map[string]interface{}{"id": val}
+		}
+	}
+}
+
+func processOtherKeyMapField(keyName, val, key string, idx int, lines []string, currHdl *string, wMap map[string]interface{}) {
+	switch keyName {
+	case "name_servers", "statuses":
+		processArrayField(keyName, val, wMap)
+	case "nic-hdl":
+		if len(strings.TrimSpace(lines[idx-1])) == 0 {
+			*currHdl = val
+		}
+	default:
+		// only fill if keyName not exist in whois map
+		if _, ok := wMap[keyName]; !ok {
+			wMap[keyName] = val
+		}
+	}
+}
+
+func processArrayField(keyName, val string, wMap map[string]interface{}) {
+	if _, ok := wMap[keyName]; !ok {
+		wMap[keyName] = []string{}
+	}
+	wMap[keyName] = append(wMap[keyName].([]string), val)
+}
+
+func processContactKeyField(key, val, currHdl string, hasParsedHdl map[string]bool, contactsMap *map[string]map[string]interface{}, contactKeyMap map[string]string) {
+	if ckey, ok := contactKeyMap[key]; ok {
+		if len(currHdl) == 0 {
+			return
+		}
+		if _, exist := hasParsedHdl[currHdl]; exist {
+			return
+		}
+
+		for _, c := range []string{REGISTRANT, ADMIN, TECH, BILLING} {
+			if _, exist := (*contactsMap)[c]; !exist {
+				continue
+			}
+			if v, exist := (*contactsMap)[c]["id"]; exist && v == currHdl {
+				processContactField(c, ckey, val, contactsMap)
+			}
+		}
+	}
+}
+
+func processContactField(contactType, fieldKey, val string, contactsMap *map[string]map[string]interface{}) {
+	if fieldKey == "street" {
+		if _, ok := (*contactsMap)[contactType][fieldKey]; !ok {
+			(*contactsMap)[contactType][fieldKey] = []string{}
+		}
+		(*contactsMap)[contactType][fieldKey] = append((*contactsMap)[contactType][fieldKey].([]string), val)
+		return
+	}
+	(*contactsMap)[contactType][fieldKey] = val
+}
+
+func processNicHdlDateFields(parsedWhois *ParsedWhois) {
 	parsedWhois.CreatedDateRaw = parsedWhois.CreatedDate
 	parsedWhois.UpdatedDateRaw = parsedWhois.UpdatedDate
 	parsedWhois.ExpiredDateRaw = parsedWhois.ExpiredDate
 	parsedWhois.CreatedDate, _ = utils.GuessTimeFmtAndConvert(parsedWhois.CreatedDateRaw, WhoisTimeFmt)
 	parsedWhois.UpdatedDate, _ = utils.GuessTimeFmtAndConvert(parsedWhois.UpdatedDateRaw, WhoisTimeFmt)
 	parsedWhois.ExpiredDate, _ = utils.GuessTimeFmtAndConvert(parsedWhois.ExpiredDateRaw, WhoisTimeFmt)
-
-	sort.Strings(parsedWhois.NameServers)
-	sort.Strings(parsedWhois.Statuses)
-	return parsedWhois, nil
 }
