@@ -1,0 +1,10 @@
+
+Domain : dns.tm
+Status : Live
+Expiry : 2028-04-30
+
+NS 1   : l1.ns.divido.org
+NS 2   : l2.ns.divido.org
+
+
+

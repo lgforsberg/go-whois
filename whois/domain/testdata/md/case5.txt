@@ -1,0 +1,8 @@
+Domain  name    edu.md
+Domain state    OK
+
+Registered on   2004-05-24
+Expires    on   2025-12-31
+
+Nameserver      alfa.dns.md
+Nameserver      beta.dns.md

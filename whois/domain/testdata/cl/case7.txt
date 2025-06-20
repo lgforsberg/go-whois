@@ -1,0 +1,23 @@
+%%
+%% This is the NIC Chile Whois server (whois.nic.cl).
+%%
+%% Rights restricted by copyright.
+%% See https://www.nic.cl/normativa/politica-publicacion-de-datos-cl.pdf
+%%
+
+Domain name: dns.cl
+Registrant name: INTERCITY S A
+Registrant organisation: 
+Registrar name: NIC Chile
+Registrar URL: https://www.nic.cl
+Creation date: 1999-06-28 17:49:58 CLST
+Expiration date: 2025-07-26 13:49:05 CLST
+Name server: nsa1.intercity.net
+Name server: nsa2.intercity.cl
+
+%%
+%% For communication with domain contacts please use website.
+%% See https://www.nic.cl/registry/Whois.do?d=dns.cl
+%%
+%% Registry Abuse Contact Email: abuse@nic.cl
+%%

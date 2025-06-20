@@ -1,0 +1,37 @@
+%  
+%  TZNIC WHOIS data and services are subject to the Terms of Use
+%  available at: https://www.tznic.or.tz/Whois_tou.pdf
+% 
+%  You may also use our WHOIS Web service available at:
+%  https://whois.tznic.or.tz/whois
+% 
+% 
+% Whoisd Server Version: 3.10.2
+% Timestamp: Thu Jun 19 03:46:15 2025
+
+domain:       dns.tz
+registrant:   ADMIN-TZREGISTRY
+admin-c:      ADMIN-TZREGISTRY
+nsset:        NS-KARIBU
+registrar:    REG-TZNIC
+registered:   21.06.2022 12:50:36
+expire:       21.06.2028
+
+contact:      ADMIN-TZREGISTRY
+registrar:    REG-TZNIC
+created:      23.05.2022 12:59:22
+
+nsset:        NS-KARIBU
+nserver:      b.ns.tznic.or.tz (196.216.162.70, 2001:43f8:e0:1::70)
+nserver:      ns3.tznic.or.tz 
+tech-c:       MNT-TZNIC
+registrar:    REG-TZNIC
+created:      18.07.2016 12:03:51
+changed:      06.10.2022 19:00:27
+
+contact:      MNT-TZNIC
+registrar:    REG-TZNIC
+created:      21.07.2009 15:28:07
+changed:      04.02.2015 16:46:11
+
+

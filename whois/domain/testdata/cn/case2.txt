@@ -1,0 +1,15 @@
+Domain Name: facebook.cn
+ROID: 20050304s10001s04039518-cn
+Domain Status: clientDeleteProhibited
+Domain Status: clientUpdateProhibited
+Domain Status: clientTransferProhibited
+Registrant: Meta Platforms, Inc.
+Registrant Contact Email: domain@meta.com
+Sponsoring Registrar: Nom-IQ Limited, dba Com Laude
+Name Server: c.ns.facebook.com
+Name Server: d.ns.facebook.com
+Name Server: a.ns.facebook.com
+Name Server: b.ns.facebook.com
+Registration Time: 2005-03-04 13:34:27
+Expiration Time: 2026-03-04 13:34:27
+DNSSEC: unsigned

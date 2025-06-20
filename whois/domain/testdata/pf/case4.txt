@@ -1,0 +1,33 @@
+This is the PF top level domain whois server.
+Informations about 'gov.pf' :
+
+Status : active
+Created (JJ/MM/AAAA) : 20/04/2015
+Last renewed (JJ/MM/AAAA) : 17/04/2025
+Expire (JJ/MM/AAAA) : 17/04/2026
+Name server 1 : services2.gov.pf
+Name server 2 : services1.gov.pf
+Registrant Compagnie Name : DIRECTION DU SYSTEME D'INFORMATION - DSI
+Registrant Name : Gouvernement de la  Polynésie Française
+Registrant Email : secretariat.dsi@administration.gov.pf
+Registrant Address : BP 4574
+Registrant Address : 111 rue Dumont d'Urville, immeuble Toriki
+Registrant Postal Code : 98713
+Registrant City : PAPEETE
+Registrant Region / Island : TAHITI
+Registrant Country : Polynésie Française
+Tech 1 Compagnie Name : DIRECTION DU SYSTÈME D'INFORMATION - DSI
+Tech 1 Name : Directeur  de la DSI
+Tech 1 Email : secretariat.dsi@administration.gov.pf
+Tech 1 Address : BP 4574
+Tech 1 Address : 111 rue Dumont d'Urville, immeuble Toriki
+Tech 1 Postal Code : 98713
+Tech 1 City : PAPEETE
+Tech 1 Region / Island : TAHITI
+Tech 1 Country : Polynésie française
+Registrar Compagnie Name : ONATI SAS
+Registrar Address : BP 440
+Registrar Address : Immeuble Ainapare au Pont de l'Est
+Registrar Postal Code : 98713
+Registrar City : PAPEETE
+Registrar Country : Polynésie Française

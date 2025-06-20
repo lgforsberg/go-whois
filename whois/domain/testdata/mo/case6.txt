@@ -1,0 +1,18 @@
+% Domain Information over Whois protocol
+%
+% Monic Whois Server Version 1.0
+
+Domain Name: org.mo
+Record created on 2009-11-15 17:13:42
+Record expires on 2037-12-31
+
+Domain name servers:
+ -----------------------------------------------------
+d.monic.mo
+e.monic.mo
+a.monic.mo
+ns2.cuhk.edu.hk
+b.monic.mo
+c.monic.mo
+ns17.cdns.net
+

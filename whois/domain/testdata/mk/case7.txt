@@ -1,0 +1,47 @@
+% Domain Information over Whois protocol
+% 
+% Whoisd Server Version: 3.9.0
+% Timestamp: Thu Jun 19 02:21:48 2025
+
+domain:       dns.mk
+registrant:   ALSANET-R263
+admin-c:      ALSANET-C300
+nsset:        ALSANET-NS740
+registrar:    ALSANET-REG
+registered:   14.01.2010 13:00:00
+changed:      31.03.2018 02:00:36
+expire:       14.01.2027
+
+contact:      ALSANET-R263
+org:          ДРУШТВО ЗА МУЗИЧКА ПРОДУКЦИЈА ДОЛИНА НА СЕНКИТЕ ДООЕЛ СКОПЈЕ
+name:         ДОЛИНА НА СЕНКИТЕ Д.О.О.Е.Л. СКОПЈЕ
+address:      бул. Партизански Одреди 155/1-36
+address:      Скопје
+address:      1000
+address:      MK
+phone:        +389.78330407
+e-mail:       agovskivladimir@gmail.com
+registrar:    ALSANET-REG
+created:      18.01.2015 04:07:37
+changed:      01.10.2019 11:59:41
+
+contact:      ALSANET-C300
+name:         Владимир Аговски
+address:      -
+address:      -
+address:      -
+address:      MK
+phone:        +389.78330407
+e-mail:       agovskivladimir@gmail.com
+registrar:    ALSANET-REG
+created:      18.01.2015 04:07:37
+changed:      01.10.2019 12:00:06
+
+nsset:        ALSANET-NS740
+nserver:      ns1.dnsproduction.com 
+nserver:      ns2.dnsproduction.com 
+tech-c:       ALSANET-C300
+registrar:    ALSANET-REG
+created:      31.03.2018 02:00:29
+
+

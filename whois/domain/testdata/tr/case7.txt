@@ -1,0 +1,35 @@
+** Domain Name: dns.tr
+Domain Status: Active
+Frozen Status: -
+Transfer Status: The domain is LOCKED to transfer. 
+
+** Registrant:
+   Bilgi Teknolojileri ve İletişim Kurumu
+   Hidden upon user request
+   Hidden upon user request
+   Hidden upon user request
+   
+
+
+** Registrar:
+NIC Handle		: tk1036
+Organization Name	: TRABİS KK
+Address			: ANKARA
+			  ANKARA
+			  00000 Ankara Türkiye
+Phone			: 90-312-2100060
+Fax			: 90-312-2100060 
+
+
+** Domain Servers:
+ns1.trabis.gov.tr
+ns2trabis.gov.tr
+
+
+** Additional Info:
+Created on..............: 2023-Sep-14.
+Expires on..............: 2025-Sep-13.
+
+
+** Whois Server:
+Last Update Time: 2025-06-19T03:33:35+03:00

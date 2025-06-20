@@ -1,0 +1,49 @@
+
+**********************************************************
+*            The UG ccTLD Registry Database              *
+**********************************************************
+
+Domain name:                    facebook.ug
+Status:                         ACTIVE
+Expires On:                     2026-07-14
+Registered On:                  2008-07-14
+Renewed On:                     2025-06-12
+Nameserver:                     a.ns.facebook.com
+Nameserver:                     b.ns.facebook.com
+Nameserver:                     c.ns.facebook.com
+Nameserver:                     d.ns.facebook.com
+
+Registrant Contact Information:  
+Registrant Name:                UNKNOWN UNKNOWN
+Registrant Organization:        Facebook Inc
+Registrant Country:             UNKNOWN
+Registrant State / Province:    
+Registrant City:                UNKNOWN
+Registrant Address:             1601 Willow Road
+Registrant Postal Code:         94025
+Registrant Phone:               UNKNOWN
+Registrant Email:               registrar@i3c.co.ug
+
+Administrative Contact Information:  
+Admin Name:                     Hogan LLP
+Admin Organization:             Hogan Lovells Paris LLP
+Admin Country:                  UNKNOWN
+Admin State / Province:         
+Admin City:                     UNKNOWN
+Admin Address:                  17 avenue Matignon
+Admin Postal Code:              75008
+Admin Phone:                    33153674747
+Admin Email:                    admin@lovellsnames.info
+
+Technical Contact Information:  
+Tech Name:                      The Hostmaster
+Tech Organization:              Hogan Lovells (Paris) LLP
+Tech Country:                   UNKNOWN
+Tech State / Province:          
+Tech City:                      UNKNOWN
+Tech Address:                   17 avenue Matignon
+Tech Postal Code:               75008
+Tech Phone:                     +33.153674747
+Tech Email:                     admin@lovellsnames.info
+
+Information Last Updated:       2025-06-12 14:18:47

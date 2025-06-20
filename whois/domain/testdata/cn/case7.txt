@@ -1,0 +1,14 @@
+Domain Name: dns.cn
+ROID: 20030310s10001s00012964-cn
+Domain Status: clientDeleteProhibited
+Domain Status: clientUpdateProhibited
+Domain Status: clientTransferProhibited
+Registrant: 中国互联网络信息中心
+Registrant Contact Email: servicei@cnnic.cn
+Sponsoring Registrar: 北京新网数码信息技术有限公司
+Name Server: a.dns.cn
+Name Server: b.dns.cn
+Name Server: c.dns.cn
+Registration Time: 2003-03-10 19:06:38
+Expiration Time: 2028-03-10 19:06:38
+DNSSEC: unsigned

@@ -1,0 +1,30 @@
+
+                This information has been redacted to comply with European Union General Data Protection Regulations (GDPR). Please contact us at info@nic.im if you have any further queries.
+              
+Domain Name:	facebook.im
+Domain Managers
+Name: Redacted
+Address
+Redacted
+Domain Owners / Registrant
+Name: Redacted
+Address
+Redacted
+Administrative Contact
+Name: Redacted
+Address
+Redacted
+Billing Contact
+Name: Redacted
+Address
+Redacted
+Technical Contact
+Name: Redacted
+Address
+Redacted
+Domain Details
+Expiry Date: 19/04/2026 00:59:49
+Name Server:a.ns.facebook.com.
+Name Server:b.ns.facebook.com.
+Name Server:c.ns.facebook.com.
+Name Server:d.ns.facebook.com.

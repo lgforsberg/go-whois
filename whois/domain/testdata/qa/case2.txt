@@ -1,0 +1,7 @@
+Domain Name:                     facebook.qa
+Last Modified:                   11-Jun-2025 06:54:28 UTC
+Registrar Name:                  AGIP dba Tag-Domains.com
+Status:                          ok
+
+Name Server:                     b.ns.facebook.com
+Name Server:                     a.ns.facebook.com

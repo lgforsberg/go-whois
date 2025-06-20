@@ -1,0 +1,43 @@
+%  Servidor whois del Centro de Información de Red de Venezuela (NIC.VE)
+%  Este servidor contiene información autoritativa exclusivamente de dominios .ve
+% 
+% Whoisd Server Version: 3.12.1
+% Timestamp: Wed Jun 18 20:52:50 2025
+
+domain:       nic.ve
+registrant:   CON000031823
+admin-c:      CON000031823
+nsset:        DNS000114779
+keyset:       KEY000000001
+registrar:    NIC-VE
+registered:   08.08.2019 18:04:00
+changed:      03.06.2024 14:34:08
+expire:       31.12.2034
+
+contact:      CON000031823
+address:      Definir Dirección
+address:      Caracas
+address:      1012
+address:      VE
+registrar:    NIC-VE
+created:      04.08.2019 17:18:51
+
+nsset:        DNS000114779
+nserver:      ns3.nic.ve (190.9.129.56)
+nserver:      ns4.nic.ve (190.202.128.43)
+nserver:      ns5.nic.ve (45.175.22.88, 2801:18:8800:3:18ba:beff:fe61:d08b)
+nserver:      ns6.nic.ve (45.175.22.4, 2801:18:8800:1::4)
+tech-c:       CON000031823
+registrar:    NIC-VE
+created:      08.08.2019 18:03:59
+changed:      25.09.2019 08:52:41
+
+keyset:       KEY000000001
+dnskey:       257 3 8 AwEAAb04w67lcNW2MkTcvAoWoJi8GMllpJ0vl2PM/6L+ZB6M5jMmGsFiz53UGxK8YGBHs0PCaFG1N2RYB/DDv49T0elsTUhRQQRLXSiHRcAvUVtIitBHCnL5ipPU+U3QZiMUrnkRsWQR4Kq/lHTdu6YBJUNCuH9S1NZ54+lE7mm3N1OnUKIvvxet7jAokD0hPvIikAw+MGkV3AgDkQMC+jjnWEpc4bq/vKscIjnRYr9thwwBmZ5todN49yJH1rH07+9nxQ0/j0O8dxweUn9L6dxL6/xdmq3lihfnIOb8YPiqN8q1QIpeCwIvO7TOPRdW71/b/c/Gm2LeKNJtS/oVIPhFJd30UTtQi//EsaZnu5u/eDT96d9wTiiffLiJMZK0tWF0xsuV/VdHUrhDLrZlPW0Wt2dAKTe32F2ZavMUNM+cKzvNSY6ENxmxRrir76oMngfLc8iJ31X+rhSr/8+r8KdzuLLPe7EOqADa2x5Qsh8MDwdDu3aPXJCKlz8J8eFm1hMI3doqyvFfso6sta1Pnzk/USGAcDwFPLPZ+qr+Oj/dWM73PXYiRkF4FUmLgrSaDUUbA4Lo+Q21vrFgcBWdb24xlAKPSRNg9I/zDp6lBD7iTb7119mLRvgdzgn3nN2fBCmCNWaa2d8oJej1BW7hxnaip3F+Hu7sbrPl6yTrDtzZSeFV
+dnskey:       257 3 8 AwEAAd9rDwEcU9hB7p90rseNRKtvvCzNAtD3MXt+LpxboWjM8d6mvOg7plcWOGgbJegnSlSA/wIczF3Pmew7wGMcSVhLOBw5rBReEsUazVWgtT7Us8n3aik/44Ddf1AkrceVCtfg4syjaQtKC8vOY59W3HShS8YFM+RjcJV2J0cEp9jhot7iIQjSbGF+YlOk0+ySA1kVnH60QQ1LnFxWkwGwZLu1zYm37xtIy7Ib1YQT6iL3TCGFNOH1+/nvjWIsYiUNfKu5dVgnVTkIAx2DUGhu9EM+CNyf21Hx01Rf2RNOibphtoasPt0c4Swxvdx/Vc1j9RonlnNufACBl/f8gYGketBEuU75ydKdDt+CjZCQsiNOc55NKK9ZPH5zlP0nGqmpNn1Ojn2XJmFPGfZvDC2Bimgmb4WOqtLzUgCiPmyxy9H3Q/h1NJvGrKRc99uR5KsAxgWBcqXH1L/izOBwPOi+/Fm8XeE2bxNYnh8wFG6XGCDaBG+7hZsB2zARCGrDap5+Ub9gqlOWeAA/mAXK2zCw5zEOp24zNIvSpzkTC2c32Vd9DNUhKntuED+TnC9dIdRaod26cO4Ta44dkI6WZmKGNIzLNUGzY4Fz4emIq41lg0gjtKFNtuyA7rhoR7EXRE9eOAJascJb71Gtn10anOcLhAvxXT2yNV62f2Ei7HsWmnBd
+tech-c:       CON000031823
+registrar:    NIC-VE
+created:      11.03.2020 11:48:43
+changed:      30.05.2025 13:49:43
+
+

@@ -1,0 +1,49 @@
+
+**********************************************************
+*            The UG ccTLD Registry Database              *
+**********************************************************
+
+Domain name:                    gov.ug
+Status:                         INACTIVE
+Expires On:                     2030-05-10
+Registered On:                  2020-05-10
+Renewed On:                     2020-05-10
+Nameserver:                     dns1.siel.si
+Nameserver:                     dns2.siel.si
+Nameserver:                     dns3.siel.si
+
+
+Registrant Contact Information:  
+Registrant Name:                Yi Cai
+Registrant Organization:        Cai Yi
+Registrant Country:             UG
+Registrant State / Province:    Shanghai
+Registrant City:                Shanghai
+Registrant Address:             Shanghai
+Registrant Postal Code:         200000
+Registrant Phone:               02180449302
+Registrant Email:               dongzhiqinglong@gmail.com
+
+Administrative Contact Information:  
+Admin Name:                     Yi Cai
+Admin Organization:             Cai Yi
+Admin Country:                  UG
+Admin State / Province:         Shanghai
+Admin City:                     Shanghai
+Admin Address:                  Shanghai
+Admin Postal Code:              200000
+Admin Phone:                    02180449302
+Admin Email:                    dongzhiqinglong@gmail.com
+
+Technical Contact Information:  
+Tech Name:                      Yi Cai
+Tech Organization:              Cai Yi
+Tech Country:                   UG
+Tech State / Province:          Shanghai
+Tech City:                      Shanghai
+Tech Address:                   Shanghai
+Tech Postal Code:               200000
+Tech Phone:                     02180449302
+Tech Email:                     dongzhiqinglong@gmail.com
+
+Information Last Updated:       2023-05-21 06:06:34

@@ -1,0 +1,45 @@
+% Domain Information over Whois protocol
+% 
+% Whoisd Server Version: 3.9.0
+% Timestamp: Thu Jun 19 02:21:43 2025
+
+domain:       facebook.mk
+registrant:   MKHOST-R18704
+admin-c:      MKHOST-C17008
+nsset:        MKHOST-NS22092
+registrar:    MKHOST-REG
+registered:   08.10.2023 12:49:07
+changed:      15.11.2024 05:41:48
+expire:       08.10.2025
+
+contact:      MKHOST-R18704
+org:          Tool Domains EOOD
+name:         Tool Domains EOOD
+address:      19 Kozyak Str., Fl.17, Apt. 51
+address:      Sofia
+address:      1407
+address:      BG
+phone:        +359.884632528
+e-mail:       domains@tool-domains.com
+registrar:    MKHOST-REG
+created:      12.09.2023 02:07:34
+
+contact:      MKHOST-C17008
+name:         Metodi Darzev
+address:      -
+address:      -
+address:      -
+address:      BG
+phone:        +359.884632528
+e-mail:       registrars@tool-domains.com
+registrar:    MKHOST-REG
+created:      12.09.2023 02:07:34
+
+nsset:        MKHOST-NS22092
+nserver:      ns1.gofruits.co 
+nserver:      ns2.gofruits.co 
+tech-c:       MKHOST-C17008
+registrar:    MKHOST-REG
+created:      14.11.2024 16:00:51
+
+

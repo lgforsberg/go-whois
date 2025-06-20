@@ -1,0 +1,14 @@
+#
+# -- /usr/local/bin/mywhois --
+#
+First Name:     
+Last Name:      
+Adress:         
+City:           
+Country:        
+Date Created:   Thu Jan 1970 11:00:00
+Expiry date:    Thu Jan 1970 11:00:00
+DNS servers1:    ns1.tldns.vu : 37.209.192.6
+DNS servers2:    ns2.tldns.vu : 37.209.194.6
+DNS servers3:    ns3.tldns.vu : 37.209.196.6
+DNS servers4:    ns4.tldns.vu : 37.209.198.6

@@ -1,0 +1,45 @@
+%  
+%  TZNIC WHOIS data and services are subject to the Terms of Use
+%  available at: https://www.tznic.or.tz/Whois_tou.pdf
+% 
+%  You may also use our WHOIS Web service available at:
+%  https://whois.tznic.or.tz/whois
+% 
+% 
+% Whoisd Server Version: 3.10.2
+% Timestamp: Thu Jun 19 03:46:04 2025
+
+domain:       google.tz
+registrant:   GDA-ITFARM
+admin-c:      KP1-ITFARM
+admin-c:      GLK-ITFARM
+nsset:        NS-GOOGLEDOMAINS-COM
+registrar:    REG-ITFARM
+registered:   05.03.2022 08:48:34
+expire:       05.03.2026
+
+contact:      GDA-ITFARM
+registrar:    REG-ITFARM
+created:      18.05.2011 12:22:33
+changed:      08.12.2018 10:10:55
+
+contact:      KP1-ITFARM
+registrar:    REG-ITFARM
+created:      10.07.2010 11:26:44
+changed:      03.03.2017 10:57:29
+
+contact:      GLK-ITFARM
+registrar:    REG-ITFARM
+created:      26.02.2010 20:57:29
+changed:      19.09.2019 07:32:42
+
+nsset:        NS-GOOGLEDOMAINS-COM
+nserver:      ns1.googledomains.com 
+nserver:      ns2.googledomains.com 
+nserver:      ns3.googledomains.com 
+nserver:      ns4.googledomains.com 
+tech-c:       GLK-ITFARM
+registrar:    REG-ITFARM
+created:      01.03.2022 03:11:24
+
+

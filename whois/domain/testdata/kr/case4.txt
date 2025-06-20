@@ -1,0 +1,59 @@
+query : gov.kr
+
+
+# KOREAN(UTF8)
+
+도메인이름                  : gov.kr
+등록인                      : 후이즈 도메인 관리자
+책임자                      : 후이즈 도메인 관리자
+책임자 전자우편             : admin@whoisblind.com
+등록일                      : 2017. 01. 13.
+최근 정보 변경일            : 2024. 11. 02.
+사용 종료일                 : 2026. 01. 13.
+정보공개여부                : N
+등록대행자                  : (주)후이즈(http://whois.co.kr)
+DNSSEC                      : 미서명
+
+1차 네임서버 정보
+   호스트이름               : ns1.whoisdomain.kr
+   IP 주소                  : 223.130.139.7
+
+2차 네임서버 정보
+   호스트이름               : ns2.whoisdomain.kr
+   IP 주소                  : 49.50.165.188
+   호스트이름               : ns3.whoisdomain.kr
+   IP 주소                  : 61.97.189.22
+   호스트이름               : ns4.whoisdomain.kr
+   IP 주소                  : 219.251.156.134
+
+네임서버 이름이 .kr이 아닌 경우는 IP주소가 보이지 않습니다.
+
+
+# ENGLISH
+
+Domain Name                 : gov.kr
+Registrant                  : Whois Domain Admin.
+Administrative Contact(AC)  : Whois Domain Admin.
+AC E-Mail                   : admin@whoisblind.com
+Registered Date             : 2017. 01. 13.
+Last Updated Date           : 2024. 11. 02.
+Expiration Date             : 2026. 01. 13.
+Publishes                   : N
+Authorized Agency           : Whois Corp.(http://whois.co.kr)
+DNSSEC                      : unsigned
+
+Primary Name Server
+   Host Name                : ns1.whoisdomain.kr
+   IP Address               : 223.130.139.7
+
+Secondary Name Server
+   Host Name                : ns2.whoisdomain.kr
+   IP Address               : 49.50.165.188
+   Host Name                : ns3.whoisdomain.kr
+   IP Address               : 61.97.189.22
+   Host Name                : ns4.whoisdomain.kr
+   IP Address               : 219.251.156.134
+
+
+- KISA/KRNIC WHOIS Service -
+

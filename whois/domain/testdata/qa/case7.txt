@@ -1,0 +1,7 @@
+Domain Name:                     dns.qa
+Last Modified:                   26-Sep-2024 09:19:12 UTC
+Registrar Name:                  Q HOST TECHNOLOGIES
+Status:                          ok
+
+Name Server:                     ns1.parkingcrew.net
+Name Server:                     ns2.parkingcrew.net

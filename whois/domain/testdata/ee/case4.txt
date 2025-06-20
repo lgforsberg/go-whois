@@ -1,0 +1,50 @@
+Search results may not be used for commercial, advertising, recompilation,
+repackaging, redistribution, reuse, obscuring or other similar activities.
+
+Estonia .ee Top Level Domain WHOIS server
+
+Domain:
+name:       gov.ee
+status:     ok (paid and in zone)
+registered: 2010-07-04 04:36:23 +03:00
+changed:    2025-03-08 04:40:15 +02:00
+expire:     2025-11-24
+outzone:    
+delete:     
+
+Registrant:
+name:       Riigi Info- ja Kommunikatsioonitehnoloogia Keskus
+org id:     77001613
+country:    EE
+email:      Not Disclosed - Visit www.internet.ee for webbased WHOIS
+phone:      Not Disclosed - Visit www.internet.ee for webbased WHOIS
+changed:    2025-03-08 04:40:15 +02:00
+
+Administrative contact:
+name:       Not Disclosed - Visit www.internet.ee for webbased WHOIS
+email:      Not Disclosed - Visit www.internet.ee for webbased WHOIS
+changed:    Not Disclosed - Visit www.internet.ee for webbased WHOIS
+
+Technical contact:
+name:       Not Disclosed - Visit www.internet.ee for webbased WHOIS
+email:      Not Disclosed - Visit www.internet.ee for webbased WHOIS
+changed:    Not Disclosed - Visit www.internet.ee for webbased WHOIS
+
+Registrar:
+name:       Zone Media OÜ
+url:        http://www.zone.ee
+phone:      +372 6886886
+changed:    2020-07-01 13:55:58 +03:00
+
+Name servers:
+nserver:   ns.zone.eu
+nserver:   ns2.zone.ee
+nserver:   ns3.zonedata.net
+changed:   2024-02-20 13:10:07 +02:00
+
+DNSSEC:
+dnskey:   257 3 13 Tb1QNj3EvSF+4UIKiBJD9VTPm2m8Z+jrUMPEHRnwzvemjdif6XIk2o7k1aBCmPvgLno8jJdzNqpNp0VSB0QqFw==
+changed:  2025-03-08 04:40:15 +02:00
+
+Estonia .ee Top Level Domain WHOIS server
+More information at http://internet.ee

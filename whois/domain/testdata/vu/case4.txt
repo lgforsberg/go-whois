@@ -1,0 +1,14 @@
+#
+# -- /usr/local/bin/mywhois --
+#
+First Name:     Valentine
+Last Name:      Nguyen
+Adress:         OGCIO OFfice
+City:           Port Vila
+Country:        Vanuatu
+Date Created:   Tue Aug 2000 00:00:00
+Expiry date:    Sun Nov 2025 03:31:55
+DNS servers1:    ns2.tldns.vu : 37.209.194.6
+DNS servers2:    ns1.tldns.vu : 37.209.192.6
+DNS servers3:    ns3.tldns.vu : 37.209.196.6
+DNS servers4:    ns4.tldns.vu : 37.209.198.6

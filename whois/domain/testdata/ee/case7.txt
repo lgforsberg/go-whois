@@ -1,0 +1,46 @@
+Search results may not be used for commercial, advertising, recompilation,
+repackaging, redistribution, reuse, obscuring or other similar activities.
+
+Estonia .ee Top Level Domain WHOIS server
+
+Domain:
+name:       dns.ee
+status:     ok (paid and in zone)
+registered: 2015-12-03 21:05:04 +02:00
+changed:    2024-03-24 18:49:15 +02:00
+expire:     2026-12-04
+outzone:    
+delete:     
+
+Registrant:
+name:       Osaühing Computernik
+org id:     10968990
+country:    EE
+email:      Not Disclosed - Visit www.internet.ee for webbased WHOIS
+phone:      Not Disclosed - Visit www.internet.ee for webbased WHOIS
+changed:    2024-03-24 18:49:15 +02:00
+
+Administrative contact:
+name:       Not Disclosed - Visit www.internet.ee for webbased WHOIS
+email:      Not Disclosed - Visit www.internet.ee for webbased WHOIS
+changed:    Not Disclosed - Visit www.internet.ee for webbased WHOIS
+
+Technical contact:
+name:       Not Disclosed - Visit www.internet.ee for webbased WHOIS
+email:      Not Disclosed - Visit www.internet.ee for webbased WHOIS
+changed:    Not Disclosed - Visit www.internet.ee for webbased WHOIS
+
+Registrar:
+name:       eHost OÜ 
+url:        https://host.ee
+phone:      +3726104195
+changed:    2023-05-26 12:13:49 +03:00
+
+Name servers:
+nserver:   joel.ns.cloudflare.com
+nserver:   zita.ns.cloudflare.com
+changed:   2018-11-13 08:39:03 +02:00
+
+
+Estonia .ee Top Level Domain WHOIS server
+More information at http://internet.ee

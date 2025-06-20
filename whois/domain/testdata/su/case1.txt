@@ -1,0 +1,19 @@
+% TCI Whois Service. Terms of use:
+% https://tcinet.ru/documents/whois_ru_rf.pdf (in Russian)
+% https://tcinet.ru/documents/whois_su.pdf (in Russian)
+
+domain:        GOOGLE.SU
+nserver:       ns3.nic.ru.
+nserver:       ns4.nic.ru.
+nserver:       ns8.nic.ru.
+state:         REGISTERED, DELEGATED
+person:        Private Person
+e-mail:        astra@astra.moscow
+registrar:     RUCENTER-SU
+created:       2005-10-15T20:00:00Z
+paid-till:     2025-10-15T21:00:00Z
+free-date:     2025-11-18
+source:        TCI
+
+Last updated on 2025-06-19T00:38:01Z
+

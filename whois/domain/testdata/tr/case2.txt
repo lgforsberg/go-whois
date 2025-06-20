@@ -1,0 +1,35 @@
+** Domain Name: facebook.tr
+Domain Status: Active
+Frozen Status: -
+Transfer Status: The domain is LOCKED to transfer. 
+
+** Registrant:
+   Facebook Inc.
+   Hidden upon user request
+   Hidden upon user request
+   Hidden upon user request
+   Hidden upon user request
+
+
+** Registrar:
+NIC Handle		: ogv40
+Organization Name	: ODTÜ GELİŞTİRME VAKFI BİLGİ TEKNOLOJİLERİ SAN. VE TİC. A.Ş.
+Address			: Mustafa Kemal Mahallesi Dumlupınar Bulvarı
+			  No:280G/1104 Çankaya
+			  06800 Ankara Türkiye
+Phone			: 90-312-9881106-
+Fax			: - 
+
+
+** Domain Servers:
+ns1.metunic.com.tr
+ns2.metunic.com.tr
+
+
+** Additional Info:
+Created on..............: 2024-Aug-27.
+Expires on..............: 2025-Aug-26.
+
+
+** Whois Server:
+Last Update Time: 2025-06-19T03:33:35+03:00

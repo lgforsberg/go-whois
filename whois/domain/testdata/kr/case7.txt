@@ -1,0 +1,47 @@
+query : dns.kr
+
+
+# KOREAN(UTF8)
+
+도메인이름                  : dns.kr
+등록인                      : 한국인터넷진흥원
+등록인 주소                 : 서울시 송파구 중대로 135 IT벤처타워
+등록인 우편번호             : 05717
+책임자                      : 도메인관리자
+책임자 전자우편             : domain-manager@nic.or.kr
+책임자 전화번호             : 1544-5118
+등록일                      : 2007. 08. 21.
+최근 정보 변경일            : 2009. 12. 15.
+사용 종료일                 : 9999. 12. 31.
+정보공개여부                : Y
+등록대행자                  : 한국인터넷진흥원(http://www.kisa.or.kr)
+DNSSEC                      : 미서명
+등록정보 보호               : serverDeleteProhibited
+등록정보 보호               : serverTransferProhibited
+등록정보 보호               : serverUpdateProhibited
+
+네임서버 이름이 .kr이 아닌 경우는 IP주소가 보이지 않습니다.
+
+
+# ENGLISH
+
+Domain Name                 : dns.kr
+Registrant                  : Korea Internet & Security Agency
+Registrant Address          : KISA, IT Venture Tower, Jungdaero 135, Songpa-gu, Seoul, Korea
+Registrant Zip Code         : 05717
+Administrative Contact(AC)  : Domain Manager
+AC E-Mail                   : domain-manager@nic.or.kr
+AC Phone Number             : 1544-5118
+Registered Date             : 2007. 08. 21.
+Last Updated Date           : 2009. 12. 15.
+Expiration Date             : 9999. 12. 31.
+Publishes                   : Y
+Authorized Agency           : KISA(http://www.kisa.or.kr)
+DNSSEC                      : unsigned
+Domain Status               : serverDeleteProhibited
+Domain Status               : serverTransferProhibited
+Domain Status               : serverUpdateProhibited
+
+
+- KISA/KRNIC WHOIS Service -
+

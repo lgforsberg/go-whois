@@ -1,0 +1,13 @@
+Domain  name    dns.md
+Domain state    OK
+Registrant      I.P. SERVICIUL TEHNOLOGIA INFORMATIEI SI SECURITATE CIBERNET
+
+Registered on   2000-10-30
+Expires    on   2029-09-29
+
+Nameserver      nsa.dns.md
+Nameserver      nsb.dns.md
+Nameserver      nsf.dns.md
+Nameserver      nsc.dns.md
+
+DNSSEC          active

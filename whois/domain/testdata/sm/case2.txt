@@ -1,0 +1,27 @@
+Domain Name: facebook.sm
+Registration date: 21/04/2010
+Status: Active
+
+Owner:
+Facebook, Inc.
+156 University Ave, 3rd Floor
+California
+94301 Palo Alto
+US
+Phone: +1.6505434800
+Email: admin@lovellsnames.info
+
+Technical Contact:
+Dietrich Meyer
+Lovells
+Avenue Kleber 6
+75116 Paris
+FR
+Phone: +33 1 53671639
+Fax: +33 1 53674748
+Email: hostmaster@lovellsnames.org
+
+DNS Servers:
+ns1.lovellsnames.org
+ns3.lovellsnames.org
+ns4.lovellsnames.org

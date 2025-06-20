@@ -1,0 +1,46 @@
+Search results may not be used for commercial, advertising, recompilation,
+repackaging, redistribution, reuse, obscuring or other similar activities.
+
+Estonia .ee Top Level Domain WHOIS server
+
+Domain:
+name:       edu.ee
+status:     ok (paid and in zone)
+registered: 2010-07-04 04:13:36 +03:00
+changed:    2024-12-02 09:57:53 +02:00
+expire:     2025-12-08
+outzone:    
+delete:     
+
+Registrant:
+name:       Haridus- ja Teadusministeerium
+org id:     70000740
+country:    EE
+email:      Not Disclosed - Visit www.internet.ee for webbased WHOIS
+phone:      Not Disclosed - Visit www.internet.ee for webbased WHOIS
+changed:    2024-12-02 09:57:53 +02:00
+
+Administrative contact:
+name:       Not Disclosed - Visit www.internet.ee for webbased WHOIS
+email:      Not Disclosed - Visit www.internet.ee for webbased WHOIS
+changed:    Not Disclosed - Visit www.internet.ee for webbased WHOIS
+
+Technical contact:
+name:       Not Disclosed - Visit www.internet.ee for webbased WHOIS
+email:      Not Disclosed - Visit www.internet.ee for webbased WHOIS
+changed:    Not Disclosed - Visit www.internet.ee for webbased WHOIS
+
+Registrar:
+name:       Haridus- ja Teadusministeerium (EENet)
+url:        http://www.eenet.ee
+phone:      +372 730 2110
+changed:    2022-09-09 11:22:52 +03:00
+
+Name servers:
+nserver:   ns2.eenet.ee
+nserver:   ns.eenet.ee
+changed:   2012-07-25 11:14:48 +03:00
+
+
+Estonia .ee Top Level Domain WHOIS server
+More information at http://internet.ee

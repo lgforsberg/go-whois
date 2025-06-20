@@ -1,0 +1,57 @@
+query : facebook.kr
+
+
+# KOREAN(UTF8)
+
+도메인이름                  : facebook.kr
+등록인                      : Kim & Chang
+등록인 주소                 : Seyang Building 223 Naeja-dong, Jongno-gu
+등록인 우편번호             : 110720
+책임자                      : Kim & Chang
+책임자 전자우편             : domreg@ipmirror.com
+책임자 전화번호             : +82.237031114
+등록일                      : 2007. 04. 18.
+최근 정보 변경일            : 2020. 02. 07.
+사용 종료일                 : 2026. 04. 18.
+정보공개여부                : Y
+등록대행자                  : (주)가비아(http://www.gabia.co.kr)
+DNSSEC                      : 미서명
+
+1차 네임서버 정보
+   호스트이름               : a.ns.facebook.com
+
+2차 네임서버 정보
+   호스트이름               : b.ns.facebook.com
+   호스트이름               : c.ns.facebook.com
+   호스트이름               : d.ns.facebook.com
+
+네임서버 이름이 .kr이 아닌 경우는 IP주소가 보이지 않습니다.
+
+
+# ENGLISH
+
+Domain Name                 : facebook.kr
+Registrant                  : Kim & Chang
+Registrant Address          : Seyang Building, 223 Naeja-dong, Jongno-gu
+Registrant Zip Code         : 110720
+Administrative Contact(AC)  : Kim & Chang
+AC E-Mail                   : domreg@ipmirror.com
+AC Phone Number             : +82.237031114
+Registered Date             : 2007. 04. 18.
+Last Updated Date           : 2020. 02. 07.
+Expiration Date             : 2026. 04. 18.
+Publishes                   : Y
+Authorized Agency           : Gabia, Inc.(http://www.gabia.co.kr)
+DNSSEC                      : unsigned
+
+Primary Name Server
+   Host Name                : a.ns.facebook.com
+
+Secondary Name Server
+   Host Name                : b.ns.facebook.com
+   Host Name                : c.ns.facebook.com
+   Host Name                : d.ns.facebook.com
+
+
+- KISA/KRNIC WHOIS Service -
+

@@ -1,0 +1,11 @@
+Domain  name    facebook.md
+Domain state    OK
+Registrant      Meta Platforms, Inc.
+
+Registered on   2012-08-27
+Expires    on   2025-08-27
+
+Nameserver      a.ns.facebook.com
+Nameserver      b.ns.facebook.com
+Nameserver      c.ns.facebook.com
+Nameserver      d.ns.facebook.com

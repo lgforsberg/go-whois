@@ -1,0 +1,71 @@
+============================================================================
+Whois du Registre .SN
+Les informations fournies par ce service ne sont qu'à titre informatif.
+
+Les données collectées via le formulaire d'enregistrement sont traitées exclusivement à des fins liées au traitement des domaines conformément à la RFC 3912 par le NIC Sénégal.
+
+En application des dispositions de la loi n°2008-12 du 25 janvier 2008 portant sur la protection des données à caractère personnel, vous pouvez exercer vos droits d'accès, d'opposition, de rectification et de suppression auprès du NIC Sénégal - abuse(at)nic.sn.
+============================================================================
+
+Domain ID:                     DOM000000002632-SN
+Nom de domaine:                facebook.sn
+Date de création:              2016-09-20T00:00:00Z
+Dernière modification:         2024-11-20T10:09:08.598038Z
+Date d'expiration:             2025-12-31T12:00:00Z
+Registrar:                     Lexynergy Limited
+Statut:                        actif
+
+[BILLING_C]
+ID Contact:                    DT167
+Type:                          Personne Physique
+Nom:                           David Taylor
+Adresse:                       A renseigner
+Code postal:                   92389
+Ville:                         Dakar
+Pays:                          SN
+Téléphone:                     +33.153674747
+Courriel:                      global1@lovellsnames.org
+
+[TECH_C]
+ID Contact:                    DT167
+Type:                          Personne Physique
+Nom:                           David Taylor
+Adresse:                       A renseigner
+Code postal:                   92389
+Ville:                         Dakar
+Pays:                          SN
+Téléphone:                     +33.153674747
+Courriel:                      global1@lovellsnames.org
+
+[ADMIN_C]
+ID Contact:                    DT167
+Type:                          Personne Physique
+Nom:                           David Taylor
+Adresse:                       A renseigner
+Code postal:                   92389
+Ville:                         Dakar
+Pays:                          SN
+Téléphone:                     +33.153674747
+Courriel:                      global1@lovellsnames.org
+
+[HOLDER]
+ID Contact:                    FIL110
+Type:                          Personne Physique
+Nom:                           FACEBOOK IRELAND LIMITED
+Adresse:                       A renseigner
+Code postal:                   92389
+Ville:                         Dakar
+Pays:                          SN
+Téléphone:                     +353.15530550
+Fax:                           +353.15530603
+Courriel:                      global1@lovellsnames.org
+
+Serveur de noms:               ns4.lovellsnames.org
+Serveur de noms:               ns2.lovellsnames.org
+Serveur de noms:               ns3.lovellsnames.org
+Serveur de noms:               ns1.lovellsnames.org
+
+DNSSEC:                        unsigned
+
+>>> Last update of WHOIS database: 2025-06-19T00:41:32.74107Z <<<
+

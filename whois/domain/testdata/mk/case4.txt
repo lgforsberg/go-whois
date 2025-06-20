@@ -1,0 +1,49 @@
+% Domain Information over Whois protocol
+% 
+% Whoisd Server Version: 3.9.0
+% Timestamp: Thu Jun 19 02:21:45 2025
+
+domain:       gov.mk
+registrant:   MARNET-R08502
+admin-c:      MARNET-C02558
+nsset:        MARNET-NS00000
+registrar:    MARNET-REG
+registered:   01.01.2013 01:57:43
+expire:       01.01.2033
+
+contact:      MARNET-R08502
+org:          Македонска академска истражувачка мрежа Скопје
+name:         МАРнет
+address:      Ул. БУЛЕВАР ПАРТИЗАНСКИ ОДРЕДИ Бр.17 СКОПЈЕ
+address:      Скопје
+address:      1000
+address:      Р. Македонија
+address:      MK
+phone:        +389.23256561
+e-mail:       info@marnet.mk
+registrar:    MARNET-REG
+created:      01.01.2013 03:41:14
+changed:      28.12.2020 21:23:21
+
+contact:      MARNET-C02558
+name:         Сашо Димитријоски
+address:      -
+address:      Скопје
+address:      1000
+address:      MK
+phone:        +389.1234567
+e-mail:       domains@marnet.net.mk
+registrar:    MARNET-REG
+created:      01.01.2013 01:16:13
+
+nsset:        MARNET-NS00000
+nserver:      dns-mk.univie.ac.at 
+nserver:      d.ext.nic.cz 
+nserver:      tld1.marnet.mk (194.149.137.168)
+nserver:      ns2.arnes.si 
+tech-c:       MARNET-C02558
+registrar:    MARNET-REG
+created:      01.01.2013 01:57:10
+changed:      17.03.2014 11:51:10
+
+

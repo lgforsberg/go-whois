@@ -1,0 +1,46 @@
+%  
+%  TZNIC WHOIS data and services are subject to the Terms of Use
+%  available at: https://www.tznic.or.tz/Whois_tou.pdf
+% 
+%  You may also use our WHOIS Web service available at:
+%  https://whois.tznic.or.tz/whois
+% 
+% 
+% Whoisd Server Version: 3.10.2
+% Timestamp: Thu Jun 19 03:46:07 2025
+
+domain:       nic.tz
+registrant:   ADMIN-TZREGISTRY
+admin-c:      ADMIN-TZREGISTRY
+nsset:        NS-NICTZ
+keyset:       KS-NICTZ1
+registrar:    REG-TZNIC
+registered:   28.01.2015 15:14:03
+changed:      17.08.2022 18:23:46
+expire:       28.01.2030
+
+contact:      ADMIN-TZREGISTRY
+registrar:    REG-TZNIC
+created:      23.05.2022 12:59:22
+
+nsset:        NS-NICTZ
+nserver:      ns1.tznic.or.tz 
+nserver:      b.ns.tznic.or.tz 
+tech-c:       MNT-TZNIC
+registrar:    REG-TZNIC
+created:      28.01.2015 15:18:39
+
+contact:      MNT-TZNIC
+registrar:    REG-TZNIC
+created:      21.07.2009 15:28:07
+changed:      04.02.2015 16:46:11
+
+keyset:       KS-NICTZ1
+dnskey:       257 3 8 AwEAAdA7dsQLdaCzDia2KASLvss76C5DtkF4UtVqRr/OUf1gP5ox0UpgtEdcv9hWKbs9+5TKV7RswA6C0KDlA5n4Csnjd1cF/XcPQa9aStVLJyN+r/GYmncT35Z7LLOB4qqa05p9b5KNp4U00hORqMDCbQvS50tZA79fk0rFxzEowK4IPJYCu7QI1y+UiTbx8SkUYQupA7NUb/Qu4HmtTkfF3kAfFRkERmOKqbmfZnfPpzki6WYaPKddvLi5ubHtEvsVW19ohyWXDdaI+7zaxe1oswyv7Oc4ZK2x+oiB6lHPxZb2vyE+/mstpnHHtjp/jEITArZcz3c0HiRfe4IOOnVCTZM=
+dnskey:       257 3 5 AwEAAasUKLZIHUZJrbqxnWPPCgdQwq5ZLq5kNGMo2p7KYgQDaTy9aTuvJtDIdvHV5e602zXsA0OfnP8vwGyrRfU4VDW+jKuKTjsfByfjHil2xdtJHV8qXFjmpMNSay2yGOXeg8EBJVbb9BdO3CX0FekTguuzoMvZT/svKkzKU1YEaa79e4dtax5kCcu4lRfcgJKN0+2g+ewLQI1xh7HYL31wHpvBw2YzLUO2au95GYsmNUBNWgZ+ytzCmkcPcSY2DgPx6LYIbxMIs5BR2yWyk316v6Y1Rvn/c64e/+r4gAsdpcGn2NbZjBTpn0L+ZNdYdellG+JRUpFxxvV/0V5DJ7U8fFE=
+tech-c:       MNT-TZNIC
+registrar:    REG-TZNIC
+created:      18.07.2019 14:45:17
+changed:      11.01.2021 14:16:29
+
+

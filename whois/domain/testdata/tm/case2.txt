@@ -1,0 +1,18 @@
+
+Domain : facebook.tm
+Status : Live
+Expiry : 2030-08-11
+
+NS 1   : ns1.lovellsnames.org
+NS 2   : ns2.lovellsnames.org
+NS 3   : ns3.lovellsnames.org
+NS 4   : ns4.lovellsnames.org
+
+Owner Name    : Domain Administrator
+Owner OrgName : Facebook Ireland Limited
+Owner Addr    : 4 Grand Canal Square,!Grand Canal Harbour
+Owner Addr    : Dublin
+Owner Addr    : D
+Owner Addr    : IE
+
+

@@ -1,0 +1,34 @@
+[ JPRS database provides information on network administration. Its use is    ]
+[ restricted to network administration purposes. For further information,     ]
+[ use 'whois -h whois.jprs.jp help'. To suppress Japanese output, add'/e'     ]
+[ at the end of command, e.g. 'whois -h whois.jprs.jp xxx/e'.                 ]
+Domain Information: [ドメイン情報]
+[Domain Name]                   FACEBOOK.JP
+
+[登録者名]                      Domain Manager
+[Registrant]                    Domain Manager
+
+[Name Server]                   c.ns.facebook.com
+[Name Server]                   a.ns.facebook.com
+[Name Server]                   d.ns.facebook.com
+[Name Server]                   b.ns.facebook.com
+[Signing Key]                   
+
+[登録年月日]                    2025/01/28
+[有効期限]                      2026/01/31
+[状態]                          Active
+[ロック状態]                    DomainTransferLocked
+[ロック状態]                    AgentChangeLocked
+[最終更新]                      2025/01/28 02:54:12 (JST)
+
+Contact Information: [公開連絡窓口]
+[名前]                          Domain Manager
+[Name]                          Domain Manager
+[Email]                         admin@comlaude.com
+[Web Page]                       
+[郵便番号]                      104-0033
+[住所]                          東京都Tokyo 1-3-21 Shinkawa, Chuo-ku
+[Postal Address]                Tokyo 1-3-21 Shinkawa, Chuo-ku
+[電話番号]                      +81.0345789368
+[FAX番号]                       
+

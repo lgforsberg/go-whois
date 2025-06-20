@@ -1,0 +1,5 @@
+#
+# -- /usr/local/bin/mywhois --
+#
+The domain nic.vu
+ is not valid! 

@@ -1,0 +1,49 @@
+
+**********************************************************
+*            The UG ccTLD Registry Database              *
+**********************************************************
+
+Domain name:                    org.ug
+Status:                         ACTIVE
+Expires On:                     2029-10-17
+Registered On:                  2018-01-11
+Renewed On:                     2024-10-17
+Nameserver:                     ns1.cfi.co.ug
+Nameserver:                     ns2.cfi.co.ug
+Nameserver:                     ns3.cfi.co.ug
+Nameserver:                     ns4.cfi.co.ug
+
+Registrant Contact Information:  
+Registrant Name:                i3C LTD
+Registrant Organization:        UNKNOWN
+Registrant Country:             Uganda
+Registrant State / Province:    UNKNOWN
+Registrant City:                Kampala
+Registrant Address:             Kampala
+Registrant Postal Code:         12510
+Registrant Phone:               0312301800
+Registrant Email:               helpdesk@i3c.co.ug
+
+Administrative Contact Information:  
+Admin Name:                     i3C LTD
+Admin Organization:             UNKNOWN
+Admin Country:                  Uganda
+Admin State / Province:         UNKNOWN
+Admin City:                     Kampala
+Admin Address:                  Kampala
+Admin Postal Code:              12510
+Admin Phone:                    0312301800
+Admin Email:                    helpdesk@i3c.co.ug
+
+Technical Contact Information:  
+Tech Name:                      i3C LTD
+Tech Organization:              UNKNOWN
+Tech Country:                   Uganda
+Tech State / Province:          UNKNOWN
+Tech City:                      Kampala
+Tech Address:                   Kampala
+Tech Postal Code:               12510
+Tech Phone:                     0312301800
+Tech Email:                     helpdesk@i3c.co.ug
+
+Information Last Updated:       2024-10-17 08:03:45

@@ -1,0 +1,9 @@
+Domain  name    org.md
+Domain state    OK
+Registrant      I.P. SERVICIUL TEHNOLOGIA INFORMATIEI SI SECURITATE CIBERNET
+
+Registered on   1998-10-04
+Expires    on   2029-09-29
+
+Nameserver      nsx.host.md
+Nameserver      nsy.host.md

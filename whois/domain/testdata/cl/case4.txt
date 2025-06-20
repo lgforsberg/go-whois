@@ -1,0 +1,31 @@
+%%
+%% This is the NIC Chile Whois server (whois.nic.cl).
+%%
+%% Rights restricted by copyright.
+%% See https://www.nic.cl/normativa/politica-publicacion-de-datos-cl.pdf
+%%
+
+Domain name: gov.cl
+Registrant name: Ministerio del Interior (SUBSECRETARIA DEL INTERIOR)
+Registrant organisation: 
+Registrar name: NIC Chile
+Registrar URL: https://www.nic.cl
+Creation date: 1997-08-27 00:00:02 CLST
+Expiration date: 2025-08-22 12:16:19 CLST
+Name server: ns.gov.cl (163.247.54.111)
+Name server: ns.gov.cl (2801:2:85::54:0:111)
+Name server: ns2.gov.cl (163.247.70.25)
+Name server: ns2.gov.cl (2801:2:85::70:0:25)
+Name server: ns6.gov.cl (163.247.72.25)
+Name server: ns6.gov.cl (2801:2:85::72:0:25)
+Name server: ns7.gov.cl (163.247.75.25)
+Name server: ns7.gov.cl (2801:2:85::75:0:25)
+Name server: a.nic.cl
+Name server: b.nic.cl
+
+%%
+%% For communication with domain contacts please use website.
+%% See https://www.nic.cl/registry/Whois.do?d=gov.cl
+%%
+%% Registry Abuse Contact Email: abuse@nic.cl
+%%

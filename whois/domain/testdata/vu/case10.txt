@@ -1,0 +1,5 @@
+#
+# -- /usr/local/bin/mywhois --
+#
+The domain sdfasdf-sdf-sdf-sdf-sdf.vu
+ is not valid! 

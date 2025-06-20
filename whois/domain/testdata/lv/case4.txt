@@ -1,0 +1,39 @@
+[Domain]
+Domain: gov.lv
+Status: active
+
+[Holder]
+Type: Legal person
+Country: LV
+Name: Valsts akciju sabiedriba "Latvijas Valsts radio un televizijas centrs"
+Address: Zemitana iela 9 k-3, Riga, LV-1012, Latvija
+RegNr: 40003011203
+Visit: https://www.nic.lv/whois/contact/gov.lv to contact.
+
+[Tech]
+Type: Natural person
+Visit: https://www.nic.lv/whois/contact/gov.lv to contact.
+
+[Nservers]
+Nserver: a.gov.lv
+Nserver: b.gov.lv
+Nserver: c.gov.lv
+
+[Whois]
+Updated: 2025-06-18T23:12:30.974138+00:00
+
+[Disclaimer]
+% The WHOIS service is provided solely for informational purposes.
+%
+% It is permitted to use the WHOIS service only for technical or administrative
+% needs associated with the operation of the Internet or in order to contact
+% the domain name holder over legal problems.
+%
+% Requestor will not use information obtained using WHOIS:
+% * To allow, enable or in any other way to support sending of unsolicited mails (spam)
+% * for any kind of advertising
+% * to disrupt Internet stability and security
+%
+% It is not permitted to obtain (including copying) or re-use in any form or
+% by any means all or quantitatively or qualitatively significant part
+% of the WHOIS without NIC's express permission.

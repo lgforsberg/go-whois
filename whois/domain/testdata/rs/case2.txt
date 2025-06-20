@@ -1,0 +1,46 @@
+
+% The data in the Whois database are provided by RNIDS
+% for information purposes only and to assist persons in obtaining
+% information about or related to a domain name registration record. 
+% Data in the database are created by registrants and we do not guarantee 
+% their accuracy. We reserve the right to remove access 
+% for entities abusing the data, without notice.
+% All timestamps are given in Serbian local time. 
+%
+Domain name: facebook.rs
+Domain status: Active https://www.rnids.rs/en/domain-name-status-codes#Active
+Registration date: 10.03.2008 17:52:37
+Modification date: 10.02.2025 12:39:32
+Expiration date: 10.03.2026 17:52:37
+Confirmed: 10.03.2008 17:52:37
+Registrar: Webglobe d.o.o.
+
+
+Registrant: Facebook Ireland Limited
+Address: 4 Grand Canal Square, Grand Canal Harbour, Ireland
+Postal Code: Dublin 2
+ID Number: 462932
+Tax ID: IE9692928F
+
+Administrative contact: Facebook Ireland Limited
+Address: 4 Grand Canal Square, Grand Canal Harbour, Ireland
+Postal Code: Dublin 2
+ID Number: 462932
+Tax ID: IE9692928F
+
+Technical contact: Facebook Ireland Limited
+Address: 4 Grand Canal Square, Grand Canal Harbour, Ireland
+Postal Code: Dublin 2
+ID Number: 462932
+Tax ID: IE9692928F
+
+
+DNS: ns1.lovellsnames.org - 212.43.230.250
+DNS: ns2.lovellsnames.org - 213.160.76.33
+DNS: ns3.lovellsnames.org - 212.84.243.154
+DNS: ns4.lovellsnames.org - 217.158.119.226
+
+
+DNSSEC signed: no
+
+Whois Timestamp: 19.06.2025 02:34:01

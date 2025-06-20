@@ -1,0 +1,24 @@
+% Restricted rights.
+% 
+% Terms and Conditions of Use
+% 
+% The above data may only be used within the scope of technical or
+% administrative necessities of Internet operation or to remedy legal
+% problems.
+% The use for other purposes, in particular for advertising, is not permitted.
+% 
+% The DENIC whois service on port 43 doesn't disclose any information concerning
+% the domain holder, general request and abuse contact.
+% This information can be obtained through use of our web-based whois service
+% available at the DENIC website:
+% http://www.denic.de/en/domains/whois-service/web-whois.html
+% 
+% 
+
+Domain: gov.de
+Nserver: ns1-any.123ns.eu
+Nserver: ns3-any.123ns.eu
+Nserver: ns4-any.123ns.de
+Dnskey: 257 3 8 AwEAAYCByqIPBZXOvL3NqKIJqV6Av2+eUEvvCenRTRNnFaQpQBfDmyekd+GYkr+RYGwZVQIFUvl1yzyPvymd4WUxyBgPBY+7vCkpsODGMjaEbrkZNTEXu64WKzZwUQC+Q51tHYfyGi017toLXTj+SwiZxwVRWQJoOvBefaZCLW1aEO/ZoBJGy5yOytHpBkIqCaV/s6MWx2sRQJDBwzk70DAR8lb7CQfUHiSckfh9EsWlkg1kA6zHmlaoi9bShWM/x+os0dlbbaKahrFsCThBP/mozekuQnZimbfONEQjScJZRmRjZneynHBKGFX1+Ga3lkuDGlMxymLwEV7dNXTDac9Axcs=
+Status: connect
+Changed: 2024-09-19T11:57:00+02:00

@@ -1,0 +1,58 @@
+NIC Whois server for cTLDs : .tn , .تونس
+All rights reserved
+Copyright "Tunisian Internet Agency - https://whois.ati.tn
+Supported ccTLDs : .tn , .تونس
+Sectorial domains : .com.tn,.ens.tn,.fin.tn,.gov.tn,.ind.tn,.intl.tn,.nat.tn,.net.tn,.org.tn,.info.tn,.perso.tn,.tourism.tn,.mincom.tn
+
+Domain name.........: facebook.tn
+Details:
+Creation date.......: 04-06-2021 15:34:02 GMT+1
+Domain status.......: Active
+Registrar...........: ELB
+
+Owner Contact
+Name................: Facebook Ireland Limited
+First name..........: 
+Address.............: 4 Grand Canal Square, Grand Canal Harbour, Dublin 2, Irlande
+address2............: 
+City................: 
+stateProvince.......: 
+Zip code............: 
+Country.............: IE
+Phone...............: +33.153674747
+Fax.................: 
+Email...............: globaladmin@lovellsnames.org
+
+Administrativ contact
+Name................: TAYLOR
+First name..........: David
+Address.............: 17 avenue Matignon 75008 Paris
+address2............: 
+City................: 
+stateProvince.......: 
+Zip code............: 
+Country.............: FR
+Phone...............: +33.153674747
+Fax.................: 
+Email...............: globaladmin@lovellsnames.org
+
+Technical contact
+Name................: TAYLOR
+First name..........: David
+Address.............: 17 avenue Matignon 75008 Paris
+address2............: 
+City................: 
+stateProvince.......: 
+Zip code............: 
+Country.............: FR
+Phone...............: +33.153674747
+Fax.................: 
+Email...............: globaladmin@lovellsnames.org
+dnssec..............: unsigned
+
+DNS servers
+Name................: ns1.lovellsnames.org.
+Name................: ns2.lovellsnames.org.
+Name................: ns3.lovellsnames.org.
+Name................: ns4.lovellsnames.org.
+

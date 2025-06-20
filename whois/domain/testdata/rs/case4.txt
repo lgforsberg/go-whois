@@ -1,0 +1,50 @@
+
+% The data in the Whois database are provided by RNIDS
+% for information purposes only and to assist persons in obtaining
+% information about or related to a domain name registration record. 
+% Data in the database are created by registrants and we do not guarantee 
+% their accuracy. We reserve the right to remove access 
+% for entities abusing the data, without notice.
+% All timestamps are given in Serbian local time. 
+%
+Domain name: gov.rs
+Domain status: Active https://www.rnids.rs/en/domain-name-status-codes#Active
+Domain status: Registry lock https://www.rnids.rs/en/domain-name-status-codes#Registry_lock
+Domain status: serverUpdateProhibited https://www.rnids.rs/en/domain-name-status-codes#ServerUpdateProhibited
+Registration date: 10.03.2008 12:00:00
+Modification date: 10.06.2022 15:23:07
+Expiration date: 10.03.2108 12:00:00
+Confirmed: 10.03.2008 12:00:00
+Registrar: RNIDS
+
+
+Registrant: RNIDS
+Address: Žorža Klemansoa 18a, Beograd, Serbia
+Postal Code: 11000
+ID Number: 17680544
+Tax ID: 104852190
+
+Administrative contact: RNIDS
+Address: Žorža Klemansoa 18a, Beograd, Serbia
+Postal Code: 11000
+ID Number: 17680544
+Tax ID: 104852190
+
+Technical contact: Kancelarija za informacione tehnologije i elektronsku upravu
+Address: Nemanjina 11, Beograd, Serbia
+Postal Code: 11000
+ID Number: 07020171
+Tax ID: 
+
+
+DNS: ns1.gov.rs - 195.222.98.170
+DNS: ns2.gov.rs - 195.222.98.171
+DNS: dagda1.isp.telekom.rs - 212.200.191.150
+DNS: ns3.gov.rs - 77.105.21.15
+DNS: ns4.gov.rs - 82.117.223.167
+DNS: gov1.nic.rs - 91.199.17.61
+DNS: gov2.nic.rs - 91.199.17.62
+
+DNSSEC signed: no
+
+Whois Timestamp: 19.06.2025 02:34:03

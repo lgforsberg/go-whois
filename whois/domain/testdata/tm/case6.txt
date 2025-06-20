@@ -1,0 +1,16 @@
+
+Domain : org.tm
+Status : Permanent/Reserved
+Expiry : Never
+
+NS 1   : dns1.nic.tm
+NS 2   : dns2.nic.tm
+NS 3   : dns3.nic.tm
+NS 4   : dns4.nic.tm
+NS 5   : dns5.nic.tm
+NS 6   : dns6.nic.tm
+NS 7   : dns7.nic.tm
+NS 8   : dns01.nic.tm
+
+
+

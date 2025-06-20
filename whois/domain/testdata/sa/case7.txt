@@ -1,0 +1,33 @@
+% SaudiNIC Whois server.
+% Rights restricted by copyright.
+% http://nic.sa/en/view/whois-cmd-copyright
+
+Domain Name: dns.sa
+
+Registrant:
+SaudiNIC- CITC المركز السعودي لمعلومات الشبكة - هيئة الاتصالات وتقنية المعلومات
+Address: ***************
+***** ******
+Unknown
+
+Administrative Contact:
+هشام ***** ***** *****
+Address: ***** *****
+***** *****
+*****
+
+Technical Contact:
+هشام ***** ***** *****
+Address: ***** *****
+***** *****
+*****
+
+Name Servers:
+ns1.dns.sa (86.111.195.3, 2001:67c:18c8:10::3)
+ns2.dns.sa (86.111.196.3, 2001:67c:130:10::3)
+ns3.dns.sa (194.58.198.32, 2A01:3F1:3032::53)
+
+DNSSEC: Yes
+DS Records:
+58658 13 2 54DC87A1A62954839E1EF301E28798F0A449103ACF24458061504AABACFD3C6F
+

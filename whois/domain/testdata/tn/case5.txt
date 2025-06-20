@@ -1,0 +1,56 @@
+NIC Whois server for cTLDs : .tn , .تونس
+All rights reserved
+Copyright "Tunisian Internet Agency - https://whois.ati.tn
+Supported ccTLDs : .tn , .تونس
+Sectorial domains : .com.tn,.ens.tn,.fin.tn,.gov.tn,.ind.tn,.intl.tn,.nat.tn,.net.tn,.org.tn,.info.tn,.perso.tn,.tourism.tn,.mincom.tn
+
+Domain name.........: edu.tn
+Details:
+Creation date.......: 31-08-2023 13:49:41 GMT+1
+Domain status.......: Active
+Registrar...........: ATI
+
+Owner Contact
+Name................: Ministère des Technologies de la Communication
+First name..........: 
+Address.............: 88 Avenue Mohamed V
+address2............: 
+City................: Belvédère
+stateProvince.......: 
+Zip code............: 1002
+Country.............: TN
+Phone...............: +216.58648755
+Fax.................: 
+Email...............: chaouki.chihi@tunisia.gov.tn
+
+Administrativ contact
+Name................: Ministère des Technologies de la Communication
+First name..........: 
+Address.............: 88 Avenue Mohamed V
+address2............: 
+City................: Belvédère
+stateProvince.......: 
+Zip code............: 1002
+Country.............: TN
+Phone...............: +216.58648755
+Fax.................: 
+Email...............: chaouki.chihi@tunisia.gov.tn
+
+Technical contact
+Name................: CHICHI
+First name..........: Chaouki
+Address.............: 88 Avenue Mohamed V
+address2............: 
+City................: Belvédère
+stateProvince.......: 
+Zip code............: 1002
+Country.............: TN
+Phone...............: +216.58648755
+Fax.................: 
+Email...............: chaouki.chihi@tunisia.gov.tn
+dnssec..............: unsigned
+
+DNS servers
+Name................: ns3.cni.tn.
+Name................: ns4.cni.tn.
+

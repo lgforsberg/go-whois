@@ -1,0 +1,49 @@
+
+**********************************************************
+*            The UG ccTLD Registry Database              *
+**********************************************************
+
+Domain name:                    dns.ug
+Status:                         ACTIVE
+Expires On:                     2029-10-20
+Registered On:                  2010-06-07
+Renewed On:                     2024-05-20
+Nameserver:                     devin.ns.cloudflare.com
+Nameserver:                     peaches.ns.cloudflare.com
+
+
+
+Registrant Contact Information:  
+Registrant Name:                DNS.UG DNS.UG
+Registrant Organization:        DNS.UG
+Registrant Country:             Japan
+Registrant State / Province:    Tokyo
+Registrant City:                Adachi-ku
+Registrant Address:             TS144460, 42-4, Senjyuakebono-cho
+Registrant Postal Code:         120 0023
+Registrant Phone:               +81.345809715
+Registrant Email:               dns.ug@whois.dns.moe
+
+Administrative Contact Information:  
+Admin Name:                     DNS.UG DNS.UG
+Admin Organization:             DNS.UG
+Admin Country:                  Japan
+Admin State / Province:         Tokyo
+Admin City:                     Adachi-ku
+Admin Address:                  TS144460, 42-4, Senjyuakebono-cho
+Admin Postal Code:              120 0023
+Admin Phone:                    +81.345809715
+Admin Email:                    dns.ug@whois.dns.moe
+
+Technical Contact Information:  
+Tech Name:                      DNS.UG DNS.UG
+Tech Organization:              DNS.UG
+Tech Country:                   Japan
+Tech State / Province:          Tokyo
+Tech City:                      Adachi-ku
+Tech Address:                   TS144460, 42-4, Senjyuakebono-cho
+Tech Postal Code:               120 0023
+Tech Phone:                     +81.345809715
+Tech Email:                     dns.ug@whois.dns.moe
+
+Information Last Updated:       2024-05-20 20:46:36

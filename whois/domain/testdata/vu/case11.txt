@@ -1,0 +1,5 @@
+#
+# -- /usr/local/bin/mywhois --
+#
+The domain jthsitshtkckthst124312.vu
+ is not valid! 

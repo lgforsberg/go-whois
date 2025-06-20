@@ -1,5 +1,10 @@
 package domain
 
+import (
+	"errors"
+	"strings"
+)
+
 var AUMap map[string]string = map[string]string{
 	"Registrant Contact Name": "c/registrant/name",
 	"Registrant":              "c/registrant/organization",
@@ -23,9 +28,23 @@ func (auw *AUTLDParser) GetName() string {
 }
 
 func (auw *AUTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	if rawtext == "" {
+		return nil, errors.New("empty rawtext provided")
+	}
+
 	parsedWhois, err := auw.parser.Do(rawtext, nil, AUMap)
 	if err != nil {
 		return nil, err
 	}
+
+	// Validate that we have some meaningful data
+	if parsedWhois.DomainName == "" && len(parsedWhois.Statuses) == 0 {
+		// Check if this might be a "not found" response
+		if strings.Contains(strings.ToLower(rawtext), "no data found") ||
+			strings.Contains(strings.ToLower(rawtext), "not found") {
+			parsedWhois.Statuses = []string{"free"}
+		}
+	}
+
 	return parsedWhois, nil
 }

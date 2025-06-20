@@ -1,0 +1,27 @@
+Domain Name: gov.sm
+Registration date: 20/05/2003
+Status: Active
+
+Owner:
+Uff. Programmazione Economica e
+Centro Elaborazione Dati e Statistica
+Viale A. Onofri, 109
+I-47890 San Marino
+SM
+Phone: +378 0549 885150
+Fax: +378 0549 885154
+Email: progecon@omniway.sm
+
+Technical Contact:
+TIM San Marino Hostmaster
+TIM San Marino S.p.A.
+Via 28 Luglio, 212
+47893 Borgo Maggiore
+SM
+Phone: +378 0549 886111
+Fax: +378 0549 908654
+Email: hostmaster@telecomitalia.sm
+
+DNS Servers:
+dns.omniway.sm
+dns.intelcom.sm

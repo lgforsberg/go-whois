@@ -1,0 +1,48 @@
+Search results may not be used for commercial, advertising, recompilation,
+repackaging, redistribution, reuse, obscuring or other similar activities.
+
+Estonia .ee Top Level Domain WHOIS server
+
+Domain:
+name:       facebook.ee
+status:     ok (paid and in zone)
+registered: 2012-07-04 19:08:17 +03:00
+changed:    2025-05-09 12:50:04 +03:00
+expire:     2026-07-05
+outzone:    
+delete:     
+
+Registrant:
+name:       Facebook, Inc.
+org id:     20-1665019
+country:    US
+email:      Not Disclosed - Visit www.internet.ee for webbased WHOIS
+phone:      Not Disclosed - Visit www.internet.ee for webbased WHOIS
+changed:    2025-05-09 12:50:04 +03:00
+
+Administrative contact:
+name:       Not Disclosed - Visit www.internet.ee for webbased WHOIS
+email:      Not Disclosed - Visit www.internet.ee for webbased WHOIS
+changed:    Not Disclosed - Visit www.internet.ee for webbased WHOIS
+
+Technical contact:
+name:       Not Disclosed - Visit www.internet.ee for webbased WHOIS
+email:      Not Disclosed - Visit www.internet.ee for webbased WHOIS
+changed:    Not Disclosed - Visit www.internet.ee for webbased WHOIS
+
+Registrar:
+name:       Zone Media OÜ
+url:        http://www.zone.ee
+phone:      +372 6886886
+changed:    2020-07-01 13:55:58 +03:00
+
+Name servers:
+nserver:   a.ns.facebook.com
+nserver:   b.ns.facebook.com
+nserver:   c.ns.facebook.com
+nserver:   d.ns.facebook.com
+changed:   2020-02-10 17:15:05 +02:00
+
+
+Estonia .ee Top Level Domain WHOIS server
+More information at http://internet.ee

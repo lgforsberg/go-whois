@@ -1,0 +1,41 @@
+# Hello 63.35.110.58. Your session has been logged.
+#
+# Copyright (c) 2002 - 2025 by Punktum dk A/S
+#
+# Version: 5.4.0
+#
+# The data in the DK Whois database is provided by Punktum dk A/S
+# for information purposes only, and to assist persons in obtaining
+# information about or related to a domain name registration record.
+# We do not guarantee its accuracy. We will reserve the right to remove
+# access for entities abusing the data, without notice.
+#
+# Any use of this material to target advertising or similar activities
+# are explicitly forbidden and will be prosecuted. Punktum dk A/S
+# requests to be notified of any such activities or suspicions thereof.
+
+Domain:               dns.dk
+DNS:                  dns.dk
+Registered:           1997-01-31
+Expires:              2026-03-31
+Registrar:            CSC Digital Brand Service, Inc
+Registration period:  1 year
+VID:                  no
+DNSSEC:               Unsigned delegation
+Status:               Active
+
+Registrant
+Handle:               ***N/A***
+Name:                 Arrow Electronics, Inc
+Address:              9151 E. Panorama Circle
+Postalcode:           80112
+City:                 Centennial, CO
+Country:              US
+Phone:                +1 3038241717
+
+Nameservers
+Hostname:             pdns77.ultradns.biz
+Hostname:             pdns77.ultradns.com
+Hostname:             pdns77.ultradns.net
+Hostname:             pdns77.ultradns.org
+

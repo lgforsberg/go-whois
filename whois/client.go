@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net"
 	"regexp"
@@ -30,15 +31,16 @@ const (
 	TypeDomain = "domain"
 	TypeIP     = "ip"
 
-	DefaultIANAWhoisServer = "whois.iana.org"
 	DefaultWhoisPort       = 43
+	DefaultIANAWhoisServer = "whois.iana.org"
+	DefaultWriteTimeout    = 10 * time.Second
+	DefaultReadTimeout     = 30 * time.Second
+	DefaultTimeout         = 5 * time.Second
+	// Maximum size for whois responses to prevent memory exhaustion
+	MaxWhoisResponseSize = 10 * 1024 * 1024 // 10MB
 )
 
 var (
-	DefaultReadTimeout  = 5 * time.Second
-	DefaultWriteTimeout = 5 * time.Second
-	DefaultTimeout      = 5 * time.Second
-
 	DefaultIPWhoisServerMap = map[string]string{
 		"APNIC":   "whois.apnic.net",
 		"ARIN":    "whois.arin.net",
@@ -224,7 +226,9 @@ func (c *Client) getText(ctx context.Context, dst, domain string) (string, error
 	if err := conn.SetReadDeadline(utils.UTCNow().Add(c.rtimeout)); err != nil {
 		return "", fmt.Errorf("Set read deadline failed: %w", err)
 	}
-	content, err := ioutil.ReadAll(conn)
+	// Use LimitReader to prevent unbounded memory consumption
+	limitedReader := io.LimitReader(conn, MaxWhoisResponseSize)
+	content, err := ioutil.ReadAll(limitedReader)
 	if err != nil {
 		return "", fmt.Errorf("Read from server failed: %w", err)
 	}

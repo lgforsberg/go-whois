@@ -1,0 +1,18 @@
+% Domain Information over Whois protocol
+%
+% Monic Whois Server Version 1.0
+
+Domain Name: edu.mo
+Record created on 2009-11-15 17:13:47
+Record expires on 2038-01-18
+
+Domain name servers:
+ -----------------------------------------------------
+ns17.cdns.net
+ns2.cuhk.edu.hk
+b.monic.mo
+c.monic.mo
+a.monic.mo
+d.monic.mo
+e.monic.mo
+

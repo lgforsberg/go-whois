@@ -1,0 +1,40 @@
+Whois Server for the KZ top level domain name.
+This server is maintained by KazNIC Organization, a ccTLD manager for Kazakhstan Republic.
+
+Domain Name............: dns.kz
+
+Organization Using Domain Name
+Name...................: Alexander Chub, 720905300199
+Organization Name......: Private Person
+Street Address.........: Kabdolova, 16
+City...................: ALMATY
+State..................: ALMATY
+Postal Code............: 050062
+Country................: KZ
+
+Administrative Contact/Agent
+NIC Handle.............: PS-KZ-1608705068
+Name...................: Alexander Chub, 720905300199
+Phone Number...........: +7.7273558538 
+Fax Number.............:  
+Email Address..........: richdadkz@gmail.com
+
+Nameserver in listed order
+
+Primary server.........: ns1.ps.kz
+Primary ip address.....: 195.210.46.194, 2a00:5da0:0:1::194
+
+Secondary server.......: ns2.ps.kz
+Secondary ip address...: 195.210.46.172, 2a00:5da0:1:1::172
+
+Secondary server.......: ns3.ps.kz
+Secondary ip address...: 31.210.174.104
+
+
+Domain created: 2004-09-17 04:34:51 (GMT+0:00)
+Last modified : 2020-12-23 07:31:08 (GMT+0:00)
+Domain status : clientTransferProhibited - 
+                clientRenewProhibited - 
+                
+Registar created: KAZNIC
+Current Registar: ICPS

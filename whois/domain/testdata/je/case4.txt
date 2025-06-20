@@ -1,0 +1,49 @@
+Domain:
+     gov.je
+
+Domain Status:
+     Active
+     
+
+Registrant:
+     Redacted for privacy
+
+Registrar:
+     Government of Jersey (https://www.gov.je)
+
+Relevant dates:
+     Registered on 31st December 1996 at 00:00:00.000
+     Registry fee due on 31st December each year
+
+Registration status:
+     Registered until cancelled
+
+Name servers:
+     ns1-38.azure-dns.com
+     ns2-38.azure-dns.net
+     ns3-38.azure-dns.org
+     ns4-38.azure-dns.info
+     
+
+WHOIS lookup made on Thu, 19 Jun 2025 at 1:20:02 BST
+
+This WHOIS information is provided for free by CIDR, operator of
+the backend registry for domain names ending in GG, JE, and AS.
+
+Copyright (c) and database right Island Networks (Jersey) 1996 - 2025.
+
+You may not access this WHOIS server or use any data from it except
+as permitted by our Terms and Conditions which are published
+at http://www.channelisles.net/legal/whoisterms
+
+They include restrictions and prohibitions on
+
+- using or re-using the data for advertising;
+- using or re-using the service for commercial purposes without a licence;
+- repackaging, recompilation, redistribution or reuse;
+- obscuring, removing or hiding any or all of this notice;
+- exceeding query rate or volume limits.
+
+The data is provided on an 'as-is' basis and may lag behind the
+register. Access may be withdrawn or restricted at any time. 
+

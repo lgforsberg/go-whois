@@ -1,0 +1,5 @@
+#
+# -- /usr/local/bin/mywhois --
+#
+The domain haha-baba-mama.vu
+ is not valid! 

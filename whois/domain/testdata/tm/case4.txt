@@ -1,0 +1,10 @@
+
+Domain : gov.tm
+Status : Live
+Expiry : 2040-12-31
+
+NS 1   : webns1.telecom.tm
+NS 2   : webns2.telecom.tm
+
+
+

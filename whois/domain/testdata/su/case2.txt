@@ -1,0 +1,18 @@
+% TCI Whois Service. Terms of use:
+% https://tcinet.ru/documents/whois_ru_rf.pdf (in Russian)
+% https://tcinet.ru/documents/whois_su.pdf (in Russian)
+
+domain:        FACEBOOK.SU
+nserver:       ns1.nameself.com.
+nserver:       ns2.nameself.com.
+state:         REGISTERED, DELEGATED
+person:        Private Person
+e-mail:        diogen@peshehod.org
+registrar:     REGTIME-SU
+created:       2022-03-25T22:35:09Z
+paid-till:     2026-03-25T22:35:09Z
+free-date:     2026-04-28
+source:        TCI
+
+Last updated on 2025-06-19T00:38:01Z
+

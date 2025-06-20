@@ -1,0 +1,5 @@
+#
+# -- /usr/local/bin/mywhois --
+#
+The domain sdfsdfsdfsdfsdfsdf1212.vu
+ is not valid! 

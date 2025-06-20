@@ -1,0 +1,39 @@
+Whois Server for the KZ top level domain name.
+This server is maintained by KazNIC Organization, a ccTLD manager for Kazakhstan Republic.
+
+Domain Name............: gov.kz
+
+Organization Using Domain Name
+Name...................: National Information Technologies JS
+Organization Name......: National Information Technologies JS
+Street Address.........: 12-1 D.Kunayev str.
+City...................: Nur-Sultan
+State..................: Nur-Sultan
+Postal Code............: 010000
+Country................: KZ
+
+Administrative Contact/Agent
+NIC Handle.............: C000007237614-KZ
+Name...................: National Information Technologies JS
+Phone Number...........: 8 7172 74 11 49 
+Fax Number.............: 8 7172 74 11 49 
+Email Address..........: info@nitec.kz
+
+Nameserver in listed order
+
+Primary server.........: ns.nic.kz
+Primary ip address.....: 194.0.21.5, 2001:678:98:1::5
+
+Secondary server.......: ns2.nic.kz
+Secondary ip address...: 2001:500:14:6143:ad::1, 204.61.216.143
+
+Secondary server.......: ns1.nic.kz
+Secondary ip address...: 185.79.212.7, 2a01:7640:9000::7
+
+
+Domain created: 1998-11-10 13:25:38 (GMT+0:00)
+Last modified : 2022-12-21 08:23:43 (GMT+0:00)
+Domain status : ok - Normal state.
+                
+Registar created: KAZNIC
+Current Registar: KAZNIC

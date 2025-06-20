@@ -1,0 +1,49 @@
+Domain:
+     dns.gg
+
+Domain Status:
+     Active
+     Delete Prohibited by Registrar
+     Update Prohibited by Registrar
+     Transfer Prohibited by Registrar
+
+Registrant:
+     Redacted for privacy
+
+Registrar:
+     1API (http://www.1api.net)
+
+Relevant dates:
+     Registered on 29th June 2006 at 23:00:00.000
+     Registry fee due on 30th June each year
+
+Registration status:
+     Registered until cancelled
+
+Name servers:
+     dns8.dns.gg
+     ns10.dns.gg
+     
+
+WHOIS lookup made on Thu, 19 Jun 2025 at 1:11:07 BST
+
+This WHOIS information is provided for free by CIDR, operator of
+the backend registry for domain names ending in GG, JE, and AS.
+
+Copyright (c) and database right Island Networks 1996 - 2025.
+
+You may not access this WHOIS server or use any data from it except
+as permitted by our Terms and Conditions which are published
+at http://www.channelisles.net/legal/whoisterms
+
+They include restrictions and prohibitions on
+
+- using or re-using the data for advertising;
+- using or re-using the service for commercial purposes without a licence;
+- repackaging, recompilation, redistribution or reuse;
+- obscuring, removing or hiding any or all of this notice;
+- exceeding query rate or volume limits.
+
+The data is provided on an 'as-is' basis and may lag behind the
+register. Access may be withdrawn or restricted at any time. 
+

@@ -1,0 +1,29 @@
+This is the PF top level domain whois server.
+Informations about 'google.pf' :
+
+Status : active
+Created (JJ/MM/AAAA) : 16/11/2010
+Last renewed (JJ/MM/AAAA) : 12/11/2024
+Expire (JJ/MM/AAAA) : 12/11/2025
+Name server 1 : ns3.google.com
+Name server 2 : ns2.google.com
+Name server 3 : ns4.google.com
+Name server 4 : ns1.google.com
+Registrant Compagnie Name : GOOGLE LLC
+Registrant Name : Christine Duvalis 
+Registrant Address : Mountain View
+Registrant Postal Code : 94043
+Registrant City : California
+Registrant Country : Etats Unis
+Tech 1 Compagnie Name : GOOGLE LLC
+Tech 1 Name : Christine Duvalis 
+Tech 1 Address : Mountain View
+Tech 1 Postal Code : 94043
+Tech 1 City : California
+Tech 1 Country : Etats Unis
+Registrar Compagnie Name : ONATI SAS
+Registrar Address : BP 440
+Registrar Address : Immeuble Ainapare au Pont de l'Est
+Registrar Postal Code : 98713
+Registrar City : PAPEETE
+Registrar Country : Polynésie Française

@@ -1,0 +1,33 @@
+% Hello, this is the DOMREG whois service.
+%
+% By submitting a query you agree not to use the information made
+% available to:
+% - allow, enable or otherwise support the transmission of unsolicited,
+%   commercial advertising or other solicitations whether via email or
+%   otherwise;
+% - target advertising in any possible way;
+% - to cause nuisance in any possible way to the registrants by sending
+%   (whether by automated, electronic processes capable of enabling
+%   high volumes or other possible means) messages to them.
+%
+% Version 0.4
+%
+% For more information please visit https://whois.lt
+%
+Domain:			dns.lt
+Status:			registered
+Registered:		2000-10-18
+Expires:		2025-10-18
+%
+Registrar:		Kauno technologijos universitetas
+Registrar website:	https://www.domains.lt
+Registrar email:	hostmaster@domains.lt
+%
+Contact organization:	Kauno technologijos universitetas
+Contact email:		hostmaster@domreg.lt
+%
+Nameserver:		ns1.domreg.lt	
+Nameserver:		ns2.domreg.lt	
+Nameserver:		nsa.domreg.lt	
+%
+DS:			26031	13 2 DBE77C170AB556F1F549076EBD2922E7BB25C42C0BCD319931BDD8228D7215B5

@@ -1,0 +1,20 @@
+% TCI Whois Service. Terms of use:
+% https://tcinet.ru/documents/whois_ru_rf.pdf (in Russian)
+% https://tcinet.ru/documents/whois_su.pdf (in Russian)
+
+domain:        DNS.SU
+nserver:       ns3.nic.ru.
+nserver:       ns4.nic.ru.
+nserver:       ns8.nic.ru.
+state:         REGISTERED, DELEGATED
+org:           JSC RU-CENTER
+phone:         +74957370601
+e-mail:        amsales@nic.ru
+registrar:     RUCENTER-SU
+created:       2003-06-26T20:00:00Z
+paid-till:     2026-06-26T21:00:00Z
+free-date:     2026-07-30
+source:        TCI
+
+Last updated on 2025-06-19T00:38:01Z
+

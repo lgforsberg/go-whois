@@ -1,0 +1,27 @@
+% Hello, this is the DOMREG whois service.
+%
+% By submitting a query you agree not to use the information made
+% available to:
+% - allow, enable or otherwise support the transmission of unsolicited,
+%   commercial advertising or other solicitations whether via email or
+%   otherwise;
+% - target advertising in any possible way;
+% - to cause nuisance in any possible way to the registrants by sending
+%   (whether by automated, electronic processes capable of enabling
+%   high volumes or other possible means) messages to them.
+%
+% Version 0.4
+%
+% For more information please visit https://whois.lt
+%
+Domain:			edu.lt
+Status:			restrictedDisposal
+Registered:		2007-03-13
+Expires:		2026-03-14
+%
+Registrar:		Kauno technologijos universitetas
+Registrar website:	https://www.domains.lt
+Registrar email:	hostmaster@domains.lt
+%
+Contact organization:	Kauno technologijos universitetas
+Contact email:		hostmaster@domreg.lt

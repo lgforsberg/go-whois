@@ -1,0 +1,51 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This is ARNES whois database
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Rights restricted by copyright.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The WHOIS service offered by Arnes, .si Registry, is
+% provided for information purposes only. It allows persons
+% to check whether a specific domain name is still available
+% or not and to obtain information related to the registration
+% records of existing domain names.
+%
+% This WHOIS service accepts and displays only ASCII characters.
+
+% By submitting a query to our WHOIS lookup service, you agree
+% to the restrictions on the use of WHOIS and WHOIS data as follows:
+%      o You may not allow, enable or otherwise support
+%        the transmission of unsolicited, commercial advertising
+%        or other solicitations, whether via email or otherwise;
+%      o You may not use the information to target advertising
+%        in any possible way;
+%      o You may not cause inconvenience the domain name holders
+%        in any possible way by sending them messages
+%        (whether by automated, electronic processes capable of
+%        enabling high volumes or other possible means);
+%      o You may not copy, extract and/or publish contents
+%        of the WHOIS database.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+domain:		gov.si
+registrar:	Ministrstvo za digitalno preobrazbo
+registrar-url:	https://www.gov.si/drzavni-organi/ministrstva/ministrstvo-za-digitalno-preobrazbo/
+nameserver:	ns1s.gov.si (163.159.0.120)
+nameserver:	ns2s.gov.si (163.159.0.121)
+nameserver:	ns3s.gov.si (163.159.64.120)
+ds:		44047 8 1 8BFA0A71784E2D3AD39C015BC8FFACD749951FFB
+ds:		44047 8 2 6A93E1571F7E4F8C2C30BEF39E9935D76A80A1C9685B834F75EFDA69214FE822
+registrant:	G31117
+status:		ok
+created:	1998-04-08
+expire:		2026-06-06
+source:		ARNES
+
+Domain holder:
+NOT DISCLOSED
+
+Tech:
+NOT DISCLOSED
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Full domain details are available here http://www.registry.si
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

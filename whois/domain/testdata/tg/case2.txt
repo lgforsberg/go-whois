@@ -1,0 +1,111 @@
+This is JWhoisServer serving ccTLD tg
+Java Whois Server 0.4.1.3    (c) 2006 - 2015 Klaus Zerwes zero-sys.net
+All rights reserved.
+Copyright "NICTogo2 - http://www.nic.tg"
+
+Domain:.............facebook.tg
+Registrar:..........NETMASTER SARL
+Activation:.........2024-04-29
+Expiration:.........2025-04-29
+Status:.............Activ&eacute;
+Contact Type:.......[PRIVEE]
+Last Name:..........[PRIVEE]
+First Name:.........[PRIVEE]
+Address:............[PRIVEE]
+Tel:................[PRIVEE]
+Fax:................[PRIVEE]
+e-mail:.............[PRIVEE]
+Name Server (DB):...ns5.netmaster.tg
+Name Server (DB):...ns1.netmaster.tg
+Name Server (DB):...ns2.netmaster.tg
+
+----------------------------------------
+
+Domain:.............facebook.tg
+Registrar:..........NETMASTER SARL
+Activation:.........2024-04-29
+Expiration:.........2025-04-29
+Status:.............Activ&eacute;
+Contact Type:.......[PRIVEE]
+Last Name:..........[PRIVEE]
+First Name:.........[PRIVEE]
+Address:............[PRIVEE]
+Tel:................[PRIVEE]
+Fax:................[PRIVEE]
+e-mail:.............[PRIVEE]
+Name Server (DB):...ns5.netmaster.tg
+Name Server (DB):...ns1.netmaster.tg
+Name Server (DB):...ns2.netmaster.tg
+
+----------------------------------------
+
+Domain:.............facebook.tg
+Registrar:..........NETMASTER SARL
+Activation:.........2024-04-29
+Expiration:.........2025-04-29
+Status:.............Activ&eacute;
+Contact Type:.......[PRIVEE]
+Last Name:..........[PRIVEE]
+First Name:.........[PRIVEE]
+Address:............[PRIVEE]
+Tel:................[PRIVEE]
+Fax:................[PRIVEE]
+e-mail:.............[PRIVEE]
+Name Server (DB):...ns5.netmaster.tg
+Name Server (DB):...ns1.netmaster.tg
+Name Server (DB):...ns2.netmaster.tg
+
+----------------------------------------
+
+Domain:.............facebook.tg
+Registrar:..........NETMASTER SARL
+Activation:.........2024-04-29
+Expiration:.........2025-04-29
+Status:.............Activ&eacute;
+Contact Type:.......[PRIVEE]
+Last Name:..........[PRIVEE]
+First Name:.........[PRIVEE]
+Address:............[PRIVEE]
+Tel:................[PRIVEE]
+Fax:................[PRIVEE]
+e-mail:.............[PRIVEE]
+Name Server (DB):...ns5.netmaster.tg
+Name Server (DB):...ns1.netmaster.tg
+Name Server (DB):...ns2.netmaster.tg
+
+----------------------------------------
+
+Domain:.............facebook.tg
+Registrar:..........NETMASTER SARL
+Activation:.........2024-04-29
+Expiration:.........2025-04-29
+Status:.............Activ&eacute;
+Contact Type:.......[PRIVEE]
+Last Name:..........[PRIVEE]
+First Name:.........[PRIVEE]
+Address:............[PRIVEE]
+Tel:................[PRIVEE]
+Fax:................[PRIVEE]
+e-mail:.............[PRIVEE]
+Name Server (DB):...ns5.netmaster.tg
+Name Server (DB):...ns1.netmaster.tg
+Name Server (DB):...ns2.netmaster.tg
+
+----------------------------------------
+
+Domain:.............facebook.tg
+Registrar:..........NETMASTER SARL
+Activation:.........2024-04-29
+Expiration:.........2025-04-29
+Status:.............Activ&eacute;
+Contact Type:.......[PRIVEE]
+Last Name:..........[PRIVEE]
+First Name:.........[PRIVEE]
+Address:............[PRIVEE]
+Tel:................[PRIVEE]
+Fax:................[PRIVEE]
+e-mail:.............[PRIVEE]
+Name Server (DB):...ns5.netmaster.tg
+Name Server (DB):...ns1.netmaster.tg
+Name Server (DB):...ns2.netmaster.tg
+

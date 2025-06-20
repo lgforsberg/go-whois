@@ -1,0 +1,24 @@
+% Restricted rights.
+% 
+% Terms and Conditions of Use
+% 
+% The above data may only be used within the scope of technical or
+% administrative necessities of Internet operation or to remedy legal
+% problems.
+% The use for other purposes, in particular for advertising, is not permitted.
+% 
+% The DENIC whois service on port 43 doesn't disclose any information concerning
+% the domain holder, general request and abuse contact.
+% This information can be obtained through use of our web-based whois service
+% available at the DENIC website:
+% http://www.denic.de/en/domains/whois-service/web-whois.html
+% 
+% 
+
+Domain: facebook.de
+Nserver: a.ns.facebook.com
+Nserver: b.ns.facebook.com
+Nserver: c.ns.facebook.com
+Nserver: d.ns.facebook.com
+Status: connect
+Changed: 2025-01-27T16:02:32+01:00

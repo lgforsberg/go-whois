@@ -1,0 +1,49 @@
+
+**********************************************************
+*            The UG ccTLD Registry Database              *
+**********************************************************
+
+Domain name:                    edu.ug
+Status:                         ACTIVE
+Expires On:                     2033-05-01
+Registered On:                  2017-05-01
+Renewed On:                     2018-04-16
+Nameserver:                     ns1.he.net
+Nameserver:                     ns2.he.net
+Nameserver:                     ns3.he.net
+Nameserver:                     ns4.he.net
+
+Registrant Contact Information:  
+Registrant Name:                df123412341234@awef.com 1
+Registrant Organization:        1
+Registrant Country:             1
+Registrant State / Province:    
+Registrant City:                1
+Registrant Address:             1
+Registrant Postal Code:         df123412341234
+Registrant Phone:               1
+Registrant Email:               cmusisi@cfi.co.ug
+
+Administrative Contact Information:  
+Admin Name:                     Charles Musisi
+Admin Organization:             df123412341234
+Admin Country:                  Uganda
+Admin State / Province:         
+Admin City:                     Kampala
+Admin Address:                  Plot 6b Windsor Loop
+Admin Postal Code:              1234234
+Admin Phone:                    0312301800
+Admin Email:                    cmusisi@cfi.co.ug
+
+Technical Contact Information:  
+Tech Name:                      Charles Musisi
+Tech Organization:              Infinity Computers and Communications Company
+Tech Country:                   Uganda
+Tech State / Province:          
+Tech City:                      1
+Tech Address:                   1
+Tech Postal Code:               234234
+Tech Phone:                     +256 31 230 1800
+Tech Email:                     cmusisi@cfi.co.ug
+
+Information Last Updated:       2018-04-16 18:14:07

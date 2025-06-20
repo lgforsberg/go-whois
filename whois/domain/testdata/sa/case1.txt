@@ -1,0 +1,30 @@
+% SaudiNIC Whois server.
+% Rights restricted by copyright.
+% http://nic.sa/en/view/whois-cmd-copyright
+
+Domain Name: google.sa
+
+Registrant:
+Google LLC
+Address: ************************* *********
+***** *************
+Unknown
+
+Administrative Contact:
+Dnet *****
+Address: ***** *****
+***** *****
+*****
+
+Technical Contact:
+Domain *****
+Address: ***** *****
+***** *****
+*****
+
+Name Servers:
+ns1.markmonitor.com
+ns3.markmonitor.com
+
+DNSSEC: No
+

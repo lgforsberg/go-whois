@@ -1,0 +1,18 @@
+% Domain Information over Whois protocol
+%
+% Monic Whois Server Version 1.0
+
+Domain Name: gov.mo
+Record created on 2009-11-15 17:13:42
+Record expires on 2037-12-31
+
+Domain name servers:
+ -----------------------------------------------------
+ns4.gov.mo
+ns5.gov.mo
+ns1.gov.mo
+ns2.gov.mo
+ns3.gov.mo
+pns1.zdnscloud.net
+pns2.zdnscloud.biz
+

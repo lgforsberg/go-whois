@@ -199,6 +199,96 @@ func NewTLDDomainParser(whoisServer string) ITLDParser {
 		return NewUKTLDParser() // uk
 	case "whois.ua", "whois.net.ua", "whois.in.ua":
 		return NewUATLDParser() // ua
+	case "whois.denic.de":
+		return NewDETLDParser() // de
+	case "whois.jprs.jp":
+		return NewJPTLDParser() // jp
+	case "whois.cnnic.cn":
+		return NewCNTLDParser() // cn
+	case "whois.dk-hostmaster.dk":
+		return NewDKTLDParser() // dk
+	case "whois.iis.se", "whois.iis.nu":
+		return NewSETLDParser() // se, nu
+	case "whois.norid.no":
+		return NewNOTLDParser() // no
+	case "whois.nic.aw":
+		return NewAWTLDParser() // aw
+	case "whois.register.bg":
+		return NewBGTLDParser() // bg
+	case "whois.nic.cl":
+		return NewCLTLDParser() // cl
+	case "whois.nic.cr":
+		return NewCRTLDParser() // cr
+	case "whois.eenet.ee":
+		return NewEETLDParser() // ee
+	case "whois.channelisles.net":
+		return NewGGTLDParser() // gg, je
+	case "whois.hkirc.hk":
+		return NewHKTLDParser() // hk
+	case "whois.dns.hr":
+		return NewHRTLDParser() // hr
+	case "whois.nic.hu":
+		return NewHUTLDParser() // hu
+	case "whois.nic.im":
+		return NewIMTLDParser() // im
+	case "whois.isnic.is":
+		return NewISTLDParser() // is
+	case "whois.kr":
+		return NewKRTLDParser() // kr
+	case "whois.nic.kz":
+		return NewKZTLDParser() // kz
+	case "whois.domreg.lt":
+		return NewLTTLDParser() // lt
+	case "whois.dns.lu":
+		return NewLUTLDParser() // lu
+	case "whois.nic.lv":
+		return NewLVTLDParser() // lv
+	case "whois.nic.md":
+		return NewMDTLDParser() // md
+	case "whois.marnet.mk":
+		return NewMKTLDParser() // mk
+	case "whois.monic.mo":
+		return NewMOTLDParser() // mo
+	case "whois.mx":
+		return NewMXTLDParser() // mx
+	case "whois.nic.pf":
+		return NewPFTLDParser() // pf
+	case "whois.nic.qa":
+		return NewQATLDParser() // qa
+	case "whois.rotld.ro":
+		return NewROTLDParser() // ro
+	case "whois.rnids.rs":
+		return NewRSTLDParser() // rs
+	case "whois.nic.sa":
+		return NewSATLDParser() // sa
+	case "whois.arnes.si":
+		return NewSITLDParser() // si
+	case "whois.nic.sm":
+		return NewSMTLDParser() // sm
+	case "whois.nic.sn":
+		return NewSNTLDParser() // sn
+	case "whois.tcinet.ru":
+		return NewSUTLDParser() // su
+	case "whois.nic.tg":
+		return NewTGTLDParser() // tg
+	case "whois.thnic.co.th":
+		return NewTHTLDParser() // th
+	case "whois.nic.tm":
+		return NewTMTLDParser() // tm
+	case "whois.ati.tn":
+		return NewTNTLDParser() // tn
+	case "whois.nic.tr":
+		return NewTRTLDParser() // tr
+	case "whois.tznic.or.tz":
+		return NewTZTLDParser() // tz
+	case "whois.co.ug":
+		return NewUGTLDParser() // ug
+	case "whois.cctld.uz":
+		return NewUZTLDParser() // uz
+	case "whois.nic.ve":
+		return NewVETLDParser() // ve
+	case "whois.vunic.vu":
+		return NewVUTLDParser() // vu
 	default:
 		return NewTLDParser()
 	}
@@ -248,7 +338,9 @@ func (wb *Parser) Do(rawtext string, stopFunc func(string) bool, specKeyMaps ...
 				wMap[REGISTRAR] = make(map[string]string)
 			}
 			kn := strings.TrimLeft(keyName, "reg/")
-			wMap[REGISTRAR].(map[string]string)[kn] = val
+			if regMap, ok := wMap[REGISTRAR].(map[string]string); ok {
+				regMap[kn] = val
+			}
 			return
 		}
 		// Contacts
@@ -261,19 +353,22 @@ func (wb *Parser) Do(rawtext string, stopFunc func(string) bool, specKeyMaps ...
 				if !strings.HasPrefix(keyName, contactPrefix) {
 					continue
 				}
-				if _, ok := wMap[CONTACTS].(map[string]map[string]interface{})[cKey]; !ok {
-					wMap[CONTACTS].(map[string]map[string]interface{})[cKey] = make(map[string]interface{})
-				}
-				contactFieldKey := keyName[len(contactPrefix):]
-				switch contactFieldKey {
-				case "street":
-					if _, ok := wMap[CONTACTS].(map[string]map[string]interface{})[cKey][contactFieldKey]; !ok {
-						wMap[CONTACTS].(map[string]map[string]interface{})[cKey][contactFieldKey] = []string{}
+				if contactsMap, ok := wMap[CONTACTS].(map[string]map[string]interface{}); ok {
+					if _, ok := contactsMap[cKey]; !ok {
+						contactsMap[cKey] = make(map[string]interface{})
 					}
-					wMap[CONTACTS].(map[string]map[string]interface{})[cKey][contactFieldKey] = append(
-						wMap[CONTACTS].(map[string]map[string]interface{})[cKey][contactFieldKey].([]string), val)
-				default:
-					wMap[CONTACTS].(map[string]map[string]interface{})[cKey][contactFieldKey] = val
+					contactFieldKey := keyName[len(contactPrefix):]
+					switch contactFieldKey {
+					case "street":
+						if _, ok := contactsMap[cKey][contactFieldKey]; !ok {
+							contactsMap[cKey][contactFieldKey] = []string{}
+						}
+						if streetSlice, ok := contactsMap[cKey][contactFieldKey].([]string); ok {
+							contactsMap[cKey][contactFieldKey] = append(streetSlice, val)
+						}
+					default:
+						contactsMap[cKey][contactFieldKey] = val
+					}
 				}
 			}
 			return
@@ -287,18 +382,24 @@ func (wb *Parser) Do(rawtext string, stopFunc func(string) bool, specKeyMaps ...
 			}
 			// if contains ",", split by ","
 			if strings.Index(val, ",") != -1 {
-				for _, ns := range strings.Split(val, ",") {
-					wMap[keyName] = append(wMap[keyName].([]string), strings.TrimSpace(ns))
+				for _, status := range strings.Split(val, ",") {
+					if statusSlice, ok := wMap[keyName].([]string); ok {
+						wMap[keyName] = append(statusSlice, strings.TrimSpace(status))
+					}
 				}
 				return
 			}
-			ns := strings.Split(val, " ")[0]
-			wMap[keyName] = append(wMap[keyName].([]string), ns)
+			statusValue := strings.Split(val, " ")[0]
+			if statusSlice, ok := wMap[keyName].([]string); ok {
+				wMap[keyName] = append(statusSlice, statusValue)
+			}
 		case "name_servers":
 			if _, ok := wMap[keyName]; !ok {
 				wMap[keyName] = []string{}
 			}
-			wMap[keyName] = append(wMap[keyName].([]string), val)
+			if nsSlice, ok := wMap[keyName].([]string); ok {
+				wMap[keyName] = append(nsSlice, val)
+			}
 		default:
 			if overwriteIfExist {
 				wMap[keyName] = val

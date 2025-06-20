@@ -1,0 +1,38 @@
+Whois Server for the KZ top level domain name.
+This server is maintained by KazNIC Organization, a ccTLD manager for Kazakhstan Republic.
+
+Domain Name............: facebook.kz
+
+Organization Using Domain Name
+Name...................: Bobir Akilkhanov
+Organization Name......: -
+Street Address.........: Niezbek juli 1
+City...................: Tashkent
+State..................: -
+Postal Code............: 100000
+Country................: UZ
+
+Administrative Contact/Agent
+NIC Handle.............: HOSTERKZ-259562
+Name...................: Bobir Akilkhanov
+Phone Number...........: +998.712731460 
+Fax Number.............: - 
+Email Address..........: bobir.akilkhanov@gmail.com
+
+Nameserver in listed order
+
+Primary server.........: ns1.nameself.com
+Primary ip address.....: 195.161.113.218
+
+Secondary server.......: ns2.nameself.com
+Secondary ip address...: 217.16.27.43
+
+
+Domain created: 2007-09-25 15:35:36 (GMT+0:00)
+Last modified : 2016-02-02 08:42:12 (GMT+0:00)
+Domain status : clientTransferProhibited - status prohibits domain transfer without documents (статус запрещает трансфер домена без предоставления документов)
+                clientDeleteProhibited - status prevent domain deletion from the Register (статус предотвращает удаление домена из реестра)
+                clientRenewProhibited - status prevent domain auto renewal without payment (статус предотвращает авто продление без оплаты)
+                
+Registar created: GLOBAL
+Current Registar: HOSTER.KZ

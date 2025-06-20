@@ -1,0 +1,37 @@
+%  
+%  TZNIC WHOIS data and services are subject to the Terms of Use
+%  available at: https://www.tznic.or.tz/Whois_tou.pdf
+% 
+%  You may also use our WHOIS Web service available at:
+%  https://whois.tznic.or.tz/whois
+% 
+% 
+% Whoisd Server Version: 3.10.2
+% Timestamp: Thu Jun 19 03:46:05 2025
+
+domain:       facebook.tz
+registrant:   LEX-N-PQY-2
+admin-c:      LEX-N-NR6-1
+nsset:        LEX-D-R-7C7-121X
+registrar:    REG-LEX
+registered:   01.03.2022 16:07:06
+expire:       01.03.2026
+
+contact:      LEX-N-PQY-2
+registrar:    REG-LEX
+created:      01.03.2022 16:07:05
+
+contact:      LEX-N-NR6-1
+registrar:    REG-LEX
+created:      01.03.2022 16:07:04
+
+nsset:        LEX-D-R-7C7-121X
+nserver:      ns1.lovellsnames.org 
+nserver:      ns2.lovellsnames.org 
+nserver:      ns3.lovellsnames.org 
+nserver:      ns4.lovellsnames.org 
+tech-c:       LEX-N-NR6-1
+registrar:    REG-LEX
+created:      01.03.2022 16:07:04
+
+

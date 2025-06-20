@@ -1,0 +1,34 @@
+% This is the ISNIC Whois server.
+%
+% Rights restricted by copyright.
+% See https://www.isnic.is/en/about/copyright
+
+domain:       dns.is
+registrant:   JA2684-IS
+admin-c:      JA2684-IS
+tech-c:       JA2684-IS
+zone-c:       CN25-IS
+billing-c:    JA2684-IS
+nserver:      lana.ns.cloudflare.com
+nserver:      nicolas.ns.cloudflare.com
+dnssec:       signed delegation
+created:      May  1 2021
+expires:      May  1 2026
+source:       ISNIC 
+
+nic-hdl:      JA2684-IS
+address:      US
+created:      July 10 2023
+source:       ISNIC 
+
+role:         CloudFlare NOC
+nic-hdl:      CN25-IS
+address:      665 3rd Street, Suite 207
+address:      San Francisco, CA 94107
+address:      US
+phone:        +1 6503198930
+e-mail:       noc@cloudflare.com
+created:      January 19 2012
+source:       ISNIC 
+
+

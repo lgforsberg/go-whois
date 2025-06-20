@@ -1,0 +1,32 @@
+% Hello, this is the DOMREG whois service.
+%
+% By submitting a query you agree not to use the information made
+% available to:
+% - allow, enable or otherwise support the transmission of unsolicited,
+%   commercial advertising or other solicitations whether via email or
+%   otherwise;
+% - target advertising in any possible way;
+% - to cause nuisance in any possible way to the registrants by sending
+%   (whether by automated, electronic processes capable of enabling
+%   high volumes or other possible means) messages to them.
+%
+% Version 0.4
+%
+% For more information please visit https://whois.lt
+%
+Domain:			gov.lt
+Status:			registered
+Registered:		2004-07-07
+Expires:		2025-07-07
+%
+Registrar:		Kertinis valstybės telekomunikacijų centras
+Registrar website:	https://kvtc.lrv.lt
+Registrar email:	hostmaster@kvtc.gov.lt
+%
+Contact organization:	BĮ "Kertinis valstybės telekomunikacijų centras"
+Contact email:		hostmaster@kvtc.gov.lt
+%
+Nameserver:		ns3.is.lt	
+Nameserver:		nsa.domreg.lt	
+Nameserver:		ns2.domreg.lt	
+Nameserver:		ns4.is.lt	

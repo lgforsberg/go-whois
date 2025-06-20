@@ -1,0 +1,46 @@
+% This is the ISNIC Whois server.
+%
+% Rights restricted by copyright.
+% See https://www.isnic.is/en/about/copyright
+
+domain:       facebook.is
+registrant:   FIL22-IS
+admin-c:      AG241-IS
+tech-c:       AG241-IS
+zone-c:       DM20-IS
+billing-c:    AG241-IS
+nserver:      ns1.lovellsnames.org
+nserver:      ns2.lovellsnames.org
+nserver:      ns3.lovellsnames.org
+nserver:      ns4.lovellsnames.org
+dnssec:       unsigned delegation
+created:      August 22 2018
+expires:      August 22 2025
+source:       ISNIC 
+
+role:         Facebook Ireland Limited
+nic-hdl:      FIL22-IS
+address:      4 Grand Canal Square, Grand Canal Harbour,
+address:      Dublin, DUBLIN 02
+address:      IE
+phone:        +353 15530550
+e-mail:       globaladmin@lovellsnames.org
+created:      November  8 2018
+source:       ISNIC 
+
+role:         1API GmbH
+nic-hdl:      AG241-IS
+address:      Kaiserstrasse 172-174
+address:      St. Ingbert, Saarland 66386
+address:      DE
+phone:        +49 68416984200
+e-mail:       is-live-1api@registrymail.net
+created:      October 30 2012
+source:       ISNIC 
+
+nic-hdl:      DM20-IS
+address:      FR
+created:      November  1 2005
+source:       ISNIC 
+
+
