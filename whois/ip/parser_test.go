@@ -79,6 +79,7 @@ func TestDefaultIPParserRIPE(t *testing.T) {
 	b, err := testdata.ReadRawtext("default/ripe.txt")
 	require.Nil(t, err)
 	parsedWhois, err := parser.Do(string(b))
+	require.Nil(t, err)
 	assert.Empty(t, cmp.Diff(exp, parsedWhois))
 }
 
@@ -168,6 +169,7 @@ func TestDefaultIPParserARIN(t *testing.T) {
 	b, err := testdata.ReadRawtext("default/arin.txt")
 	require.Nil(t, err)
 	parsedWhois, err := parser.Do(string(b))
+	require.Nil(t, err)
 	assert.Empty(t, cmp.Diff(exp, parsedWhois))
 }
 
@@ -263,6 +265,7 @@ func TestDefaultIPParserAPNIC(t *testing.T) {
 	b, err := testdata.ReadRawtext("default/apnic.txt")
 	require.Nil(t, err)
 	parsedWhois, err := parser.Do(string(b))
+	require.Nil(t, err)
 	assert.Empty(t, cmp.Diff(exp, parsedWhois))
 }
 
@@ -306,6 +309,7 @@ func TestDefaultIPParserLACNIC(t *testing.T) {
 	b, err := testdata.ReadRawtext("default/lacnic.txt")
 	require.Nil(t, err)
 	parsedWhois, err := parser.Do(string(b))
+	require.Nil(t, err)
 	assert.Empty(t, cmp.Diff(exp, parsedWhois))
 }
 
@@ -391,6 +395,7 @@ func TestDefaultIPParserAFRINIC(t *testing.T) {
 	b, err := testdata.ReadRawtext("default/afrinic.txt")
 	require.Nil(t, err)
 	parsedWhois, err := parser.Do(string(b))
+	require.Nil(t, err)
 	assert.Empty(t, cmp.Diff(exp, parsedWhois))
 }
 

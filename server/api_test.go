@@ -104,6 +104,7 @@ func TestWhoisHandler(t *testing.T) {
 			return ""
 		}
 		body, err := ioutil.ReadAll(response.Body)
+		require.Nil(t, err)
 		return string(body)
 	}
 
