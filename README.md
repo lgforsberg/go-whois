@@ -79,9 +79,8 @@ func main() {
 
 ### All gTLDs (Generic Top-Level Domains)
 Both Legacy and New gTLDs are supported by the default parser:
-- **Legacy**: `.com`, `.net`, `.org`, `.info`, `.biz`, `.mobi`, `.name`, `.pro`
-- **New**: `.aero`, `.coop`, `.museum`, `.jobs`, `.travel`, `.cat`, `.tel`, `.xxx`, `.post`, `.asia`, `.edu`, `.gov`, `.mil`
-- **Modern**: `.link`, `.blog`, `.app`, `.dev`, `.io`, and all the rest too.
+- **Legacy**: `.com`, `.net`, `.org`, `.info`, `.biz`, `.mobi`, `.name`, `.pro`, `.aero`, `.coop`, `.museum`, `.jobs`, `.travel`, `.cat`, `.tel`, `.xxx`, `.post`, `.asia`, `.edu`, `.gov`, `.mil`
+- **New**: `.link`, `.blog`, `.app`, `.dev`, `.shop`, and all the rest too.
 
 ### ccTLDs using Default Parser (Standard ICANN Format)
 These TLDs implement the standard ICANN format even though they are ccTLDs and will be handled by the default parser. Good Work! We like these:
