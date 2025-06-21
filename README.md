@@ -208,7 +208,10 @@ This project is licensed under the MIT License by the original author, and the s
 ### Additional Changes
 - Changed whois server associated with `.pt` from `whois.ripe.net` to `whois.dns.pt`
 - Removed whois server associated with `.mc`. Was `whois.ripe.net` which is clearly not the case.
-- Fixed security vulnerabilities: added size limits to prevent memory exhaustion attacks, added HTTP timeouts, and fixed unsafe type assertions.
+- Fixed security vulnerabilities: 
+  - Added size limits to prevent memory exhaustion attacks 
+  - Added HTTP timeouts
+  - Fixed unsafe type assertions
 - Improved error handling in TLD parsers (f.ex. `.hu`, `.au`, `.kr`) with input validation and proper date parsing.
 - Refactored many functions and their respective tests to decrease overall function complexity.
   
