@@ -2,6 +2,8 @@ package domain
 
 import (
 	"strings"
+
+	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
 type LVTLDParser struct {
@@ -20,9 +22,9 @@ func (lvw *LVTLDParser) GetName() string {
 
 func (lvw *LVTLDParser) handleDomainSection(line string, parsedWhois *ParsedWhois) {
 	if strings.HasPrefix(line, "Domain:") {
-		parsedWhois.DomainName = getLVValue(line)
+		parsedWhois.DomainName = utils.ExtractValue(line)
 	} else if strings.HasPrefix(line, "Status:") {
-		status := getLVValue(line)
+		status := utils.ExtractValue(line)
 		if status == "free" {
 			parsedWhois.Statuses = []string{"free"}
 			return
@@ -40,11 +42,11 @@ func (lvw *LVTLDParser) handleHolderSection(line string, parsedWhois *ParsedWhoi
 	}
 
 	if strings.HasPrefix(line, "Name:") {
-		parsedWhois.Contacts.Registrant.Name = getLVValue(line)
+		parsedWhois.Contacts.Registrant.Name = utils.ExtractValue(line)
 	} else if strings.HasPrefix(line, "Country:") {
-		parsedWhois.Contacts.Registrant.Country = getLVValue(line)
+		parsedWhois.Contacts.Registrant.Country = utils.ExtractValue(line)
 	} else if strings.HasPrefix(line, "Address:") {
-		parsedWhois.Contacts.Registrant.Street = []string{getLVValue(line)}
+		parsedWhois.Contacts.Registrant.Street = []string{utils.ExtractValue(line)}
 	}
 }
 
@@ -53,19 +55,19 @@ func (lvw *LVTLDParser) handleRegistrarSection(line string, parsedWhois *ParsedW
 		parsedWhois.Registrar = &Registrar{}
 	}
 	if strings.HasPrefix(line, "Name:") {
-		parsedWhois.Registrar.Name = getLVValue(line)
+		parsedWhois.Registrar.Name = utils.ExtractValue(line)
 	}
 }
 
 func (lvw *LVTLDParser) handleNserversSection(line string, parsedWhois *ParsedWhois) {
 	if strings.HasPrefix(line, "Nserver:") {
-		parsedWhois.NameServers = append(parsedWhois.NameServers, getLVValue(line))
+		parsedWhois.NameServers = append(parsedWhois.NameServers, utils.ExtractValue(line))
 	}
 }
 
 func (lvw *LVTLDParser) handleWhoisSection(line string, parsedWhois *ParsedWhois) {
 	if strings.HasPrefix(line, "Updated:") {
-		parsedWhois.UpdatedDateRaw = getLVValue(line)
+		parsedWhois.UpdatedDateRaw = utils.ExtractValue(line)
 	}
 }
 
@@ -103,12 +105,4 @@ func (lvw *LVTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	}
 
 	return parsedWhois, nil
-}
-
-func getLVValue(line string) string {
-	idx := strings.Index(line, ":")
-	if idx == -1 {
-		return ""
-	}
-	return strings.TrimSpace(line[idx+1:])
 }

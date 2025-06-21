@@ -2,6 +2,8 @@ package domain
 
 import (
 	"strings"
+
+	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
 type ROTLDParser struct {
@@ -20,13 +22,13 @@ func (r *ROTLDParser) GetName() string {
 
 func (r *ROTLDParser) handleBasicFields(line string, parsedWhois *ParsedWhois) bool {
 	if strings.HasPrefix(line, "Domain Name:") {
-		parsedWhois.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "Domain Name:"))
+		parsedWhois.DomainName = utils.ExtractField(line, "Domain Name:")
 		return true
 	} else if strings.HasPrefix(line, "DNSSEC:") {
-		parsedWhois.Dnssec = strings.TrimSpace(strings.TrimPrefix(line, "DNSSEC:"))
+		parsedWhois.Dnssec = utils.ExtractField(line, "DNSSEC:")
 		return true
 	} else if strings.HasPrefix(line, "Domain Status:") {
-		status := strings.TrimSpace(strings.TrimPrefix(line, "Domain Status:"))
+		status := utils.ExtractField(line, "Domain Status:")
 		if status != "" {
 			parsedWhois.Statuses = append(parsedWhois.Statuses, status)
 		}
@@ -37,35 +39,35 @@ func (r *ROTLDParser) handleBasicFields(line string, parsedWhois *ParsedWhois) b
 
 func (r *ROTLDParser) handleDateFields(line string, parsedWhois *ParsedWhois) bool {
 	if strings.HasPrefix(line, "Registered On:") {
-		parsedWhois.CreatedDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Registered On:"))
+		parsedWhois.CreatedDateRaw = utils.ExtractField(line, "Registered On:")
 		return true
 	} else if strings.HasPrefix(line, "Expires On:") {
-		parsedWhois.ExpiredDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Expires On:"))
+		parsedWhois.ExpiredDateRaw = utils.ExtractField(line, "Expires On:")
 		return true
 	}
 	return false
 }
 
 func (r *ROTLDParser) handleRegistrarFields(line string, parsedWhois *ParsedWhois) bool {
-	if strings.HasPrefix(line, "Registrar:") {
+	if utils.IsRegistrarLine(line, "Registrar:") {
 		if parsedWhois.Registrar == nil {
 			parsedWhois.Registrar = &Registrar{}
 		}
-		parsedWhois.Registrar.Name = strings.TrimSpace(strings.TrimPrefix(line, "Registrar:"))
+		parsedWhois.Registrar.Name = utils.ExtractField(line, "Registrar:")
 		return true
 	} else if strings.HasPrefix(line, "Referral URL:") {
 		if parsedWhois.Registrar == nil {
 			parsedWhois.Registrar = &Registrar{}
 		}
-		parsedWhois.Registrar.URL = strings.TrimSpace(strings.TrimPrefix(line, "Referral URL:"))
+		parsedWhois.Registrar.URL = utils.ExtractField(line, "Referral URL:")
 		return true
 	}
 	return false
 }
 
 func (r *ROTLDParser) handleNameServerFields(line string, parsedWhois *ParsedWhois) bool {
-	if strings.HasPrefix(line, "Nameserver:") {
-		ns := strings.TrimSpace(strings.TrimPrefix(line, "Nameserver:"))
+	if utils.IsNameserverLine(line, "Nameserver:") {
+		ns := utils.ExtractField(line, "Nameserver:")
 		if ns != "" {
 			parsedWhois.NameServers = append(parsedWhois.NameServers, ns)
 		}

@@ -85,28 +85,28 @@ func (krw *KRTLDParser) skipLine(line string) bool {
 func (krw *KRTLDParser) parseDomainFields(line string, parsedWhois *ParsedWhois) bool {
 	switch {
 	case strings.HasPrefix(line, "Domain Name"):
-		parsedWhois.DomainName = getValue(line)
+		parsedWhois.DomainName = utils.ExtractValue(line)
 		return true
 	case strings.HasPrefix(line, "Registered Date"):
-		parsedWhois.CreatedDateRaw = getValue(line)
+		parsedWhois.CreatedDateRaw = utils.ExtractValue(line)
 		return true
 	case strings.HasPrefix(line, "Last Updated Date"):
-		parsedWhois.UpdatedDateRaw = getValue(line)
+		parsedWhois.UpdatedDateRaw = utils.ExtractValue(line)
 		return true
 	case strings.HasPrefix(line, "Expiration Date"):
-		parsedWhois.ExpiredDateRaw = getValue(line)
+		parsedWhois.ExpiredDateRaw = utils.ExtractValue(line)
 		return true
 	case strings.HasPrefix(line, "Authorized Agency"):
 		if parsedWhois.Registrar == nil {
 			parsedWhois.Registrar = &Registrar{}
 		}
-		parsedWhois.Registrar.Name = getValue(line)
+		parsedWhois.Registrar.Name = utils.ExtractValue(line)
 		return true
 	case strings.HasPrefix(line, "DNSSEC"):
-		parsedWhois.Dnssec = getValue(line)
+		parsedWhois.Dnssec = utils.ExtractValue(line)
 		return true
 	case strings.HasPrefix(line, "Host Name"):
-		parsedWhois.NameServers = append(parsedWhois.NameServers, getValue(line))
+		parsedWhois.NameServers = append(parsedWhois.NameServers, utils.ExtractValue(line))
 		return true
 	}
 	return false
@@ -116,29 +116,29 @@ func (krw *KRTLDParser) parseContactFields(line string, parsedWhois *ParsedWhois
 	switch {
 	case strings.HasPrefix(line, "Registrant Address"):
 		krw.ensureContact(parsedWhois, "registrant")
-		parsedWhois.Contacts.Registrant.Street = []string{getValue(line)}
+		parsedWhois.Contacts.Registrant.Street = []string{utils.ExtractValue(line)}
 		return true
 	case strings.HasPrefix(line, "Registrant Zip Code"):
 		krw.ensureContact(parsedWhois, "registrant")
-		parsedWhois.Contacts.Registrant.Postal = getValue(line)
+		parsedWhois.Contacts.Registrant.Postal = utils.ExtractValue(line)
 		return true
 	case strings.HasPrefix(line, "Registrant") &&
 		!strings.HasPrefix(line, "Registrant Address") &&
 		!strings.HasPrefix(line, "Registrant Zip Code"):
 		krw.ensureContact(parsedWhois, "registrant")
-		parsedWhois.Contacts.Registrant.Name = getValue(line)
+		parsedWhois.Contacts.Registrant.Name = utils.ExtractValue(line)
 		return true
 	case strings.HasPrefix(line, "Administrative Contact(AC)"):
 		krw.ensureContact(parsedWhois, "admin")
-		parsedWhois.Contacts.Admin.Name = getValue(line)
+		parsedWhois.Contacts.Admin.Name = utils.ExtractValue(line)
 		return true
 	case strings.HasPrefix(line, "AC E-Mail"):
 		krw.ensureContact(parsedWhois, "admin")
-		parsedWhois.Contacts.Admin.Email = getValue(line)
+		parsedWhois.Contacts.Admin.Email = utils.ExtractValue(line)
 		return true
 	case strings.HasPrefix(line, "AC Phone Number"):
 		krw.ensureContact(parsedWhois, "admin")
-		parsedWhois.Contacts.Admin.Phone = getValue(line)
+		parsedWhois.Contacts.Admin.Phone = utils.ExtractValue(line)
 		return true
 	}
 	return false
@@ -158,12 +158,4 @@ func (krw *KRTLDParser) ensureContact(parsedWhois *ParsedWhois, contactType stri
 			parsedWhois.Contacts.Admin = &Contact{}
 		}
 	}
-}
-
-func getValue(line string) string {
-	idx := strings.Index(line, ":")
-	if idx == -1 {
-		return ""
-	}
-	return strings.TrimSpace(line[idx+1:])
 }

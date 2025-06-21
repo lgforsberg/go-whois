@@ -35,23 +35,23 @@ func (sew *SETLDParser) GetName() string {
 
 func (sew *SETLDParser) handleDates(line string, parsedWhois *ParsedWhois) {
 	if strings.HasPrefix(line, "created:") {
-		dateStr := strings.TrimSpace(strings.TrimPrefix(line, "created:"))
+		dateStr := utils.ExtractField(line, "created:")
 		parsedWhois.CreatedDateRaw = dateStr
 		parsedWhois.CreatedDate, _ = utils.ConvTimeFmt(dateStr, seTimeFmt, WhoisTimeFmt)
 	} else if strings.HasPrefix(line, "modified:") {
-		dateStr := strings.TrimSpace(strings.TrimPrefix(line, "modified:"))
+		dateStr := utils.ExtractField(line, "modified:")
 		parsedWhois.UpdatedDateRaw = dateStr
 		parsedWhois.UpdatedDate, _ = utils.ConvTimeFmt(dateStr, seTimeFmt, WhoisTimeFmt)
 	} else if strings.HasPrefix(line, "expires:") {
-		dateStr := strings.TrimSpace(strings.TrimPrefix(line, "expires:"))
+		dateStr := utils.ExtractField(line, "expires:")
 		parsedWhois.ExpiredDateRaw = dateStr
 		parsedWhois.ExpiredDate, _ = utils.ConvTimeFmt(dateStr, seTimeFmt, WhoisTimeFmt)
 	}
 }
 
 func (sew *SETLDParser) handleNameServers(line string, parsedWhois *ParsedWhois) {
-	if strings.HasPrefix(line, "nserver:") {
-		nsLine := strings.TrimSpace(strings.TrimPrefix(line, "nserver:"))
+	if utils.IsNameserverLine(line, "nserver:") {
+		nsLine := utils.ExtractField(line, "nserver:")
 		if nsLine != "" {
 			parsedWhois.NameServers = append(parsedWhois.NameServers, nsLine)
 		}
@@ -60,7 +60,7 @@ func (sew *SETLDParser) handleNameServers(line string, parsedWhois *ParsedWhois)
 
 func (sew *SETLDParser) handleStatuses(line string, parsedWhois *ParsedWhois) {
 	if strings.HasPrefix(line, "status:") {
-		statusStr := strings.TrimSpace(strings.TrimPrefix(line, "status:"))
+		statusStr := utils.ExtractField(line, "status:")
 		if statusStr != "" {
 			parsedWhois.Statuses = append(parsedWhois.Statuses, statusStr)
 		}
@@ -69,7 +69,7 @@ func (sew *SETLDParser) handleStatuses(line string, parsedWhois *ParsedWhois) {
 
 func (sew *SETLDParser) handleState(line string, parsedWhois *ParsedWhois) {
 	if strings.HasPrefix(line, "state:") {
-		stateStr := strings.TrimSpace(strings.TrimPrefix(line, "state:"))
+		stateStr := utils.ExtractField(line, "state:")
 		if stateStr != "" {
 			parsedWhois.Statuses = []string{stateStr}
 		}

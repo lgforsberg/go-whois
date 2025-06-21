@@ -2,6 +2,8 @@ package domain
 
 import (
 	"strings"
+
+	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
 type ISTLDParser struct {
@@ -23,7 +25,7 @@ func (isw *ISTLDParser) parseDomainSection(lines []string, parsedWhois *ParsedWh
 	var domainSectionDone bool
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if line == "" || strings.HasPrefix(line, "%") {
+		if utils.SkipLine(line) {
 			continue
 		}
 		if !domainSectionDone {
@@ -89,7 +91,7 @@ func (isw *ISTLDParser) parseRoleSections(lines []string) map[string]*Contact {
 	var currentContact *Contact
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if line == "" || strings.HasPrefix(line, "%") {
+		if utils.SkipLine(line) {
 			continue
 		}
 		if isw.parseRoleHeader(line, &currentContact, &currentHandle) {

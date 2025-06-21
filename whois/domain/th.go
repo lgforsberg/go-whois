@@ -76,34 +76,34 @@ func (p *THTLDParser) skipLine(line string) bool {
 func (p *THTLDParser) parseDomainFields(line string, parsed *ParsedWhois) bool {
 	switch {
 	case strings.HasPrefix(line, "Domain Name:"):
-		parsed.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "Domain Name:"))
+		parsed.DomainName = utils.ExtractField(line, "Domain Name:")
 		return true
 	case strings.HasPrefix(line, "Registrar:"):
-		parsed.Registrar.Name = strings.TrimSpace(strings.TrimPrefix(line, "Registrar:"))
+		parsed.Registrar.Name = utils.ExtractField(line, "Registrar:")
 		return true
 	case strings.HasPrefix(line, "Name Server:"):
-		ns := strings.TrimSpace(strings.TrimPrefix(line, "Name Server:"))
+		ns := utils.ExtractField(line, "Name Server:")
 		if ns != "" {
 			parsed.NameServers = append(parsed.NameServers, ns)
 		}
 		return true
 	case strings.HasPrefix(line, "DNSSEC:"):
-		parsed.Dnssec = strings.TrimSpace(strings.TrimPrefix(line, "DNSSEC:"))
+		parsed.Dnssec = utils.ExtractField(line, "DNSSEC:")
 		return true
 	case strings.HasPrefix(line, "Status:"):
-		status := strings.TrimSpace(strings.TrimPrefix(line, "Status:"))
+		status := utils.ExtractField(line, "Status:")
 		if status != "" {
 			parsed.Statuses = append(parsed.Statuses, status)
 		}
 		return true
 	case strings.HasPrefix(line, "Updated date:"):
-		parsed.UpdatedDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Updated date:"))
+		parsed.UpdatedDateRaw = utils.ExtractField(line, "Updated date:")
 		return true
 	case strings.HasPrefix(line, "Created date:"):
-		parsed.CreatedDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Created date:"))
+		parsed.CreatedDateRaw = utils.ExtractField(line, "Created date:")
 		return true
 	case strings.HasPrefix(line, "Exp date:"):
-		parsed.ExpiredDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Exp date:"))
+		parsed.ExpiredDateRaw = utils.ExtractField(line, "Exp date:")
 		return true
 	}
 	return false
@@ -190,5 +190,5 @@ func (p *THTLDParser) isValidField(value string) bool {
 }
 
 func (p *THTLDParser) extractField(line, prefix string) string {
-	return strings.TrimSpace(strings.TrimPrefix(line, prefix))
+	return utils.ExtractField(line, prefix)
 }

@@ -2,6 +2,8 @@ package domain
 
 import (
 	"strings"
+
+	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
 type MKTLDParser struct {
@@ -48,7 +50,7 @@ func (mkw *MKTLDParser) processDomainFields(lines []string, domainFields map[str
 	for i := 0; i < len(lines); i++ {
 		line := strings.TrimSpace(lines[i])
 		if !inDomainBlock {
-			if mkw.skipLine(line) {
+			if utils.SkipLine(line) {
 				continue
 			}
 			inDomainBlock = true
@@ -72,16 +74,12 @@ func (mkw *MKTLDParser) processDomainFields(lines []string, domainFields map[str
 	}
 }
 
-func (mkw *MKTLDParser) skipLine(line string) bool {
-	return line == "" || strings.HasPrefix(line, "%")
-}
-
 func (mkw *MKTLDParser) processSections(lines []string, contactMap map[string]*Contact, nssetMap map[string][]string) {
 	var currentSection string
 	var currentHandle string
 	for i := 0; i < len(lines); i++ {
 		line := strings.TrimSpace(lines[i])
-		if mkw.skipLine(line) {
+		if utils.SkipLine(line) {
 			continue
 		}
 		if !strings.Contains(line, ":") {
@@ -197,12 +195,4 @@ func (mkw *MKTLDParser) assignNameservers(domainFields map[string]string, nssetM
 			parsedWhois.NameServers = nsservers
 		}
 	}
-}
-
-func getMKValue(line string) string {
-	parts := strings.SplitN(line, ":", 2)
-	if len(parts) < 2 {
-		return ""
-	}
-	return strings.TrimSpace(parts[1])
 }

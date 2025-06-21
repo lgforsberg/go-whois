@@ -56,15 +56,15 @@ func (p *TRTLDParser) parseRegistrant(line string, registrant *Contact) {
 
 func (p *TRTLDParser) parseRegistrar(line string, i *int, lines []string, parsed *ParsedWhois, admin *Contact) {
 	if strings.HasPrefix(line, "NIC Handle") {
-		parsed.Registrar.IanaID = strings.TrimSpace(strings.TrimPrefix(line, "NIC Handle"))
+		parsed.Registrar.IanaID = utils.ExtractField(line, "NIC Handle")
 		parsed.Registrar.IanaID = strings.TrimPrefix(parsed.Registrar.IanaID, ":")
 		parsed.Registrar.IanaID = strings.TrimSpace(parsed.Registrar.IanaID)
 	} else if strings.HasPrefix(line, "Organization Name") {
-		parsed.Registrar.Name = strings.TrimSpace(strings.TrimPrefix(line, "Organization Name"))
+		parsed.Registrar.Name = utils.ExtractField(line, "Organization Name")
 		parsed.Registrar.Name = strings.TrimPrefix(parsed.Registrar.Name, ":")
 		parsed.Registrar.Name = strings.TrimSpace(parsed.Registrar.Name)
 	} else if strings.HasPrefix(line, "Address") {
-		addr := strings.TrimSpace(strings.TrimPrefix(line, "Address"))
+		addr := utils.ExtractField(line, "Address")
 		addr = strings.TrimPrefix(addr, ":")
 		addr = strings.TrimSpace(addr)
 		if addr != "" {
@@ -80,11 +80,11 @@ func (p *TRTLDParser) parseRegistrar(line string, i *int, lines []string, parsed
 			}
 		}
 	} else if strings.HasPrefix(line, "Phone") {
-		parsed.Registrar.AbuseContactPhone = strings.TrimSpace(strings.TrimPrefix(line, "Phone"))
+		parsed.Registrar.AbuseContactPhone = utils.ExtractField(line, "Phone")
 		parsed.Registrar.AbuseContactPhone = strings.TrimPrefix(parsed.Registrar.AbuseContactPhone, ":")
 		parsed.Registrar.AbuseContactPhone = strings.TrimSpace(parsed.Registrar.AbuseContactPhone)
 	} else if strings.HasPrefix(line, "Fax") {
-		admin.Fax = strings.TrimSpace(strings.TrimPrefix(line, "Fax"))
+		admin.Fax = utils.ExtractField(line, "Fax")
 		admin.Fax = strings.TrimPrefix(admin.Fax, ":")
 		admin.Fax = strings.TrimSpace(admin.Fax)
 	}
@@ -98,9 +98,9 @@ func (p *TRTLDParser) parseNameServers(line string, parsed *ParsedWhois) {
 
 func (p *TRTLDParser) parseAdditionalInfo(line string, parsed *ParsedWhois) {
 	if strings.HasPrefix(line, "Created on") {
-		parsed.CreatedDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Created on..............:"))
+		parsed.CreatedDateRaw = utils.ExtractField(line, "Created on..............:")
 	} else if strings.HasPrefix(line, "Expires on") {
-		parsed.ExpiredDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Expires on..............:"))
+		parsed.ExpiredDateRaw = utils.ExtractField(line, "Expires on..............:")
 	}
 }
 
@@ -165,22 +165,22 @@ func (p *TRTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 func (p *TRTLDParser) parseTopLevelFields(line string, parsed *ParsedWhois) bool {
 	switch {
 	case strings.HasPrefix(line, "** Domain Name:"):
-		parsed.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "** Domain Name:"))
+		parsed.DomainName = utils.ExtractField(line, "** Domain Name:")
 		return true
 	case strings.HasPrefix(line, "Domain Status:"):
-		status := strings.TrimSpace(strings.TrimPrefix(line, "Domain Status:"))
+		status := utils.ExtractField(line, "Domain Status:")
 		if status != "" {
 			parsed.Statuses = append(parsed.Statuses, status)
 		}
 		return true
 	case strings.HasPrefix(line, "Frozen Status:"):
-		frozen := strings.TrimSpace(strings.TrimPrefix(line, "Frozen Status:"))
+		frozen := utils.ExtractField(line, "Frozen Status:")
 		if frozen != "-" && frozen != "" {
 			parsed.Statuses = append(parsed.Statuses, "Frozen: "+frozen)
 		}
 		return true
 	case strings.HasPrefix(line, "Transfer Status:"):
-		transfer := strings.TrimSpace(strings.TrimPrefix(line, "Transfer Status:"))
+		transfer := utils.ExtractField(line, "Transfer Status:")
 		if transfer != "" {
 			parsed.Statuses = append(parsed.Statuses, "Transfer: "+transfer)
 		}

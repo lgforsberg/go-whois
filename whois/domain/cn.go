@@ -52,7 +52,7 @@ func (cnw *CNTLDParser) handleDates(line string, parsedWhois *ParsedWhois) bool 
 }
 
 func (cnw *CNTLDParser) handleNameServers(line string, parsedWhois *ParsedWhois) bool {
-	if strings.HasPrefix(line, "Name Server:") {
+	if utils.IsNameserverLine(line, "Name Server:") {
 		nsLine := strings.TrimSpace(strings.TrimPrefix(line, "Name Server:"))
 		if nsLine != "" {
 			parsedWhois.NameServers = append(parsedWhois.NameServers, nsLine)

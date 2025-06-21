@@ -2,6 +2,8 @@ package domain
 
 import (
 	"strings"
+
+	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
 // VETLDParser represents the parser for .ve TLD
@@ -68,7 +70,7 @@ func extractStatus(rawtext string) []string {
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if strings.HasPrefix(line, "status:") {
-			status := strings.TrimSpace(strings.TrimPrefix(line, "status:"))
+			status := utils.ExtractField(line, "status:")
 			if status != "" {
 				statuses = append(statuses, status)
 			}
@@ -124,7 +126,7 @@ func extractChangedField(rawtext string) string {
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if strings.HasPrefix(line, "changed:") {
-			changed := strings.TrimSpace(strings.TrimPrefix(line, "changed:"))
+			changed := utils.ExtractField(line, "changed:")
 			return changed
 		}
 	}

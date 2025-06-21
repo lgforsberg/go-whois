@@ -77,7 +77,7 @@ func (p *TZTLDParser) parseMainFields(lines []string) tzMainFields {
 	var fields tzMainFields
 	for i := 0; i < len(lines); i++ {
 		line := strings.TrimSpace(lines[i])
-		if line == "" || strings.HasPrefix(line, "%") {
+		if utils.SkipLine(line) {
 			continue
 		}
 		if strings.HasPrefix(line, "domain:") {
@@ -120,7 +120,7 @@ func (p *TZTLDParser) collectContactSections(lines []string) map[string][]string
 	contactSections := map[string][]string{}
 	for i := 0; i < len(lines); i++ {
 		line := strings.TrimSpace(lines[i])
-		if line == "" || strings.HasPrefix(line, "%") {
+		if utils.SkipLine(line) {
 			continue
 		}
 		if strings.HasPrefix(line, "contact:") {
@@ -144,7 +144,7 @@ func (p *TZTLDParser) collectNssetSections(lines []string) map[string][]string {
 	nssetSections := map[string][]string{}
 	for i := 0; i < len(lines); i++ {
 		line := strings.TrimSpace(lines[i])
-		if line == "" || strings.HasPrefix(line, "%") {
+		if utils.SkipLine(line) {
 			continue
 		}
 		if strings.HasPrefix(line, "nsset:") {

@@ -231,9 +231,8 @@ func NewTLDDomainParser(whoisServer string) ITLDParser {
 
 	// Special case for multiple servers sharing the same parser
 	specialServerMap := map[string]func() ITLDParser{
-		"whois.dot.tk":     func() ITLDParser { return NewTKMLGQTLDParser() }, // gq, ml, tk
-		"whois.dot.ml":     func() ITLDParser { return NewTKMLGQTLDParser() }, // gq, ml, tk
-		"whois.dominio.gq": func() ITLDParser { return NewTKMLGQTLDParser() }, // gq, ml, tk
+		"whois.dot.tk": func() ITLDParser { return NewTKTLDParser() }, // tk
+		"whois.dot.ml": func() ITLDParser { return NewMLTLDParser() }, // ml
 	}
 
 	// Check special cases first

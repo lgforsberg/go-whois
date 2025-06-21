@@ -4,7 +4,7 @@
 [![GoDoc](https://godoc.org/github.com/lgforsberg/go-whois?status.svg)](https://godoc.org/github.com/lgforsberg/go-whois)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A fork of a an excellent Go library by https://github.com/shlin168 for querying WHOIS information for domains and IP addresses. The fork extends the original library with additional TLD parsers and implements a few security improvements. Most parts of the code base has been touched up to lower function complexity. It does however maintain the library usage interface and output format. 
+A fork of a an excellent Go library by https://github.com/shlin168 for querying WHOIS information for domains and IP addresses. The fork extends the original library with additional TLD parsers, new parser utilty functions for repeating patterns, and implements a few security improvements. Most parts of the code base has been touched up to lower function complexity. It does however maintain the library usage interface and output format. 
 
 ## Features
 - **Domain WHOIS Queries**: Support for 100+ TLDs with custom parsers
@@ -90,12 +90,14 @@ These TLDs implement the standard ICANN format even though they are ccTLDs and w
 ### ccTLDs with Custom Parsers
 These TLDs have custom whois output formats and the level of detail will vary between each one:
 
-`.am`, `.ar`, `.as`, `.at`, `.au`, `.aw`, `.be`, `.bg`, `.br`, `.cl`, `.cn`, `.cr`, `.cz`, `.de`, `.dk`, `.ee`, `.eu`, `.fi`, `.fr`, `.gg`, `.hk`, `.hr`, `.hu`, `.im`, `.is`, `.ir`, `.it`, `.je`, `.jp`, `.kr`, `.kz`, `.lt`, `.lu`, `.lv`, `.md`, `.mk`, `.mo`, `.mx`, `.nl`, `.nu`, `.no`, `.pf`, `.pl`, `.pt`, `.qa`, `.ro`, `.rs`, `.ru`, `.sa`, `.se`, `.si`, `.sk`, `.sm`, `.sn`, `.su`, `.tg`, `.th`, `.tm`, `.tk`, `.ml`, `.gq`, `.tn`, `.tr`, `.tz`, `.ug`, `.uz`, `.ve`, `.vu`, `.tw`, `.ua`, `.uk`
+`.am`, `.ar`, `.as`, `.at`, `.au`, `.aw`, `.be`, `.bg`, `.br`, `.cl`, `.cn`, `.cr`, `.cz`, `.de`, `.dk`, `.ee`, `.eu`, `.fi`, `.fr`, `.gg`, `.hk`, `.hr`, `.hu`, `.im`, `.is`, `.ir`, `.it`, `.je`, `.jp`, `.kr`, `.kz`, `.lt`, `.lu`, `.lv`, `.md`, `.mk`, `.ml`, `.mo`, `.mx`, `.nl`, `.nu`, `.no`, `.pf`, `.pl`, `.pt`, `.qa`, `.ro`, `.rs`, `.ru`, `.sa`, `.se`, `.si`, `.sk`, `.sm`, `.sn`, `.su`, `.tg`, `.th`, `.tk`, `.tm`, `.tn`, `.tr`, `.tz`, `.ug`, `.uz`, `.ve`, `.vu`, `.tw`, `.ua`, `.uk`
 
 ### Unsupported TLDs
 These TLDs have no whois server, no proper whois informatio, restricted whois access, servers that refuse connections, or cannot be queried for some other reason:
 
-`.ad`, `.ae`, `.ai`, `.ch`, `.es`, `.gs`, `.hm`, `.ht`, `.il`, `.in`, `.li`, `.ms`, `.mc`, `.na`, `.nc`, `.pm`, `.ps`, `.re`, `.rw`, `.sx`, `.tc`, `.tf`, `.to`, `.wf`, `.yt`, `.vc`, `.uy`, `.vg`, `.vi`, `.vn`, `.sb`, `.ly`, `.id`
+`.ad`, `.ae`, `.ai`, `.ch`, `.es`, `.gs`, `.gq`, `.hm`, `.ht`, `.il`, `.in`, `.li`, `.ms`, `.mc`, `.na`, `.nc`, `.pm`, `.ps`, `.re`, `.rw`, `.sx`, `.tc`, `.tf`, `.to`, `.wf`, `.yt`, `.vc`, `.uy`, `.vg`, `.vi`, `.vn`, `.sb`, `.ly`, `.id`
+
+**Note**: `.gq` (Equatorial Guinea) is currently defunct due to a dispute between the government and the registry backend provider. The TLD has no functional WHOIS server.
 
 If you do get an answer, it will be parsed by the default parser, which may or may not work as intended.
 

@@ -25,10 +25,10 @@ func (p *SITLDParser) GetName() string {
 
 func (p *SITLDParser) handleBasicFields(line string, parsed *ParsedWhois) bool {
 	if strings.HasPrefix(line, "domain:") {
-		parsed.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "domain:"))
+		parsed.DomainName = utils.ExtractField(line, "domain:")
 		return true
 	} else if strings.HasPrefix(line, "status:") {
-		status := strings.TrimSpace(strings.TrimPrefix(line, "status:"))
+		status := utils.ExtractField(line, "status:")
 		if status != "" {
 			statuses := strings.Split(status, ",")
 			for _, s := range statuses {
@@ -44,19 +44,19 @@ func (p *SITLDParser) handleBasicFields(line string, parsed *ParsedWhois) bool {
 }
 
 func (p *SITLDParser) handleRegistrarFields(line string, parsed *ParsedWhois) bool {
-	if strings.HasPrefix(line, "registrar:") {
-		parsed.Registrar.Name = strings.TrimSpace(strings.TrimPrefix(line, "registrar:"))
+	if utils.IsRegistrarLine(line, "registrar:") {
+		parsed.Registrar.Name = utils.ExtractField(line, "registrar:")
 		return true
 	} else if strings.HasPrefix(line, "registrar-url:") {
-		parsed.Registrar.URL = strings.TrimSpace(strings.TrimPrefix(line, "registrar-url:"))
+		parsed.Registrar.URL = utils.ExtractField(line, "registrar-url:")
 		return true
 	}
 	return false
 }
 
 func (p *SITLDParser) handleNameServerFields(line string, parsed *ParsedWhois) bool {
-	if strings.HasPrefix(line, "nameserver:") {
-		ns := strings.TrimSpace(strings.TrimPrefix(line, "nameserver:"))
+	if utils.IsNameserverLine(line, "nameserver:") {
+		ns := utils.ExtractField(line, "nameserver:")
 		if ns != "" {
 			parsed.NameServers = append(parsed.NameServers, ns)
 		}
@@ -67,7 +67,7 @@ func (p *SITLDParser) handleNameServerFields(line string, parsed *ParsedWhois) b
 
 func (p *SITLDParser) handleContactFields(line string, parsed *ParsedWhois) bool {
 	if strings.HasPrefix(line, "registrant:") {
-		registrant := strings.TrimSpace(strings.TrimPrefix(line, "registrant:"))
+		registrant := utils.ExtractField(line, "registrant:")
 		if registrant != "" && registrant != "NOT DISCLOSED" {
 			parsed.Contacts.Registrant = &Contact{
 				ID: registrant,
@@ -80,13 +80,13 @@ func (p *SITLDParser) handleContactFields(line string, parsed *ParsedWhois) bool
 
 func (p *SITLDParser) handleDateFields(line string, parsed *ParsedWhois) bool {
 	if strings.HasPrefix(line, "created:") {
-		created := strings.TrimSpace(strings.TrimPrefix(line, "created:"))
+		created := utils.ExtractField(line, "created:")
 		if created != "" {
 			parsed.CreatedDateRaw = created
 		}
 		return true
 	} else if strings.HasPrefix(line, "expire:") {
-		expire := strings.TrimSpace(strings.TrimPrefix(line, "expire:"))
+		expire := utils.ExtractField(line, "expire:")
 		if expire != "" {
 			parsed.ExpiredDateRaw = expire
 		}

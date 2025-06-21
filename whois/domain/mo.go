@@ -2,6 +2,8 @@ package domain
 
 import (
 	"strings"
+
+	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
 type MOTLDParser struct {
@@ -30,7 +32,7 @@ func (mow *MOTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	var inNameservers bool
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if line == "" || strings.HasPrefix(line, "%") {
+		if utils.SkipLine(line) {
 			continue
 		}
 		if strings.HasPrefix(line, "Domain Name:") {

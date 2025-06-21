@@ -2,6 +2,8 @@ package domain
 
 import (
 	"strings"
+
+	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
 type SATLDParser struct {
@@ -33,7 +35,7 @@ func (s *SATLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	var currentSection string
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if s.skipLine(line) {
+		if utils.SkipLine(line) {
 			continue
 		}
 		if s.handleSectionChange(line, &currentSection, parsedWhois) {
@@ -51,10 +53,6 @@ func (s *SATLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	}
 
 	return parsedWhois, nil
-}
-
-func (s *SATLDParser) skipLine(line string) bool {
-	return line == "" || strings.HasPrefix(line, "%")
 }
 
 func (s *SATLDParser) handleSectionChange(line string, currentSection *string, parsedWhois *ParsedWhois) bool {
@@ -84,10 +82,10 @@ func (s *SATLDParser) handleSectionChange(line string, currentSection *string, p
 func (s *SATLDParser) parseDomainFields(line string, parsedWhois *ParsedWhois) bool {
 	switch {
 	case strings.HasPrefix(line, "Domain Name:"):
-		parsedWhois.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "Domain Name:"))
+		parsedWhois.DomainName = utils.ExtractField(line, "Domain Name:")
 		return true
 	case strings.HasPrefix(line, "DNSSEC:"):
-		parsedWhois.Dnssec = strings.TrimSpace(strings.TrimPrefix(line, "DNSSEC:"))
+		parsedWhois.Dnssec = utils.ExtractField(line, "DNSSEC:")
 		return true
 	}
 	return false
@@ -148,7 +146,7 @@ func (s *SATLDParser) assignContactField(line string, c *Contact, section string
 
 	if strings.HasPrefix(line, "Address:") {
 		// Extract address content after "Address:"
-		address := strings.TrimSpace(strings.TrimPrefix(line, "Address:"))
+		address := utils.ExtractField(line, "Address:")
 		if address != "" {
 			c.Street = append(c.Street, address)
 		}

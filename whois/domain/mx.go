@@ -88,7 +88,7 @@ func (mxw *MXTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	var inNameServers bool
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if line == "" || strings.HasPrefix(line, "%") {
+		if utils.SkipLine(line) {
 			continue
 		}
 		if mxw.handleBasicFields(line, parsedWhois) {

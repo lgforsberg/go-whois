@@ -28,7 +28,7 @@ func (clw *CLTLDParser) GetName() string {
 
 func (clw *CLTLDParser) handleDomainName(line string, parsedWhois *ParsedWhois) bool {
 	if strings.HasPrefix(line, "Domain name:") {
-		parsedWhois.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "Domain name:"))
+		parsedWhois.DomainName = utils.ExtractField(line, "Domain name:")
 		return true
 	}
 	return false
@@ -39,13 +39,13 @@ func (clw *CLTLDParser) handleContact(line string, parsedWhois *ParsedWhois) boo
 		if parsedWhois.Contacts.Registrant == nil {
 			parsedWhois.Contacts.Registrant = &Contact{}
 		}
-		parsedWhois.Contacts.Registrant.Name = strings.TrimSpace(strings.TrimPrefix(line, "Registrant name:"))
+		parsedWhois.Contacts.Registrant.Name = utils.ExtractField(line, "Registrant name:")
 		return true
 	} else if strings.HasPrefix(line, "Registrant organisation:") {
 		if parsedWhois.Contacts.Registrant == nil {
 			parsedWhois.Contacts.Registrant = &Contact{}
 		}
-		parsedWhois.Contacts.Registrant.Organization = strings.TrimSpace(strings.TrimPrefix(line, "Registrant organisation:"))
+		parsedWhois.Contacts.Registrant.Organization = utils.ExtractField(line, "Registrant organisation:")
 		return true
 	}
 	return false
@@ -56,13 +56,13 @@ func (clw *CLTLDParser) handleRegistrar(line string, parsedWhois *ParsedWhois) b
 		if parsedWhois.Registrar == nil {
 			parsedWhois.Registrar = &Registrar{}
 		}
-		parsedWhois.Registrar.Name = strings.TrimSpace(strings.TrimPrefix(line, "Registrar name:"))
+		parsedWhois.Registrar.Name = utils.ExtractField(line, "Registrar name:")
 		return true
 	} else if strings.HasPrefix(line, "Registrar URL:") {
 		if parsedWhois.Registrar == nil {
 			parsedWhois.Registrar = &Registrar{}
 		}
-		parsedWhois.Registrar.URL = strings.TrimSpace(strings.TrimPrefix(line, "Registrar URL:"))
+		parsedWhois.Registrar.URL = utils.ExtractField(line, "Registrar URL:")
 		return true
 	}
 	return false
@@ -70,12 +70,12 @@ func (clw *CLTLDParser) handleRegistrar(line string, parsedWhois *ParsedWhois) b
 
 func (clw *CLTLDParser) handleDates(line string, parsedWhois *ParsedWhois) bool {
 	if strings.HasPrefix(line, "Creation date:") {
-		dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Creation date:"))
+		dateStr := utils.ExtractField(line, "Creation date:")
 		parsedWhois.CreatedDateRaw = dateStr
 		parsedWhois.CreatedDate, _ = utils.ConvTimeFmt(dateStr, clTimeFmt, WhoisTimeFmt)
 		return true
 	} else if strings.HasPrefix(line, "Expiration date:") {
-		dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Expiration date:"))
+		dateStr := utils.ExtractField(line, "Expiration date:")
 		parsedWhois.ExpiredDateRaw = dateStr
 		parsedWhois.ExpiredDate, _ = utils.ConvTimeFmt(dateStr, clTimeFmt, WhoisTimeFmt)
 		return true
@@ -85,7 +85,7 @@ func (clw *CLTLDParser) handleDates(line string, parsedWhois *ParsedWhois) bool 
 
 func (clw *CLTLDParser) handleNameServer(line string, parsedWhois *ParsedWhois) bool {
 	if strings.HasPrefix(line, "Name server:") {
-		parsedWhois.NameServers = append(parsedWhois.NameServers, strings.TrimSpace(strings.TrimPrefix(line, "Name server:")))
+		parsedWhois.NameServers = append(parsedWhois.NameServers, utils.ExtractField(line, "Name server:"))
 		return true
 	}
 	return false

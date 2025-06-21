@@ -43,7 +43,7 @@ func (p *SNTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 
 	for i := 0; i < len(lines); i++ {
 		line := strings.TrimSpace(lines[i])
-		if p.skipLine(line) {
+		if utils.SkipLine(line) {
 			continue
 		}
 		if p.parseDomainFields(line, parsed) {
@@ -78,41 +78,37 @@ func (p *SNTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	return parsed, nil
 }
 
-func (p *SNTLDParser) skipLine(line string) bool {
-	return line == "" || strings.HasPrefix(line, "=") || strings.HasPrefix(line, ">>>")
-}
-
 func (p *SNTLDParser) parseDomainFields(line string, parsed *ParsedWhois) bool {
 	switch {
 	case strings.HasPrefix(line, "Nom de domaine:"):
-		parsed.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "Nom de domaine:"))
+		parsed.DomainName = utils.ExtractField(line, "Nom de domaine:")
 		return true
 	case strings.HasPrefix(line, "Date de création:"):
-		parsed.CreatedDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Date de création:"))
+		parsed.CreatedDateRaw = utils.ExtractField(line, "Date de création:")
 		return true
 	case strings.HasPrefix(line, "Dernière modification:"):
-		parsed.UpdatedDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Dernière modification:"))
+		parsed.UpdatedDateRaw = utils.ExtractField(line, "Dernière modification:")
 		return true
 	case strings.HasPrefix(line, "Date d'expiration:"):
-		parsed.ExpiredDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Date d'expiration:"))
+		parsed.ExpiredDateRaw = utils.ExtractField(line, "Date d'expiration:")
 		return true
 	case strings.HasPrefix(line, "Registrar:"):
-		parsed.Registrar.Name = strings.TrimSpace(strings.TrimPrefix(line, "Registrar:"))
+		parsed.Registrar.Name = utils.ExtractField(line, "Registrar:")
 		return true
 	case strings.HasPrefix(line, "Statut:"):
-		status := strings.TrimSpace(strings.TrimPrefix(line, "Statut:"))
+		status := utils.ExtractField(line, "Statut:")
 		if status != "" {
 			parsed.Statuses = append(parsed.Statuses, status)
 		}
 		return true
 	case strings.HasPrefix(line, "Serveur de noms:"):
-		ns := strings.TrimSpace(strings.TrimPrefix(line, "Serveur de noms:"))
+		ns := utils.ExtractField(line, "Serveur de noms:")
 		if ns != "" {
 			parsed.NameServers = append(parsed.NameServers, ns)
 		}
 		return true
 	case strings.HasPrefix(line, "DNSSEC:"):
-		parsed.Dnssec = strings.TrimSpace(strings.TrimPrefix(line, "DNSSEC:"))
+		parsed.Dnssec = utils.ExtractField(line, "DNSSEC:")
 		return true
 	}
 	return false
@@ -157,34 +153,34 @@ func (p *SNTLDParser) parseContactFields(line, section string, billing, tech, ho
 func (p *SNTLDParser) assignContactField(line string, c *Contact) bool {
 	switch {
 	case strings.HasPrefix(line, "ID Contact:"):
-		c.ID = strings.TrimSpace(strings.TrimPrefix(line, "ID Contact:"))
+		c.ID = utils.ExtractField(line, "ID Contact:")
 		return true
 	case strings.HasPrefix(line, "Nom:"):
-		c.Name = strings.TrimSpace(strings.TrimPrefix(line, "Nom:"))
+		c.Name = utils.ExtractField(line, "Nom:")
 		return true
 	case strings.HasPrefix(line, "Adresse:"):
-		c.Street = append(c.Street, strings.TrimSpace(strings.TrimPrefix(line, "Adresse:")))
+		c.Street = append(c.Street, utils.ExtractField(line, "Adresse:"))
 		return true
 	case strings.HasPrefix(line, "Code postal:"):
-		c.Postal = strings.TrimSpace(strings.TrimPrefix(line, "Code postal:"))
+		c.Postal = utils.ExtractField(line, "Code postal:")
 		return true
 	case strings.HasPrefix(line, "Ville:"):
-		c.City = strings.TrimSpace(strings.TrimPrefix(line, "Ville:"))
+		c.City = utils.ExtractField(line, "Ville:")
 		return true
 	case strings.HasPrefix(line, "Pays:"):
-		c.Country = strings.TrimSpace(strings.TrimPrefix(line, "Pays:"))
+		c.Country = utils.ExtractField(line, "Pays:")
 		return true
 	case strings.HasPrefix(line, "Téléphone:"):
-		c.Phone = strings.TrimSpace(strings.TrimPrefix(line, "Téléphone:"))
+		c.Phone = utils.ExtractField(line, "Téléphone:")
 		return true
 	case strings.HasPrefix(line, "Fax:"):
-		c.Fax = strings.TrimSpace(strings.TrimPrefix(line, "Fax:"))
+		c.Fax = utils.ExtractField(line, "Fax:")
 		return true
 	case strings.HasPrefix(line, "Courriel:"):
-		c.Email = strings.TrimSpace(strings.TrimPrefix(line, "Courriel:"))
+		c.Email = utils.ExtractField(line, "Courriel:")
 		return true
 	case strings.HasPrefix(line, "Type:"):
-		c.Organization = strings.TrimSpace(strings.TrimPrefix(line, "Type:"))
+		c.Organization = utils.ExtractField(line, "Type:")
 		return true
 	}
 	return false

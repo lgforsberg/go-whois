@@ -2,6 +2,8 @@ package domain
 
 import (
 	"strings"
+
+	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
 type KZTLDParser struct {
@@ -47,7 +49,7 @@ func (kzw *KZTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 func (kzw *KZTLDParser) handleSectionHeaders(line string, parsedWhois *ParsedWhois, section *string) bool {
 	switch {
 	case strings.HasPrefix(line, "Domain Name"):
-		parsedWhois.DomainName = getKZValue(line)
+		parsedWhois.DomainName = utils.ExtractValue(line)
 		return true
 	case line == "Organization Using Domain Name":
 		*section = "organization"
@@ -63,13 +65,13 @@ func (kzw *KZTLDParser) handleSectionHeaders(line string, parsedWhois *ParsedWho
 		*section = "nameservers"
 		return true
 	case strings.HasPrefix(line, "Domain created"):
-		parsedWhois.CreatedDateRaw = getKZValue(line)
+		parsedWhois.CreatedDateRaw = utils.ExtractValue(line)
 		return true
 	case strings.HasPrefix(line, "Last modified"):
-		parsedWhois.UpdatedDateRaw = getKZValue(line)
+		parsedWhois.UpdatedDateRaw = utils.ExtractValue(line)
 		return true
 	case strings.HasPrefix(line, "Domain status"):
-		status := getKZValue(line)
+		status := utils.ExtractValue(line)
 		if status != "" {
 			parsedWhois.Statuses = append(parsedWhois.Statuses, status)
 		}
@@ -78,7 +80,7 @@ func (kzw *KZTLDParser) handleSectionHeaders(line string, parsedWhois *ParsedWho
 		if parsedWhois.Registrar == nil {
 			parsedWhois.Registrar = &Registrar{}
 		}
-		parsedWhois.Registrar.Name = getKZValue(line)
+		parsedWhois.Registrar.Name = utils.ExtractValue(line)
 		return true
 	}
 	return false
@@ -107,19 +109,19 @@ func (kzw *KZTLDParser) handleOrganizationSection(line string, parsedWhois *Pars
 		parsedWhois.Contacts.Registrant = &Contact{}
 	}
 	if strings.HasPrefix(line, "Name") {
-		parsedWhois.Contacts.Registrant.Name = getKZValue(line)
+		parsedWhois.Contacts.Registrant.Name = utils.ExtractValue(line)
 	} else if strings.HasPrefix(line, "Organization Name") {
-		parsedWhois.Contacts.Registrant.Organization = getKZValue(line)
+		parsedWhois.Contacts.Registrant.Organization = utils.ExtractValue(line)
 	} else if strings.HasPrefix(line, "Street Address") {
-		parsedWhois.Contacts.Registrant.Street = []string{getKZValue(line)}
+		parsedWhois.Contacts.Registrant.Street = []string{utils.ExtractValue(line)}
 	} else if strings.HasPrefix(line, "City") {
-		parsedWhois.Contacts.Registrant.City = getKZValue(line)
+		parsedWhois.Contacts.Registrant.City = utils.ExtractValue(line)
 	} else if strings.HasPrefix(line, "State") {
-		parsedWhois.Contacts.Registrant.State = getKZValue(line)
+		parsedWhois.Contacts.Registrant.State = utils.ExtractValue(line)
 	} else if strings.HasPrefix(line, "Postal Code") {
-		parsedWhois.Contacts.Registrant.Postal = getKZValue(line)
+		parsedWhois.Contacts.Registrant.Postal = utils.ExtractValue(line)
 	} else if strings.HasPrefix(line, "Country") {
-		parsedWhois.Contacts.Registrant.Country = getKZValue(line)
+		parsedWhois.Contacts.Registrant.Country = utils.ExtractValue(line)
 	}
 }
 
@@ -129,28 +131,20 @@ func (kzw *KZTLDParser) handleAdminSection(line string, parsedWhois *ParsedWhois
 		parsedWhois.Contacts.Admin = &Contact{}
 	}
 	if strings.HasPrefix(line, "Name") {
-		parsedWhois.Contacts.Admin.Name = getKZValue(line)
+		parsedWhois.Contacts.Admin.Name = utils.ExtractValue(line)
 	} else if strings.HasPrefix(line, "Phone Number") {
-		parsedWhois.Contacts.Admin.Phone = getKZValue(line)
+		parsedWhois.Contacts.Admin.Phone = utils.ExtractValue(line)
 	} else if strings.HasPrefix(line, "Fax Number") {
-		parsedWhois.Contacts.Admin.Fax = getKZValue(line)
+		parsedWhois.Contacts.Admin.Fax = utils.ExtractValue(line)
 	} else if strings.HasPrefix(line, "Email Address") {
-		parsedWhois.Contacts.Admin.Email = getKZValue(line)
+		parsedWhois.Contacts.Admin.Email = utils.ExtractValue(line)
 	}
 }
 
 func (kzw *KZTLDParser) handleNameserversSection(line string, parsedWhois *ParsedWhois) {
 	if strings.HasPrefix(line, "Primary server") {
-		parsedWhois.NameServers = append(parsedWhois.NameServers, getKZValue(line))
+		parsedWhois.NameServers = append(parsedWhois.NameServers, utils.ExtractValue(line))
 	} else if strings.HasPrefix(line, "Secondary server") {
-		parsedWhois.NameServers = append(parsedWhois.NameServers, getKZValue(line))
+		parsedWhois.NameServers = append(parsedWhois.NameServers, utils.ExtractValue(line))
 	}
-}
-
-func getKZValue(line string) string {
-	idx := strings.Index(line, ":")
-	if idx == -1 {
-		return ""
-	}
-	return strings.TrimSpace(line[idx+1:])
 }

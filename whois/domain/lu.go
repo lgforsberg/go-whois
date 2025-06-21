@@ -3,6 +3,8 @@ package domain
 import (
 	"errors"
 	"strings"
+
+	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
 type LUTLDParser struct {
@@ -21,13 +23,13 @@ func (luw *LUTLDParser) GetName() string {
 
 func (luw *LUTLDParser) handleBasicFields(line string, parsedWhois *ParsedWhois) bool {
 	if strings.HasPrefix(line, "domainname:") {
-		parsedWhois.DomainName = getLUValue(line)
+		parsedWhois.DomainName = utils.ExtractValue(line)
 		return true
 	} else if strings.HasPrefix(line, "domaintype:") {
-		parsedWhois.Statuses = []string{getLUValue(line)}
+		parsedWhois.Statuses = []string{utils.ExtractValue(line)}
 		return true
 	} else if strings.HasPrefix(line, "nserver:") {
-		parsedWhois.NameServers = append(parsedWhois.NameServers, getLUValue(line))
+		parsedWhois.NameServers = append(parsedWhois.NameServers, utils.ExtractValue(line))
 		return true
 	}
 	return false
@@ -38,13 +40,13 @@ func (luw *LUTLDParser) handleRegistrarFields(line string, parsedWhois *ParsedWh
 		if parsedWhois.Registrar == nil {
 			parsedWhois.Registrar = &Registrar{}
 		}
-		parsedWhois.Registrar.Name = getLUValue(line)
+		parsedWhois.Registrar.Name = utils.ExtractValue(line)
 		return true
 	} else if strings.HasPrefix(line, "registrar-url:") {
 		if parsedWhois.Registrar == nil {
 			parsedWhois.Registrar = &Registrar{}
 		}
-		parsedWhois.Registrar.URL = getLUValue(line)
+		parsedWhois.Registrar.URL = utils.ExtractValue(line)
 		return true
 	}
 	return false
@@ -58,7 +60,7 @@ func (luw *LUTLDParser) handleContactFields(line string, parsedWhois *ParsedWhoi
 		if parsedWhois.Contacts.Registrant == nil {
 			parsedWhois.Contacts.Registrant = &Contact{}
 		}
-		parsedWhois.Contacts.Registrant.Country = getLUValue(line)
+		parsedWhois.Contacts.Registrant.Country = utils.ExtractValue(line)
 		return true
 	}
 	return false
@@ -93,12 +95,4 @@ func (luw *LUTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	}
 
 	return parsedWhois, nil
-}
-
-func getLUValue(line string) string {
-	idx := strings.Index(line, ":")
-	if idx == -1 {
-		return ""
-	}
-	return strings.TrimSpace(line[idx+1:])
 }

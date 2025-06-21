@@ -2,6 +2,8 @@ package domain
 
 import (
 	"strings"
+
+	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
 type IMTLDParser struct {
@@ -49,7 +51,7 @@ func (imw *IMTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 func (imw *IMTLDParser) handleSectionHeaders(line string, parsedWhois *ParsedWhois, section *string, currentContact **Contact) bool {
 	switch {
 	case strings.HasPrefix(line, "Domain Name:"):
-		parsedWhois.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "Domain Name:"))
+		parsedWhois.DomainName = utils.ExtractField(line, "Domain Name:")
 		return true
 	case line == "Domain Managers":
 		*section = "registrar"
@@ -136,7 +138,7 @@ func (imw *IMTLDParser) handleRegistrarSection(line string, parsedWhois *ParsedW
 		if parsedWhois.Registrar == nil {
 			parsedWhois.Registrar = &Registrar{}
 		}
-		registrarName := strings.TrimSpace(strings.TrimPrefix(line, "Name:"))
+		registrarName := utils.ExtractField(line, "Name:")
 		if registrarName != "Redacted" {
 			parsedWhois.Registrar.Name = registrarName
 		}
@@ -162,7 +164,7 @@ func (imw *IMTLDParser) handleContactSection(line string, currentContact *Contac
 func (imw *IMTLDParser) handleContactNameField(line string, currentContact *Contact, expectContactName *bool) bool {
 	if strings.HasPrefix(line, "Name:") {
 		if currentContact != nil {
-			name := strings.TrimSpace(strings.TrimPrefix(line, "Name:"))
+			name := utils.ExtractField(line, "Name:")
 			if !imw.isRedacted(name) {
 				currentContact.Name = name
 			}
@@ -207,12 +209,12 @@ func (imw *IMTLDParser) isRedacted(value string) bool {
 
 func (imw *IMTLDParser) handleDetailsSection(line string, parsedWhois *ParsedWhois) {
 	if strings.HasPrefix(line, "Expiry Date:") {
-		date := strings.TrimSpace(strings.TrimPrefix(line, "Expiry Date:"))
+		date := utils.ExtractField(line, "Expiry Date:")
 		if date != "" {
 			parsedWhois.ExpiredDateRaw = date
 		}
 	} else if strings.HasPrefix(line, "Name Server:") {
-		ns := strings.TrimSpace(strings.TrimPrefix(line, "Name Server:"))
+		ns := utils.ExtractField(line, "Name Server:")
 		if ns != "" {
 			parsedWhois.NameServers = append(parsedWhois.NameServers, ns)
 		}

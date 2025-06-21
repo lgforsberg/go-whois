@@ -36,16 +36,16 @@ func (huw *HUTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if line == "" || strings.HasPrefix(line, "%") {
+		if utils.SkipLine(line) {
 			continue
 		}
 		if strings.HasPrefix(line, "domain:") {
-			domainName := strings.TrimSpace(strings.TrimPrefix(line, "domain:"))
+			domainName := utils.ExtractField(line, "domain:")
 			if domainName != "" {
 				parsedWhois.DomainName = domainName
 			}
 		} else if strings.HasPrefix(line, "record created:") {
-			createdDate := strings.TrimSpace(strings.TrimPrefix(line, "record created:"))
+			createdDate := utils.ExtractField(line, "record created:")
 			if createdDate != "" {
 				parsedWhois.CreatedDateRaw = createdDate
 			}

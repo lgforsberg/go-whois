@@ -2,6 +2,8 @@ package domain
 
 import (
 	"strings"
+
+	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
 type HRTLDParser struct {
@@ -112,7 +114,7 @@ func (hrw *HRTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if line == "" || strings.HasPrefix(line, "%") {
+		if utils.SkipLine(line) {
 			continue
 		}
 		if hrw.handleDomainName(line, parsedWhois) {

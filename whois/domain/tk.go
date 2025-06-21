@@ -5,35 +5,32 @@ import (
 	"strings"
 )
 
-var TKMLGQMap = map[string]string{
+var tkMap = map[string]string{
 	"Domain registered":     "created_date",
 	"Record will expire on": "expired_date",
 }
 
-var tkmlgqContactKeyMap = map[string]string{
+var tkContactKeyMap = map[string]string{
 	"zipcode": "postal",
 	"e-mail":  "email",
 	"address": "street",
 }
 
-type TKMLGQParser struct{}
-
-type TKMLGQTLDParser struct {
-	parser   IParser
-	stopFunc func(string) bool
+type TKTLDParser struct {
+	parser IParser
 }
 
-func NewTKMLGQTLDParser() *TKMLGQTLDParser {
-	return &TKMLGQTLDParser{
+func NewTKTLDParser() *TKTLDParser {
+	return &TKTLDParser{
 		parser: NewParser(),
 	}
 }
 
-func (tkmlgqw *TKMLGQTLDParser) GetName() string {
-	return "tk/ml/gq"
+func (tkw *TKTLDParser) GetName() string {
+	return "tk"
 }
 
-func (tkmlgqw *TKMLGQTLDParser) handleBasicFields(key string, lines []string, idx int, parsedWhois *ParsedWhois) bool {
+func (tkw *TKTLDParser) handleBasicFields(key string, lines []string, idx int, parsedWhois *ParsedWhois) bool {
 	if key == "Domain name" {
 		parsedWhois.DomainName = strings.TrimRight(strings.TrimSpace(lines[idx+1]), " is Active")
 		return true
@@ -41,7 +38,7 @@ func (tkmlgqw *TKMLGQTLDParser) handleBasicFields(key string, lines []string, id
 	return false
 }
 
-func (tkmlgqw *TKMLGQTLDParser) handleContactSection(key string, contactFlg *string, contactsMap map[string]map[string]interface{}) bool {
+func (tkw *TKTLDParser) handleContactSection(key string, contactFlg *string, contactsMap map[string]map[string]interface{}) bool {
 	switch key {
 	case "Owner contact":
 		*contactFlg = REGISTRANT
@@ -63,7 +60,7 @@ func (tkmlgqw *TKMLGQTLDParser) handleContactSection(key string, contactFlg *str
 	return false
 }
 
-func (tkmlgqw *TKMLGQTLDParser) handleNameServers(key string, lines []string, idx int, parsedWhois *ParsedWhois) bool {
+func (tkw *TKTLDParser) handleNameServers(key string, lines []string, idx int, parsedWhois *ParsedWhois) bool {
 	if key == "Domain Nameservers" {
 		for i := 1; i <= maxNServer; i++ {
 			ns := strings.TrimSpace(lines[idx+i])
@@ -77,14 +74,14 @@ func (tkmlgqw *TKMLGQTLDParser) handleNameServers(key string, lines []string, id
 	return false
 }
 
-func (tkmlgqw *TKMLGQTLDParser) handleContactDetails(key, val string, contactFlg string, contactsMap map[string]map[string]interface{}) {
+func (tkw *TKTLDParser) handleContactDetails(key, val string, contactFlg string, contactsMap map[string]map[string]interface{}) {
 	if len(contactFlg) == 0 {
 		return
 	}
 
 	if key == "Name" || key == "Organization" || key == "Phone" || key == "Fax" || key == "E-mail" ||
 		key == "Address" || key == "City" || key == "Zipcode" || key == "Country" || key == "State" {
-		ckey := mapContactKeys(tkmlgqContactKeyMap, strings.ToLower(key))
+		ckey := mapContactKeys(tkContactKeyMap, strings.ToLower(key))
 		if ckey == "street" {
 			if _, ok := contactsMap[contactFlg][ckey]; !ok {
 				contactsMap[contactFlg][ckey] = []string{}
@@ -96,8 +93,8 @@ func (tkmlgqw *TKMLGQTLDParser) handleContactDetails(key, val string, contactFlg
 	}
 }
 
-func (tkmlgqw *TKMLGQTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
-	parsedWhois, err := tkmlgqw.parser.Do(rawtext, nil, TKMLGQMap)
+func (tkw *TKTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	parsedWhois, err := tkw.parser.Do(rawtext, nil, tkMap)
 	if err != nil {
 		return nil, err
 	}
@@ -112,22 +109,22 @@ func (tkmlgqw *TKMLGQTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, er
 		}
 
 		// Handle basic fields
-		if tkmlgqw.handleBasicFields(key, lines, idx, parsedWhois) {
+		if tkw.handleBasicFields(key, lines, idx, parsedWhois) {
 			continue
 		}
 
 		// Handle contact sections
-		if tkmlgqw.handleContactSection(key, &contactFlg, contactsMap) {
+		if tkw.handleContactSection(key, &contactFlg, contactsMap) {
 			continue
 		}
 
 		// Handle name servers
-		if tkmlgqw.handleNameServers(key, lines, idx, parsedWhois) {
+		if tkw.handleNameServers(key, lines, idx, parsedWhois) {
 			continue
 		}
 
 		// Handle contact details
-		tkmlgqw.handleContactDetails(key, val, contactFlg, contactsMap)
+		tkw.handleContactDetails(key, val, contactFlg, contactsMap)
 	}
 	contacts, err := map2ParsedContacts(contactsMap)
 	if err == nil {

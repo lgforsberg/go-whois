@@ -86,9 +86,11 @@ func (p *UGTLDParser) handleBasicFields(line string, parsed *ParsedWhois) bool {
 		parsed.ExpiredDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Expires On:"))
 		return true
 	case strings.HasPrefix(line, "Nameserver:"):
-		ns := strings.TrimSpace(strings.TrimPrefix(line, "Nameserver:"))
-		if ns != "" {
-			parsed.NameServers = append(parsed.NameServers, ns)
+		if utils.IsNameserverLine(line, "Nameserver:") {
+			ns := strings.TrimSpace(strings.TrimPrefix(line, "Nameserver:"))
+			if ns != "" {
+				parsed.NameServers = append(parsed.NameServers, ns)
+			}
 		}
 		return true
 	}

@@ -3,6 +3,8 @@ package domain
 import (
 	"regexp"
 	"strings"
+
+	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
 type MDTLDParser struct {
@@ -23,16 +25,18 @@ func (mdw *MDTLDParser) GetName() string {
 
 func (mdw *MDTLDParser) handleBasicFields(line string, parsedWhois *ParsedWhois) bool {
 	if strings.HasPrefix(line, "Domain  name") {
-		parsedWhois.DomainName = getMDValue(line, "Domain  name")
+		parsedWhois.DomainName = mdw.extractMDValue(line, "Domain  name")
 		return true
 	} else if strings.HasPrefix(line, "Domain state") {
-		status := getMDValue(line, "Domain state")
+		status := mdw.extractMDValue(line, "Domain state")
 		if status != "" {
 			parsedWhois.Statuses = []string{status}
 		}
 		return true
 	} else if strings.HasPrefix(line, "Nameserver") {
-		parsedWhois.NameServers = append(parsedWhois.NameServers, getMDValue(line, "Nameserver"))
+		if utils.IsNameserverLine(line, "Nameserver") {
+			parsedWhois.NameServers = append(parsedWhois.NameServers, mdw.extractMDValue(line, "Nameserver"))
+		}
 		return true
 	}
 	return false
@@ -46,7 +50,7 @@ func (mdw *MDTLDParser) handleContactFields(line string, parsedWhois *ParsedWhoi
 		if parsedWhois.Contacts.Registrant == nil {
 			parsedWhois.Contacts.Registrant = &Contact{}
 		}
-		parsedWhois.Contacts.Registrant.Name = getMDValue(line, "Registrant")
+		parsedWhois.Contacts.Registrant.Name = mdw.extractMDValue(line, "Registrant")
 		return true
 	}
 	return false
@@ -54,13 +58,28 @@ func (mdw *MDTLDParser) handleContactFields(line string, parsedWhois *ParsedWhoi
 
 func (mdw *MDTLDParser) handleDateFields(line string, parsedWhois *ParsedWhois) bool {
 	if strings.HasPrefix(line, "Registered on") {
-		parsedWhois.CreatedDateRaw = getMDValue(line, "Registered on")
+		parsedWhois.CreatedDateRaw = mdw.extractMDValue(line, "Registered on")
 		return true
 	} else if strings.HasPrefix(line, "Expires") {
-		parsedWhois.ExpiredDateRaw = getMDValue(line, "Expires")
+		// Special handling for "Expires    on   2026-05-02" format
+		matches := mdExpiresRe.FindStringSubmatch(line)
+		if len(matches) == 2 {
+			parsedWhois.ExpiredDateRaw = matches[1]
+		} else {
+			parsedWhois.ExpiredDateRaw = mdw.extractMDValue(line, "Expires")
+		}
 		return true
 	}
 	return false
+}
+
+// extractMDValue extracts the value after the prefix, handling MD's multiple-space format
+func (mdw *MDTLDParser) extractMDValue(line, prefix string) string {
+	parts := strings.SplitN(line, prefix, 2)
+	if len(parts) > 1 {
+		return strings.TrimSpace(parts[1])
+	}
+	return ""
 }
 
 func (mdw *MDTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
@@ -90,19 +109,4 @@ func (mdw *MDTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	}
 
 	return parsedWhois, nil
-}
-
-func getMDValue(line, prefix string) string {
-	if prefix == "Expires" {
-		matches := mdExpiresRe.FindStringSubmatch(line)
-		if len(matches) == 2 {
-			return matches[1]
-		}
-	} else {
-		parts := strings.SplitN(line, prefix, 2)
-		if len(parts) > 1 {
-			return strings.TrimSpace(parts[1])
-		}
-	}
-	return ""
 }

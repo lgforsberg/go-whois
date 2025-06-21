@@ -2,6 +2,8 @@ package domain
 
 import (
 	"strings"
+
+	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
 type RSTLDParser struct {
@@ -34,7 +36,7 @@ func (r *RSTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	for _, line := range lines {
 		line = strings.TrimRight(line, "\r\n")
 		line = strings.TrimSpace(line)
-		if r.skipLine(line) {
+		if utils.SkipLine(line) {
 			continue
 		}
 		if r.parseDomainFields(line, parsedWhois, &currentSection) {
@@ -46,10 +48,6 @@ func (r *RSTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	}
 
 	return parsedWhois, nil
-}
-
-func (r *RSTLDParser) skipLine(line string) bool {
-	return line == "" || strings.HasPrefix(line, "%")
 }
 
 func (r *RSTLDParser) parseDomainFields(line string, parsedWhois *ParsedWhois, currentSection *string) bool {
@@ -81,12 +79,12 @@ func (r *RSTLDParser) parseDomainFields(line string, parsedWhois *ParsedWhois, c
 }
 
 func (r *RSTLDParser) parseDomainName(line string, parsedWhois *ParsedWhois) bool {
-	parsedWhois.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "Domain name:"))
+	parsedWhois.DomainName = utils.ExtractField(line, "Domain name:")
 	return true
 }
 
 func (r *RSTLDParser) parseDomainStatus(line string, parsedWhois *ParsedWhois) bool {
-	status := strings.TrimSpace(strings.TrimPrefix(line, "Domain status:"))
+	status := utils.ExtractField(line, "Domain status:")
 	status = r.cleanStatus(status)
 	if status != "" {
 		parsedWhois.Statuses = append(parsedWhois.Statuses, status)
@@ -102,17 +100,17 @@ func (r *RSTLDParser) cleanStatus(status string) string {
 }
 
 func (r *RSTLDParser) parseRegistrationDate(line string, parsedWhois *ParsedWhois) bool {
-	parsedWhois.CreatedDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Registration date:"))
+	parsedWhois.CreatedDateRaw = utils.ExtractField(line, "Registration date:")
 	return true
 }
 
 func (r *RSTLDParser) parseModificationDate(line string, parsedWhois *ParsedWhois) bool {
-	parsedWhois.UpdatedDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Modification date:"))
+	parsedWhois.UpdatedDateRaw = utils.ExtractField(line, "Modification date:")
 	return true
 }
 
 func (r *RSTLDParser) parseExpirationDate(line string, parsedWhois *ParsedWhois) bool {
-	parsedWhois.ExpiredDateRaw = strings.TrimSpace(strings.TrimPrefix(line, "Expiration date:"))
+	parsedWhois.ExpiredDateRaw = utils.ExtractField(line, "Expiration date:")
 	return true
 }
 
@@ -120,7 +118,7 @@ func (r *RSTLDParser) parseRegistrar(line string, parsedWhois *ParsedWhois) bool
 	if parsedWhois.Registrar == nil {
 		parsedWhois.Registrar = &Registrar{}
 	}
-	parsedWhois.Registrar.Name = strings.TrimSpace(strings.TrimPrefix(line, "Registrar:"))
+	parsedWhois.Registrar.Name = utils.ExtractField(line, "Registrar:")
 	return true
 }
 
@@ -130,7 +128,7 @@ func (r *RSTLDParser) parseRegistrant(line string, parsedWhois *ParsedWhois, cur
 	if parsedWhois.Contacts.Registrant == nil {
 		parsedWhois.Contacts.Registrant = &Contact{}
 	}
-	parsedWhois.Contacts.Registrant.Organization = strings.TrimSpace(strings.TrimPrefix(line, "Registrant:"))
+	parsedWhois.Contacts.Registrant.Organization = utils.ExtractField(line, "Registrant:")
 	return true
 }
 
@@ -140,7 +138,7 @@ func (r *RSTLDParser) parseAdminContact(line string, parsedWhois *ParsedWhois, c
 	if parsedWhois.Contacts.Admin == nil {
 		parsedWhois.Contacts.Admin = &Contact{}
 	}
-	parsedWhois.Contacts.Admin.Organization = strings.TrimSpace(strings.TrimPrefix(line, "Administrative contact:"))
+	parsedWhois.Contacts.Admin.Organization = utils.ExtractField(line, "Administrative contact:")
 	return true
 }
 
@@ -150,12 +148,12 @@ func (r *RSTLDParser) parseTechContact(line string, parsedWhois *ParsedWhois, cu
 	if parsedWhois.Contacts.Tech == nil {
 		parsedWhois.Contacts.Tech = &Contact{}
 	}
-	parsedWhois.Contacts.Tech.Organization = strings.TrimSpace(strings.TrimPrefix(line, "Technical contact:"))
+	parsedWhois.Contacts.Tech.Organization = utils.ExtractField(line, "Technical contact:")
 	return true
 }
 
 func (r *RSTLDParser) parseDNS(line string, parsedWhois *ParsedWhois) bool {
-	nsRaw := strings.TrimSpace(strings.TrimPrefix(line, "DNS:"))
+	nsRaw := utils.ExtractField(line, "DNS:")
 	parsed := r.cleanDNS(nsRaw)
 	if parsed != "" {
 		parsedWhois.NameServers = append(parsedWhois.NameServers, parsed)
@@ -172,7 +170,7 @@ func (r *RSTLDParser) cleanDNS(nsRaw string) string {
 }
 
 func (r *RSTLDParser) parseDNSSEC(line string, parsedWhois *ParsedWhois) bool {
-	parsedWhois.Dnssec = strings.TrimSpace(strings.TrimPrefix(line, "DNSSEC signed:"))
+	parsedWhois.Dnssec = utils.ExtractField(line, "DNSSEC signed:")
 	return true
 }
 

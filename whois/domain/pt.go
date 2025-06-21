@@ -45,11 +45,11 @@ func (ptw *PTTLDParser) parseDates(lines []string, parsedWhois *ParsedWhois) {
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if strings.HasPrefix(line, "Creation Date:") {
-			dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Creation Date:"))
+			dateStr := utils.ExtractField(line, "Creation Date:")
 			parsedWhois.CreatedDateRaw = dateStr
 			parsedWhois.CreatedDate, _ = utils.ConvTimeFmt(dateStr, ptTimeFmt, WhoisTimeFmt)
 		} else if strings.HasPrefix(line, "Expiration Date:") {
-			dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Expiration Date:"))
+			dateStr := utils.ExtractField(line, "Expiration Date:")
 			parsedWhois.ExpiredDateRaw = dateStr
 			parsedWhois.ExpiredDate, _ = utils.ConvTimeFmt(dateStr, ptTimeFmt, WhoisTimeFmt)
 		}
@@ -61,7 +61,7 @@ func (ptw *PTTLDParser) parseNameServers(lines []string, parsedWhois *ParsedWhoi
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if strings.HasPrefix(line, "Name Server:") {
-			nsLine := strings.TrimSpace(strings.TrimPrefix(line, "Name Server:"))
+			nsLine := utils.ExtractField(line, "Name Server:")
 			// Extract just the name server name (before the |)
 			if pipeIndex := strings.Index(nsLine, " | "); pipeIndex != -1 {
 				nsName := strings.TrimSpace(nsLine[:pipeIndex])

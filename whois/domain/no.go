@@ -28,10 +28,10 @@ func (now *NOTLDParser) GetName() string {
 
 func (now *NOTLDParser) handleBasicFields(line string, parsedWhois *ParsedWhois) bool {
 	if strings.HasPrefix(line, "Domain Name") {
-		parsedWhois.DomainName = extractNOField(line)
+		parsedWhois.DomainName = utils.ExtractValue(line)
 		return true
 	} else if strings.HasPrefix(line, "Name Server Handle") {
-		parsedWhois.NameServers = append(parsedWhois.NameServers, extractNOField(line))
+		parsedWhois.NameServers = append(parsedWhois.NameServers, utils.ExtractValue(line))
 		return true
 	}
 	return false
@@ -42,7 +42,7 @@ func (now *NOTLDParser) handleRegistrarFields(line string, parsedWhois *ParsedWh
 		if parsedWhois.Registrar == nil {
 			parsedWhois.Registrar = &Registrar{}
 		}
-		parsedWhois.Registrar.Name = extractNOField(line)
+		parsedWhois.Registrar.Name = utils.ExtractValue(line)
 		return true
 	}
 	return false
@@ -50,12 +50,12 @@ func (now *NOTLDParser) handleRegistrarFields(line string, parsedWhois *ParsedWh
 
 func (now *NOTLDParser) handleDateFields(line string, parsedWhois *ParsedWhois) bool {
 	if strings.HasPrefix(line, "Created:") {
-		dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Created:"))
+		dateStr := utils.ExtractField(line, "Created:")
 		parsedWhois.CreatedDateRaw = dateStr
 		parsedWhois.CreatedDate, _ = utils.ConvTimeFmt(dateStr, noTimeFmt, WhoisTimeFmt)
 		return true
 	} else if strings.HasPrefix(line, "Last updated:") {
-		dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Last updated:"))
+		dateStr := utils.ExtractField(line, "Last updated:")
 		parsedWhois.UpdatedDateRaw = dateStr
 		parsedWhois.UpdatedDate, _ = utils.ConvTimeFmt(dateStr, noTimeFmt, WhoisTimeFmt)
 		return true
@@ -91,12 +91,4 @@ func (now *NOTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	parsedWhois.Statuses = []string{"active"}
 
 	return parsedWhois, nil
-}
-
-// Helper to extract the value after the dotted alignment
-func extractNOField(line string) string {
-	if idx := strings.Index(line, ":"); idx != -1 {
-		return strings.TrimSpace(line[idx+1:])
-	}
-	return ""
 }

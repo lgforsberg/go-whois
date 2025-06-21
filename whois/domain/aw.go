@@ -70,10 +70,10 @@ func (aww *AWTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 func (aww *AWTLDParser) parseTopLevelFields(line string, parsedWhois *ParsedWhois) bool {
 	switch {
 	case strings.HasPrefix(line, "Domain name:"):
-		parsedWhois.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "Domain name:"))
+		parsedWhois.DomainName = utils.ExtractField(line, "Domain name:")
 		return true
 	case strings.HasPrefix(line, "Status:"):
-		status := strings.TrimSpace(strings.TrimPrefix(line, "Status:"))
+		status := utils.ExtractField(line, "Status:")
 		if status == "active" {
 			parsedWhois.Statuses = []string{"active"}
 		} else {
@@ -123,7 +123,7 @@ func (aww *AWTLDParser) parseNameserversSection(line string, inNameserversSectio
 	if strings.HasPrefix(line, "Creation Date:") {
 		// End of nameservers section, parse the date
 		*inNameserversSection = false
-		dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Creation Date:"))
+		dateStr := utils.ExtractField(line, "Creation Date:")
 		parsedWhois.CreatedDateRaw = dateStr
 		parsedWhois.CreatedDate, _ = utils.ConvTimeFmt(dateStr, awTimeFmt, WhoisTimeFmt)
 		return true
@@ -137,7 +137,7 @@ func (aww *AWTLDParser) parseNameserversSection(line string, inNameserversSectio
 
 func (aww *AWTLDParser) parseDates(line string, parsedWhois *ParsedWhois) bool {
 	if strings.HasPrefix(line, "Updated Date:") {
-		dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Updated Date:"))
+		dateStr := utils.ExtractField(line, "Updated Date:")
 		parsedWhois.UpdatedDateRaw = dateStr
 		parsedWhois.UpdatedDate, _ = utils.ConvTimeFmt(dateStr, awTimeFmt, WhoisTimeFmt)
 		return true

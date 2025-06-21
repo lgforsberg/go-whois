@@ -32,8 +32,8 @@ func (dew *DETLDParser) GetName() string {
 }
 
 func (dew *DETLDParser) handleNameServers(line string, parsedWhois *ParsedWhois) bool {
-	if strings.HasPrefix(line, "Nserver:") {
-		nsLine := strings.TrimSpace(strings.TrimPrefix(line, "Nserver:"))
+	if utils.IsNameserverLine(line, "Nserver:") {
+		nsLine := utils.ExtractField(line, "Nserver:")
 		if nsLine != "" {
 			parsedWhois.NameServers = append(parsedWhois.NameServers, nsLine)
 		}
@@ -44,7 +44,7 @@ func (dew *DETLDParser) handleNameServers(line string, parsedWhois *ParsedWhois)
 
 func (dew *DETLDParser) handleChangedDate(line string, parsedWhois *ParsedWhois) bool {
 	if strings.HasPrefix(line, "Changed:") {
-		dateStr := strings.TrimSpace(strings.TrimPrefix(line, "Changed:"))
+		dateStr := utils.ExtractField(line, "Changed:")
 		parsedWhois.UpdatedDateRaw = dateStr
 		parsedWhois.UpdatedDate, _ = utils.ConvTimeFmt(dateStr, deTimeFmt, WhoisTimeFmt)
 		return true
