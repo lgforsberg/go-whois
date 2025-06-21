@@ -4,10 +4,9 @@
 [![GoDoc](https://godoc.org/github.com/lgforsberg/go-whois?status.svg)](https://godoc.org/github.com/lgforsberg/go-whois)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A fork of a comprehensive Go library for querying WHOIS information for domains and IP addresses. The fork extends the original library with additional TLD parsers and security improvements.
+A fork of a an excellent Go library by https://github.com/shlin168 for querying WHOIS information for domains and IP addresses. The fork extends the original library with additional TLD parsers and implements a few security improvements. Most parts of the code base has been touched up to lower function complexity. It does however maintain the library usage interface and output format. 
 
 ## Features
-
 - **Domain WHOIS Queries**: Support for 100+ TLDs with custom parsers
 - **IP Address WHOIS**: Query IP address information from RIRs (ARIN, RIPE, APNIC, etc.)
 - **Security Hardened**: Protection against memory exhaustion attacks and timeouts
@@ -82,16 +81,18 @@ func main() {
 Both Legacy and New gTLDs are supported by the default parser:
 - **Legacy**: `.com`, `.net`, `.org`, `.info`, `.biz`, `.mobi`, `.name`, `.pro`
 - **New**: `.aero`, `.coop`, `.museum`, `.jobs`, `.travel`, `.cat`, `.tel`, `.xxx`, `.post`, `.asia`, `.edu`, `.gov`, `.mil`
-- **Modern**: `.link`, `.blog`, `.app`, `.dev`, `.io`, and many more
-
-### ccTLDs with Custom Parsers
-`.am`, `.ar`, `.as`, `.at`, `.au`, `.aw`, `.be`, `.bg`, `.br`, `.cl`, `.cn`, `.cr`, `.cz`, `.de`, `.dk`, `.ee`, `.eu`, `.fi`, `.fr`, `.gg`, `.hk`, `.hr`, `.hu`, `.im`, `.is`, `.ir`, `.it`, `.je`, `.jp`, `.kr`, `.kz`, `.lt`, `.lu`, `.lv`, `.md`, `.mk`, `.mo`, `.mx`, `.nl`, `.nu`, `.no`, `.pf`, `.pl`, `.pt`, `.qa`, `.ro`, `.rs`, `.ru`, `.sa`, `.se`, `.si`, `.sk`, `.sm`, `.sn`, `.su`, `.tg`, `.th`, `.tm`, `.tk`, `.ml`, `.gq`, `.tn`, `.tr`, `.tz`, `.ug`, `.uz`, `.ve`, `.vu`, `.tw`, `.ua`, `.uk`
+- **Modern**: `.link`, `.blog`, `.app`, `.dev`, `.io`, and all the rest too.
 
 ### ccTLDs using Default Parser (Standard ICANN Format)
+These TLDs implement the standard ICANN format even though they are ccTLDs and will be handled by the default parser. Good Work! We like these:
 `.ac`, `.af`, `.ag`, `.bi`, `.co`, `.io`, `.ca`, `.cc`, `.cx`, `.dm`, `.fm`, `.fo`, `.gd`, `.gi`, `.gl`, `.gy`, `.ie`, `.ke`, `.ki`, `.kn`, `.ky`, `.la`, `.lc`, `.ma`, `.me`, `.mg`, `.mn`, `.mu`, `.mz`, `.nf`, `.ng`, `.nz`, `.om`, `.pe`, `.pr`, `.pw`, `.sc`, `.sh`, `.sl`, `.so`, `.st`, `.sy`, `.tl`, `.us`, `.ws`, `.hn`
 
+### ccTLDs with Custom Parsers
+These TLDs have custom whois output formats and the level of detail will vary between each one:
+`.am`, `.ar`, `.as`, `.at`, `.au`, `.aw`, `.be`, `.bg`, `.br`, `.cl`, `.cn`, `.cr`, `.cz`, `.de`, `.dk`, `.ee`, `.eu`, `.fi`, `.fr`, `.gg`, `.hk`, `.hr`, `.hu`, `.im`, `.is`, `.ir`, `.it`, `.je`, `.jp`, `.kr`, `.kz`, `.lt`, `.lu`, `.lv`, `.md`, `.mk`, `.mo`, `.mx`, `.nl`, `.nu`, `.no`, `.pf`, `.pl`, `.pt`, `.qa`, `.ro`, `.rs`, `.ru`, `.sa`, `.se`, `.si`, `.sk`, `.sm`, `.sn`, `.su`, `.tg`, `.th`, `.tm`, `.tk`, `.ml`, `.gq`, `.tn`, `.tr`, `.tz`, `.ug`, `.uz`, `.ve`, `.vu`, `.tw`, `.ua`, `.uk`
+
 ### Unsupported TLDs
-These TLDs have no whois server, restricted whois access, or servers that refuse connections (handled by default parser):
+These TLDs have no whois server, or restricted whois access, or servers that refuse connections (handled by default parser), or cannot be queried for some other reason:
 `.ad`, `.ae`, `.ai`, `.ch`, `.es`, `.gs`, `.hm`, `.ht`, `.il`, `.in`, `.li`, `.ms`, `.mc`, `.na`, `.nc`, `.pm`, `.ps`, `.re`, `.rw`, `.sx`, `.tc`, `.tf`, `.to`, `.wf`, `.yt`, `.vc`, `.uy`, `.vg`, `.vi`, `.vn`, `.sb`, `.ly`, `.id`
 
 ## Advanced Usage
@@ -175,14 +176,6 @@ go test ./whois/...
 go test ./whois/ip/...
 ```
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
 ### Adding New TLD Parsers
 
 To add support for a new TLD:
@@ -195,7 +188,7 @@ To add support for a new TLD:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License by the original author, and the same license is extended and honored by the fork maintainer - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
@@ -213,7 +206,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Removed whois server associated with `.mc`. Was `whois.ripe.net` but there is no official whois server for `.mc`
 - Fixed critical security vulnerabilities: added size limits to prevent memory exhaustion attacks, added HTTP timeouts, and fixed unsafe type assertions
 - Improved error handling in TLD parsers (`.hu`, `.au`, `.kr`) with input validation and proper date parsing
-- Refactoring of custom parsers and their respective tests to decrase function complexity.
+- Refactoring of functions and their respective tests to decrase function complexity.
   
 ---
 
