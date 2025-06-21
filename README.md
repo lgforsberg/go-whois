@@ -79,20 +79,25 @@ func main() {
 
 ### All gTLDs (Generic Top-Level Domains)
 Both Legacy and New gTLDs are supported by the default parser:
-- **Legacy**: `.com`, `.net`, `.org`, `.info`, `.biz`, `.mobi`, `.name`, `.pro`, `.aero`, `.coop`, `.museum`, `.jobs`, `.travel`, `.cat`, `.tel`, `.xxx`, `.post`, `.asia`, `.edu`, `.gov`, `.mil`
-- **New**: `.link`, `.blog`, `.app`, `.dev`, `.shop`, and all the rest too.
+
+`.com`, `.net`, `.org`, `.info`, `.biz`, `.mobi`, `.name`, `.pro`, `.aero`, `.coop`, `.museum`, `.jobs`, `.travel`, `.cat`, `.tel`, `.xxx`, `.post`, `.asia`, `.edu`, `.gov`, `.mil`, `.link`, `.blog`, `.app`, `.dev`, `.shop`, and all the rest too.
 
 ### ccTLDs using Default Parser (Standard ICANN Format)
 These TLDs implement the standard ICANN format even though they are ccTLDs and will be handled by the default parser. Good Work! We like these:
+
 `.ac`, `.af`, `.ag`, `.bi`, `.co`, `.io`, `.ca`, `.cc`, `.cx`, `.dm`, `.fm`, `.fo`, `.gd`, `.gi`, `.gl`, `.gy`, `.ie`, `.ke`, `.ki`, `.kn`, `.ky`, `.la`, `.lc`, `.ma`, `.me`, `.mg`, `.mn`, `.mu`, `.mz`, `.nf`, `.ng`, `.nz`, `.om`, `.pe`, `.pr`, `.pw`, `.sc`, `.sh`, `.sl`, `.so`, `.st`, `.sy`, `.tl`, `.us`, `.ws`, `.hn`
 
 ### ccTLDs with Custom Parsers
 These TLDs have custom whois output formats and the level of detail will vary between each one:
+
 `.am`, `.ar`, `.as`, `.at`, `.au`, `.aw`, `.be`, `.bg`, `.br`, `.cl`, `.cn`, `.cr`, `.cz`, `.de`, `.dk`, `.ee`, `.eu`, `.fi`, `.fr`, `.gg`, `.hk`, `.hr`, `.hu`, `.im`, `.is`, `.ir`, `.it`, `.je`, `.jp`, `.kr`, `.kz`, `.lt`, `.lu`, `.lv`, `.md`, `.mk`, `.mo`, `.mx`, `.nl`, `.nu`, `.no`, `.pf`, `.pl`, `.pt`, `.qa`, `.ro`, `.rs`, `.ru`, `.sa`, `.se`, `.si`, `.sk`, `.sm`, `.sn`, `.su`, `.tg`, `.th`, `.tm`, `.tk`, `.ml`, `.gq`, `.tn`, `.tr`, `.tz`, `.ug`, `.uz`, `.ve`, `.vu`, `.tw`, `.ua`, `.uk`
 
 ### Unsupported TLDs
-These TLDs have no whois server, or restricted whois access, or servers that refuse connections (handled by default parser), or cannot be queried for some other reason:
+These TLDs have no whois server, no proper whois informatio, restricted whois access, servers that refuse connections, or cannot be queried for some other reason:
+
 `.ad`, `.ae`, `.ai`, `.ch`, `.es`, `.gs`, `.hm`, `.ht`, `.il`, `.in`, `.li`, `.ms`, `.mc`, `.na`, `.nc`, `.pm`, `.ps`, `.re`, `.rw`, `.sx`, `.tc`, `.tf`, `.to`, `.wf`, `.yt`, `.vc`, `.uy`, `.vg`, `.vi`, `.vn`, `.sb`, `.ly`, `.id`
+
+If you do get an answer, it will be parsed by the default parser, which may or may not work as intended.
 
 ## Advanced Usage
 
