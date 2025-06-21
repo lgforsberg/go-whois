@@ -220,3 +220,5 @@ This project is licensed under the MIT License by the original author, and the s
 ---
 
 *This fork maintains compatibility with usage of the original library while adding security improvements and extended TLD support.* 
+
+<!-- Test change to demonstrate versioning behavior --> 
