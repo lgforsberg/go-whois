@@ -19,6 +19,16 @@ A fork of a an excellent Go library by https://github.com/shlin168 for querying 
 - **Improved documentation of functions**: In-code documentation of functions have been added where previously missing. 
 - **Improved adherance to go code quality standards**: Adhearance to recommendations from gofmt, gocyclo, govet etc has been improved.
 
+### New in v1.0.1 was: 
+- Changed whois server associated with `.pt` from `whois.ripe.net` to `whois.dns.pt`
+- Removed whois server associated with `.mc`. Was `whois.ripe.net` which is clearly not the case.
+- Fixed security vulnerabilities: 
+  - Added size limits to prevent memory exhaustion attacks 
+  - Added HTTP timeouts
+  - Fixed unsafe type assertions
+- Improved error handling in TLD parsers (f.ex. `.hu`, `.au`, `.kr`) with input validation and proper date parsing.
+- Refactored many functions and their respective tests to decrease overall function complexity.
+  
 ## Installation
 
 ```bash
@@ -212,17 +222,3 @@ This project is licensed under the MIT License by the original author, and the s
 
 ### New Parsers Added
 - `.pt`, `.de`, `.dk`, `.se`, `.nu`, `.no`, `.bg`, `.ee`, `.gg`, `.je`, `.hr`, `.hu`, `.im`, `.is`, `.lt`, `.lu`, `.lv`, `.md`, `.mk`, `.ro`, `.rs`, `.si`, `.sm`, `.su`, `.jp`, `.cn`, `.hk`, `.kr`, `.kz`, `.mo`, `.mx`, `.pf`, `.qa`, `.sa`, `.sn`, `.th`, `.tm`, `.tn`, `.tr`, `.tz`, `.ug`, `.uz`, `.ve`, `.vu`
-
-### Additional Changes
-- Changed whois server associated with `.pt` from `whois.ripe.net` to `whois.dns.pt`
-- Removed whois server associated with `.mc`. Was `whois.ripe.net` which is clearly not the case.
-- Fixed security vulnerabilities: 
-  - Added size limits to prevent memory exhaustion attacks 
-  - Added HTTP timeouts
-  - Fixed unsafe type assertions
-- Improved error handling in TLD parsers (f.ex. `.hu`, `.au`, `.kr`) with input validation and proper date parsing.
-- Refactored many functions and their respective tests to decrease overall function complexity.
-  
----
-
-*This fork maintains compatibility with usage of the original library while adding security improvements and extended TLD support.* 
