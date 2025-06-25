@@ -32,6 +32,7 @@ func (p *TGTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	}
 
 	if strings.Contains(rawtext, "NO OBJECT FOUND!") {
+		SetDomainAvailabilityStatus(parsed, true)
 		return parsed, nil
 	}
 
@@ -133,7 +134,7 @@ func (p *TGTLDParser) parseContactSection(section string, owner, admin, tech *Co
 			continue
 		}
 		// Handle address continuation lines
-		if currentContact.Street != nil && len(currentContact.Street) > 0 &&
+		if len(currentContact.Street) > 0 &&
 			!strings.Contains(line, ":") && line != "" {
 			currentContact.Street = append(currentContact.Street, line)
 		}

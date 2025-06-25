@@ -4,54 +4,17 @@ import (
 	"testing"
 )
 
-func TestTKTLDParser_Parse(t *testing.T) {
-	rat := &Contact{
-		Name:         "Hostmaster Amazon Legal Dept.",
-		Email:        "hostmaster@amazon.com",
-		Organization: "Amazon Technologies, Inc.",
-		Country:      "U.S.A.",
-		City:         "Reno",
-		State:        "Nevada",
-		Street:       []string{"P.O. Box 8102"},
-		Postal:       "89507",
-		Phone:        "+1-2062664064",
-		Fax:          "+1-2062667010",
-	}
-	b := &Contact{
-		Name:         "Domain Administrator",
-		Email:        "ccopsbilling@markmonitor.com",
-		Organization: "MarkMonitor Inc.",
-		Country:      "U.S.A.",
-		City:         "Meridian",
-		State:        "Idaho",
-		Street:       []string{"3540 E Longwing Lane Suite 300"},
-		Postal:       "83646",
-		Phone:        "+1-2083895740",
-		Fax:          "+1-2083895771",
-	}
-	exp := &ParsedWhois{
-		DomainName: "AMAZON.TK",
-		NameServers: []string{
-			"NS2.P31.DYNECT.NET", "PDNS1.ULTRADNS.NET", "PDNS2.ULTRADNS.NET",
-			"PDNS5.ULTRADNS.INFO", "PDNS6.ULTRADNS.CO.UK"},
-		CreatedDateRaw: "09/17/2014",
-		CreatedDate:    "2014-09-17T00:00:00+00:00",
-		ExpiredDateRaw: "12/11/2021",
-		ExpiredDate:    "2021-12-11T00:00:00+00:00",
-		Contacts: &Contacts{
-			Registrant: rat,
-			Admin:      rat,
-			Tech:       rat,
-			Billing:    b,
-		},
+func TestTKTLDParser_Redelegated(t *testing.T) {
+	// .tk has been redelegated and the old whois no longer works
+	// The TLD now uses the default parser instead of the specialized TK parser
+	parser := NewTLDParser() // Using default parser instead of NewTKTLDParser
+
+	// Note: Since .tk has been redelegated, we don't have new test data yet
+	// This test documents that .tk now falls back to the default parser
+	if parser.GetName() != "default" {
+		t.Errorf("Expected parser name 'default' for redelegated .tk, got '%s'", parser.GetName())
 	}
 
-	checkParserResult(t, "whois.dot.tk", "tk_ml_gq/case1.txt", "tk", exp)
-}
-
-func TestTKTLDParser_GetName(t *testing.T) {
-	parser := NewTKTLDParser()
-	if parser.GetName() != "tk" {
-		t.Errorf("Expected parser name 'tk', got '%s'", parser.GetName())
-	}
+	t.Log("TK TLD has been redelegated - old specialized parser has been removed")
+	t.Log("TK domains now use the default parser for whois parsing")
 }

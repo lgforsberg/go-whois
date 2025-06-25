@@ -36,5 +36,5 @@ func TestUAParser(t *testing.T) {
 		},
 	}
 
-	checkParserResult(t, "whois.ua", "ua/case1.txt", "ua", exp)
+	checkParserResult(t, "whois.ua", "testdata/ua/case1.txt", "ua", exp)
 }

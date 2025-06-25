@@ -26,7 +26,7 @@ func TestPLParser(t *testing.T) {
 		Dnssec:         "Unsigned",
 	}
 
-	checkParserResult(t, "whois.dns.pl", "pl/case1.txt", "pl", exp)
+	checkParserResult(t, "whois.dns.pl", "testdata/pl/case1.txt", "pl", exp)
 
 	exp = &ParsedWhois{
 		DomainName: "inpost.pl",
@@ -45,5 +45,5 @@ func TestPLParser(t *testing.T) {
 		Dnssec:         "Unsigned",
 	}
 
-	checkParserResult(t, "whois.dns.pl", "pl/case2.txt", "pl", exp)
+	checkParserResult(t, "whois.dns.pl", "testdata/pl/case2.txt", "pl", exp)
 }

@@ -26,7 +26,7 @@ func (lvw *LVTLDParser) handleDomainSection(line string, parsedWhois *ParsedWhoi
 	} else if strings.HasPrefix(line, "Status:") {
 		status := utils.ExtractValue(line)
 		if status == "free" {
-			parsedWhois.Statuses = []string{"free"}
+			SetDomainAvailabilityStatus(parsedWhois, true)
 			return
 		}
 		parsedWhois.Statuses = []string{status}
@@ -90,7 +90,7 @@ func (lvw *LVTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 		switch currentSection {
 		case "Domain":
 			lvw.handleDomainSection(line, parsedWhois)
-			if parsedWhois.Statuses != nil && parsedWhois.Statuses[0] == "free" {
+			if len(parsedWhois.Statuses) >= 2 && parsedWhois.Statuses[0] == "free" && parsedWhois.Statuses[1] == "not_found" {
 				return parsedWhois, nil
 			}
 		case "Holder":

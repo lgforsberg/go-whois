@@ -107,8 +107,9 @@ func (hrw *HRTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	}
 	lines := strings.Split(rawtext, "\n")
 
-	if strings.Contains(rawtext, "% No entries found") {
-		parsedWhois.Statuses = []string{"free"}
+	// Check for Croatia-specific not found pattern and centralized patterns
+	if strings.Contains(rawtext, "% No entries found") || CheckDomainAvailability(rawtext) {
+		SetDomainAvailabilityStatus(parsedWhois, true)
 		return parsedWhois, nil
 	}
 

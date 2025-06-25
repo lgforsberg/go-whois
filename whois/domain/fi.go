@@ -18,8 +18,7 @@ var fiContactKeyMap = map[string]string{
 type FIParser struct{}
 
 type FITLDParser struct {
-	parser   IParser
-	stopFunc func(string) bool
+	parser IParser
 }
 
 func NewFITLDParser() *FITLDParser {
@@ -116,6 +115,13 @@ func (fiw *FITLDParser) handleBasicFields(key, val string, parsedWhois *ParsedWh
 }
 
 func (fiw *FITLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	// Check if domain is not found using centralized detection logic
+	if CheckDomainAvailability(rawtext) {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
+	}
+
 	parsedWhois, err := fiw.parser.Do(rawtext, nil)
 	if err != nil {
 		return nil, err

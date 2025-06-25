@@ -78,7 +78,7 @@ func WhoisHandler(cli *whois.Client, resolver *Resolver, acsLogger logrus.FieldL
 		decoder := json.NewDecoder(req.Body)
 		var wr WhoisReq
 		if err := decoder.Decode(&wr); err != nil {
-			errMsg := fmt.Errorf("Payload decode error: %v", err)
+			errMsg := fmt.Errorf("payload decode error: %v", err)
 			http.Error(resp, errMsg.Error(), http.StatusBadRequest)
 			return
 		}

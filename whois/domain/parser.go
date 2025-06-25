@@ -127,6 +127,7 @@ var defaultKeyMap map[string]string = map[string]string{
 
 var notFoundMsg = []string{
 	"no data found",
+	"no object found",
 	"not found",
 	"no match",
 	"not registered",
@@ -142,7 +143,8 @@ type IParser interface {
 	Do(string, func(string) bool, ...map[string]string) (*ParsedWhois, error)
 }
 
-// ITLDParser might have differenet parsing behavior depends on parameters sent to IParser.Do
+// ITLDParser defines the interface for TLD-specific WHOIS parsers.
+// Each TLD may have different parsing requirements and response formats.
 type ITLDParser interface {
 	GetParsedWhois(string) (*ParsedWhois, error)
 	GetName() string
@@ -230,10 +232,7 @@ func NewTLDDomainParser(whoisServer string) ITLDParser {
 	}
 
 	// Special case for multiple servers sharing the same parser
-	specialServerMap := map[string]func() ITLDParser{
-		"whois.dot.tk": func() ITLDParser { return NewTKTLDParser() }, // tk
-		"whois.dot.ml": func() ITLDParser { return NewMLTLDParser() }, // ml
-	}
+	specialServerMap := map[string]func() ITLDParser{}
 
 	// Check special cases first
 	if parserFunc, exists := specialServerMap[whoisServer]; exists {
@@ -249,19 +248,24 @@ func NewTLDDomainParser(whoisServer string) ITLDParser {
 	return NewTLDParser()
 }
 
-// Parser implements default parser if tlds not match other parsers with specific parsing method
+// Parser implements the default WHOIS parser for domains.
+// It uses a generic key-value parsing approach suitable for most TLD formats.
 type Parser struct{}
 
-// TLDParser implements default TLD parser which invoke Parser.Do with different parameters
+// TLDParser wraps the default Parser with TLD-specific configuration.
+// It provides a consistent interface for parsing while allowing customization of parsing behavior.
 type TLDParser struct {
 	parser   IParser
 	stopFunc func(string) bool
 }
 
+// NewParser creates a new instance of the default WHOIS parser.
 func NewParser() *Parser {
 	return &Parser{}
 }
 
+// NewTLDParser creates a new TLD parser with default configuration.
+// It uses a stop function that stops parsing when encountering lines starting with ">>>".
 func NewTLDParser() *TLDParser {
 	return &TLDParser{
 		parser:   NewParser(),
@@ -276,6 +280,13 @@ func (wtld *TLDParser) GetName() string {
 
 // GetParsedWhois invoke Do in parser to parse rawtext
 func (wtld *TLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	// Check if domain is not found using centralized logic
+	if CheckDomainAvailability(rawtext) {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
+	}
+
 	return wtld.parser.Do(rawtext, wtld.stopFunc)
 }
 
@@ -412,7 +423,7 @@ func fillStatusesField(wMap map[string]interface{}, val string) {
 	// Trim link in status
 	// E.g., clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited
 	// if contains ",", split by ","
-	if strings.Index(val, ",") != -1 {
+	if strings.Contains(val, ",") {
 		for _, status := range strings.Split(val, ",") {
 			if statusSlice, ok := wMap["statuses"].([]string); ok {
 				wMap["statuses"] = append(statusSlice, strings.TrimSpace(status))
@@ -500,11 +511,10 @@ func FoundByKey(key, rawtext string) string {
 	return ""
 }
 
-// WhoisNotFound check keywords in rawtext
+// WhoisNotFound check if rawtext contains not found keywords
 func WhoisNotFound(rawtext string) bool {
-	rw := strings.ToLower(rawtext)
-	for _, kw := range notFoundMsg {
-		if strings.Index(rw, kw) != -1 {
+	for _, notFoundMsg := range notFoundMsg {
+		if strings.Contains(strings.ToLower(rawtext), notFoundMsg) {
 			return true
 		}
 	}
@@ -520,6 +530,62 @@ func getKeyValFromLine(line string) (key, val string, err error) {
 	return strings.TrimSpace(kw[0]), strings.TrimSpace(kw[1]), nil
 }
 
+// IsCommentLine checks if a line is a comment in WHOIS output.
+// Comment lines typically start with '%' or '*' characters.
 func IsCommentLine(line string) bool {
 	return strings.HasPrefix(line, "%") || strings.HasPrefix(line, "*")
+}
+
+// SetDomainAvailabilityStatus sets the appropriate status for domain availability
+// In v2.0.0: Uses single "not_found" status for consistent behavior across all TLDs
+// isAvailable: true = domain is available for registration (not found)
+// isAvailable: false = domain is registered or restricted
+func SetDomainAvailabilityStatus(parsedWhois *ParsedWhois, isAvailable bool) {
+	if parsedWhois == nil {
+		return
+	}
+
+	if isAvailable {
+		// v2.0.0: Use single "not_found" status for clean, consistent behavior
+		parsedWhois.Statuses = []string{"not_found"}
+	}
+	// For registered domains, keep existing status behavior
+	// The calling parser should set appropriate registered status
+}
+
+// CheckDomainAvailability centralizes "not found" pattern detection logic
+func CheckDomainAvailability(rawtext string) bool {
+	// Check common "not found" patterns across all TLDs
+	notFoundPatterns := []string{
+		"not found",
+		"no match",
+		"not registered",
+		"no data found",
+		"no object found",
+		"object does not exist",
+		"nothing found",
+		"no entries found",
+		"domain not found",
+		"no matching record",
+		"not available",
+		"domain unknown",
+		"no information available",
+		"% no match for",
+		"%% not found",
+		"status: available",
+		"status:             available",
+		" is free",
+		"no found",
+		"this domain name has not been registered",
+		"available for registration",
+	}
+
+	lowerRawtext := strings.ToLower(rawtext)
+	for _, pattern := range notFoundPatterns {
+		if strings.Contains(lowerRawtext, strings.ToLower(pattern)) {
+			return true
+		}
+	}
+
+	return false
 }

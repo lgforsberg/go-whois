@@ -20,5 +20,5 @@ func TestEUParser(t *testing.T) {
 		},
 	}
 
-	checkParserResult(t, "whois.eu", "eu/case1.txt", "eu", exp)
+	checkParserResult(t, "whois.eu", "testdata/eu/case1.txt", "eu", exp)
 }

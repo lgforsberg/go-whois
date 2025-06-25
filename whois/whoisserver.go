@@ -4,7 +4,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"regexp"
@@ -108,7 +107,7 @@ func readXMLFromHTTP(xmlpath string) ([]byte, error) {
 	}
 	// Use LimitReader to prevent unbounded memory consumption
 	limitedReader := io.LimitReader(resp.Body, MaxXMLResponseSize)
-	return ioutil.ReadAll(limitedReader)
+	return io.ReadAll(limitedReader)
 }
 
 func readXMLFromFile(xmlpath string) ([]byte, error) {
@@ -117,7 +116,7 @@ func readXMLFromFile(xmlpath string) ([]byte, error) {
 		return nil, err
 	}
 	defer domainXML.Close()
-	return ioutil.ReadAll(domainXML)
+	return io.ReadAll(domainXML)
 }
 
 func processDomains(domains []struct {
@@ -187,7 +186,7 @@ func applyOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
 	// for those domains that only subdomains contains whois server
 	// Removed .mc mapping - .mc should use default parser instead of whois.ripe.net
 	DomainWhoisServerMap["mm"] = []WhoisServer{{Host: "whois.nic.mm"}}
-	ptn, err := regexp.Compile("\\QNo domains matched\\E")
+	ptn, err := regexp.Compile(`\QNo domains matched\E`)
 	if err == nil {
 		DomainWhoisServerMap["mm"][0].AvailPtn = ptn
 	}

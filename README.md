@@ -13,6 +13,12 @@ A fork of a an excellent Go library by https://github.com/shlin168 for querying 
 - **Robust Error Handling**: Comprehensive error handling and input validation
 - **High Performance**: Efficient parsing with proper resource management
 
+## New in v1.1.0 is: 
+- **Unified handling of Available Flag**: Domain Names not found, not registered or "available" now all have the available flag set to "true" reliably across all supported TLDs. 
+- **Updated Tests with new test data**: Added many new tests of the function of the whois domain library as well as test case data to make use of them.
+- **Improved documentation of functions**: In-code documentation of functions have been added where previously missing. 
+- **Improved adherance to go code quality standards**: Adhearance to recommendations from gofmt, gocyclo, govet etc has been improved.
+
 ## Installation
 
 ```bash

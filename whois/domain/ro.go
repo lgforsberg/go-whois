@@ -83,7 +83,7 @@ func (r *ROTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	// Handle unregistered domains
 	for _, line := range lines {
 		if strings.Contains(line, "No entries found for the selected source") {
-			parsedWhois.Statuses = []string{"free"}
+			SetDomainAvailabilityStatus(parsedWhois, true)
 			return parsedWhois, nil
 		}
 	}

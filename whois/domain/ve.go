@@ -25,9 +25,11 @@ func (p *VETLDParser) GetName() string {
 
 // GetParsedWhois parses the whois response for .ve domains
 func (p *VETLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
-	// Check if domain is not found
-	if strings.Contains(rawtext, "%ERROR:101: no entries found") {
-		return &ParsedWhois{}, nil
+	// Check for Venezuela-specific not found pattern and centralized patterns
+	if strings.Contains(rawtext, "%ERROR:101: no entries found") || CheckDomainAvailability(rawtext) {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
 	}
 
 	// Use default parser with custom key mappings

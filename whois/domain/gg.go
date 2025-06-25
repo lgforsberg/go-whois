@@ -21,7 +21,7 @@ func (ggw *GGTLDParser) GetName() string {
 func (ggw *GGTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	if strings.Contains(rawtext, "NOT FOUND") {
 		parsedWhois := &ParsedWhois{}
-		parsedWhois.Statuses = []string{"free"}
+		SetDomainAvailabilityStatus(parsedWhois, true)
 		return parsedWhois, nil
 	}
 

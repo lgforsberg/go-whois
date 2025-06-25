@@ -19,8 +19,7 @@ var CZMap map[string]string = map[string]string{
 }
 
 type CZTLDParser struct {
-	parser   IParser
-	stopFunc func(string) bool
+	parser IParser
 }
 
 func (czw *CZTLDParser) GetName() string {
@@ -126,6 +125,13 @@ type dateFlags struct {
 }
 
 func (czw *CZTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	// Check if domain is not found using centralized detection logic
+	if CheckDomainAvailability(rawtext) {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
+	}
+
 	parsedWhois, err := czw.parser.Do(rawtext, nil, CZMap)
 	if err != nil {
 		return nil, err

@@ -25,7 +25,7 @@ func (mkw *MKTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	lines := strings.Split(rawtext, "\n")
 
 	if strings.Contains(rawtext, "no entries found") {
-		parsedWhois.Statuses = []string{"free"}
+		SetDomainAvailabilityStatus(parsedWhois, true)
 		return parsedWhois, nil
 	}
 

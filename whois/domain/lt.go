@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"regexp"
 	"strings"
 
 	"github.com/lgforsberg/go-whois/whois/utils"
@@ -10,8 +9,6 @@ import (
 type LTTLDParser struct {
 	parser IParser
 }
-
-var ltLeadingWS = regexp.MustCompile(`^[ \t]+`)
 
 func NewLTTLDParser() *LTTLDParser {
 	return &LTTLDParser{
@@ -31,7 +28,7 @@ func (ltw *LTTLDParser) handleBasicFields(line string, parsedWhois *ParsedWhois)
 	case strings.HasPrefix(line, "Status:"):
 		status := strings.TrimSpace(utils.ExtractValue(line))
 		if status == "available" {
-			parsedWhois.Statuses = []string{"free"}
+			SetDomainAvailabilityStatus(parsedWhois, true)
 			return true
 		}
 		parsedWhois.Statuses = []string{status}

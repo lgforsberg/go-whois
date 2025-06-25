@@ -14,8 +14,7 @@ var ARMap map[string]string = map[string]string{
 type ARParser struct{}
 
 type ARTLDParser struct {
-	parser   IParser
-	stopFunc func(string) bool
+	parser IParser
 }
 
 func NewARTLDParser() *ARTLDParser {
@@ -29,6 +28,13 @@ func (arw *ARTLDParser) GetName() string {
 }
 
 func (arw *ARTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	// Check if domain is not found using centralized detection logic
+	if CheckDomainAvailability(rawtext) {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
+	}
+
 	parsedWhois, err := arw.parser.Do(rawtext, nil, ARMap)
 	if err != nil {
 		return nil, err

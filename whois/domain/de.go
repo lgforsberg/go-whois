@@ -15,12 +15,18 @@ var DEMap = map[string]string{
 	"Status": "statuses",
 }
 
+// DEParser represents a parser for DE domain whois responses.
+// Deprecated: Use DETLDParser instead.
 type DEParser struct{}
 
+// DETLDParser is a specialized parser for .de domain whois responses.
+// It handles the specific format used by DENIC, the German registry.
 type DETLDParser struct {
 	parser IParser
 }
 
+// NewDETLDParser creates a new parser for .de domain whois responses.
+// The parser is configured to handle German registry date formats and field layouts.
 func NewDETLDParser() *DETLDParser {
 	return &DETLDParser{
 		parser: NewParser(),
@@ -60,7 +66,19 @@ func (dew *DETLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 
 	// Check if domain is available (Status: free)
 	if strings.Contains(rawtext, "Status: free") {
-		parsedWhois.Statuses = []string{"free"}
+		parsedWhois := &ParsedWhois{}
+
+		// Extract domain name from the rawtext before setting status
+		lines := strings.Split(rawtext, "\n")
+		for _, line := range lines {
+			line = strings.TrimSpace(line)
+			if strings.HasPrefix(line, "Domain:") {
+				parsedWhois.DomainName = strings.TrimSpace(strings.TrimPrefix(line, "Domain:"))
+				break
+			}
+		}
+
+		SetDomainAvailabilityStatus(parsedWhois, true)
 		return parsedWhois, nil
 	}
 

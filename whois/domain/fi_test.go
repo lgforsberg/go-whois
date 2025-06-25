@@ -31,7 +31,7 @@ func TestFIParser(t *testing.T) {
 		},
 	}
 
-	checkParserResult(t, "whois.fi", "fi/case1.txt", "fi", exp)
+	checkParserResult(t, "whois.fi", "testdata/fi/case1.txt", "fi", exp)
 
 	exp = &ParsedWhois{
 		DomainName: "google.fi",
@@ -63,5 +63,5 @@ func TestFIParser(t *testing.T) {
 		},
 	}
 
-	checkParserResult(t, "whois.fi", "fi/case2.txt", "fi", exp)
+	checkParserResult(t, "whois.fi", "testdata/fi/case2.txt", "fi", exp)
 }

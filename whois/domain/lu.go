@@ -91,7 +91,7 @@ func (luw *LUTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	}
 
 	if parsedWhois.DomainName == "" {
-		parsedWhois.Statuses = []string{"free"}
+		SetDomainAvailabilityStatus(parsedWhois, true)
 	}
 
 	return parsedWhois, nil

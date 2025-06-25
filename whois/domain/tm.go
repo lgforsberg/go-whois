@@ -31,6 +31,7 @@ func (p *TMTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	}
 
 	if strings.Contains(rawtext, "is available for purchase") {
+		SetDomainAvailabilityStatus(parsed, true)
 		return parsed, nil
 	}
 

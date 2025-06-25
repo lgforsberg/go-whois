@@ -36,8 +36,7 @@ func isNameAndEmailContactLine(line string) (name, email string, isLine bool) {
 }
 
 type TWTLDParser struct {
-	parser   IParser
-	stopFunc func(string) bool
+	parser IParser
 }
 
 func NewTWTLDParser() *TWTLDParser {
@@ -132,6 +131,13 @@ func (tww *TWTLDParser) handleContactDetails(key, line string, contactFlg string
 }
 
 func (tww *TWTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	// Check if domain is not found using Taiwan-specific pattern
+	if strings.Contains(rawtext, "No Found") {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
+	}
+
 	parsedWhois, err := tww.parser.Do(rawtext, nil)
 	if err != nil {
 		return nil, err

@@ -20,7 +20,7 @@ func TestBEParser(t *testing.T) {
 		Statuses:       []string{"NOT AVAILABLE", "clientTransferProhibited"},
 	}
 
-	checkParserResult(t, "whois.dns.be", "be/case1.txt", "be", exp)
+	checkParserResult(t, "whois.dns.be", "testdata/be/case1.txt", "be", exp)
 
 	exp = &ParsedWhois{
 		DomainName: "mezure.be",
@@ -36,5 +36,5 @@ func TestBEParser(t *testing.T) {
 		Statuses:       []string{"NOT AVAILABLE"},
 	}
 
-	checkParserResult(t, "whois.dns.be", "be/case2.txt", "be", exp)
+	checkParserResult(t, "whois.dns.be", "testdata/be/case2.txt", "be", exp)
 }

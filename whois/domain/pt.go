@@ -96,6 +96,13 @@ func (ptw *PTTLDParser) cleanupEmptyContacts(parsedWhois *ParsedWhois) {
 }
 
 func (ptw *PTTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	// Check if domain is not found using centralized detection logic
+	if CheckDomainAvailability(rawtext) {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
+	}
+
 	parsedWhois, err := ptw.parser.Do(rawtext, nil, PTMap)
 	if err != nil {
 		return nil, err

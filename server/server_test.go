@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -27,7 +27,7 @@ const (
 
 // TestBaseConf is base config for testing if config is not given in tests
 var TestBaseConf = &ServerCfg{
-	ipLookupTimeout: DefaultIpLookupTimeout,
+	ipLookupTimeout: DefaultIPLookupTimeout,
 	whoisTimeout:    DefaultTimeout,
 }
 
@@ -68,7 +68,7 @@ func getWhoiServerResp(t *testing.T, query string, whoisServer ...string) (code 
 	if err != nil {
 		return 0, nil, fmt.Errorf("send request error: %v", err)
 	}
-	content, err := ioutil.ReadAll(resp.Body)
+	content, err := io.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
 		return resp.StatusCode, nil, fmt.Errorf("read content error: %v", err)

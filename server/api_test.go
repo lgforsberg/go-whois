@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -66,6 +66,11 @@ func TestWhoisHandler(t *testing.T) {
 	// expected domain found result
 	expParsedWhois, err := client.Parse(whois.TestDomain, whois.NewRaw(whois.TestDomainWhoisRawText, whoisServerHost))
 	require.Nil(t, err)
+
+	// Set the availability status for registered domain
+	isAvailable := false
+	expParsedWhois.IsAvailable = &isAvailable
+
 	expResp := &WhoisResp{
 		Whois: expParsedWhois,
 		Type:  whois.TypeDomain,
@@ -103,7 +108,7 @@ func TestWhoisHandler(t *testing.T) {
 		if expCode != http.StatusOK && expCode != http.StatusNotFound {
 			return ""
 		}
-		body, err := ioutil.ReadAll(response.Body)
+		body, err := io.ReadAll(response.Body)
 		require.Nil(t, err)
 		return string(body)
 	}

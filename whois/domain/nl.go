@@ -6,13 +6,19 @@ import (
 	"strings"
 )
 
+// NLParser represents a parser for NL domain whois responses.
+// Deprecated: Use NLTLDParser instead.
 type NLParser struct{}
 
+// NLTLDParser is a specialized parser for .nl domain whois responses.
+// It handles the specific format used by SIDN, the Dutch registry.
 type NLTLDParser struct {
 	parser   IParser
 	stopFunc func(string) bool
 }
 
+// NewNLTLDParser creates a new parser for .nl domain whois responses.
+// The parser is configured to stop parsing at copyright notices and handle Dutch-specific field layouts.
 func NewNLTLDParser() *NLTLDParser {
 	return &NLTLDParser{
 		parser:   NewParser(),
@@ -59,6 +65,13 @@ func (nlw *NLTLDParser) handleDomainNameservers(lines []string, idx int, parsedW
 }
 
 func (nlw *NLTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	// Check if domain is not found using Dutch-specific pattern
+	if strings.Contains(rawtext, " is free") {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
+	}
+
 	parsedWhois, err := nlw.parser.Do(rawtext, nlw.stopFunc)
 	if err != nil {
 		return nil, err

@@ -1,0 +1,64 @@
+# whois.1api.net
+
+
+Domain Name: NOVA.LINK
+Registry Domain ID: DO_3b646ad0b211313bac69cf88b5d82569-UR
+Registrar WHOIS Server: whois.1api.net
+Registrar URL: http://www.1api.net
+Updated Date: 2024-06-10T05:52:24Z
+Creation Date: 2021-10-21T03:32:34Z
+Registrar Registration Expiration Date: 2030-10-21T03:32:34Z
+Registrar: 1API GmbH
+Registrar IANA ID: 1387
+Registrar Abuse Contact Email: abuse@1api.net
+Registrar Abuse Contact Phone: +49.68949396850
+Reseller: HEXONET GmbH http://www.hexonet.net/
+Domain Status: clientDeleteProhibited - http://www.icann.org/epp#clientDeleteProhibited
+Domain Status: clientRenewProhibited - http://www.icann.org/epp#clientRenewProhibited
+Domain Status: clientTransferProhibited - http://www.icann.org/epp#clientTransferProhibited
+Domain Status: clientUpdateProhibited - http://www.icann.org/epp#clientUpdateProhibited
+Registry Registrant ID: 
+Registrant Name: REDACTED FOR PRIVACY
+Registrant Organization: REDACTED FOR PRIVACY
+Registrant Street: REDACTED FOR PRIVACY
+Registrant City: REDACTED FOR PRIVACY
+Registrant State/Province: Arizona
+Registrant Postal Code: REDACTED FOR PRIVACY
+Registrant Country: US
+Registrant Phone: REDACTED FOR PRIVACY
+Registrant Phone Ext: 
+Registrant Fax: 
+Registrant Fax Ext: 
+Registrant Email: contact via https://www.1api.net/send-message/nova.link/registrant
+Registry Admin ID: 
+Admin Name: REDACTED FOR PRIVACY
+Admin Organization: REDACTED FOR PRIVACY
+Admin Street: REDACTED FOR PRIVACY
+Admin City: REDACTED FOR PRIVACY
+Admin State/Province: REDACTED FOR PRIVACY
+Admin Postal Code: REDACTED FOR PRIVACY
+Admin Country: REDACTED FOR PRIVACY
+Admin Phone: REDACTED FOR PRIVACY
+Admin Phone Ext: 
+Admin Fax: 
+Admin Fax Ext: 
+Admin Email: contact via https://www.1api.net/send-message/nova.link/admin
+Registry Tech ID: 
+Tech Name: REDACTED FOR PRIVACY
+Tech Organization: REDACTED FOR PRIVACY
+Tech Street: REDACTED FOR PRIVACY
+Tech City: REDACTED FOR PRIVACY
+Tech State/Province: REDACTED FOR PRIVACY
+Tech Postal Code: REDACTED FOR PRIVACY
+Tech Country: REDACTED FOR PRIVACY
+Tech Phone: REDACTED FOR PRIVACY
+Tech Phone Ext: 
+Tech Fax: 
+Tech Fax Ext: 
+Tech Email: contact via https://www.1api.net/send-message/nova.link/tech
+Name Server: ariella.ns.cloudflare.com
+Name Server: elliott.ns.cloudflare.com
+DNSSEC: unsigned
+URL of the ICANN WHOIS Data Problem Reporting System:
+http://wdprs.internic.net/
+>>> Last update of WHOIS database: 2025-06-24T23:41:59Z <<<

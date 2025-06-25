@@ -21,7 +21,7 @@ func (hkw *HKTLDParser) GetName() string {
 func (hkw *HKTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	if strings.Contains(rawtext, "This domain is currently not available for registration") {
 		parsedWhois := &ParsedWhois{}
-		parsedWhois.Statuses = []string{"free"}
+		SetDomainAvailabilityStatus(parsedWhois, true)
 		return parsedWhois, nil
 	}
 

@@ -30,7 +30,7 @@ func (huw *HUTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	lines := strings.Split(rawtext, "\n")
 
 	if strings.Contains(rawtext, "Korlatozott domain nev") || strings.Contains(rawtext, "Restricted domain name") {
-		parsedWhois.Statuses = []string{"free"}
+		SetDomainAvailabilityStatus(parsedWhois, true)
 		return parsedWhois, nil
 	}
 

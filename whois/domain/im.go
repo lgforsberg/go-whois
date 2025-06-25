@@ -21,6 +21,13 @@ func (imw *IMTLDParser) GetName() string {
 }
 
 func (imw *IMTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	// Check if domain is not found using Isle of Man-specific pattern
+	if strings.Contains(rawtext, "was not found.") {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
+	}
+
 	parsedWhois := &ParsedWhois{}
 	lines := strings.Split(rawtext, "\n")
 

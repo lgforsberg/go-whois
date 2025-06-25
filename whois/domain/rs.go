@@ -27,7 +27,7 @@ func (r *RSTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	// Handle unregistered or reserved domains
 	for _, line := range lines {
 		if strings.Contains(line, "Domain is not registered") || strings.Contains(line, "This domain is reserved") {
-			parsedWhois.Statuses = []string{"free"}
+			SetDomainAvailabilityStatus(parsedWhois, true)
 			return parsedWhois, nil
 		}
 	}

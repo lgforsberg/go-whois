@@ -13,7 +13,7 @@ func TestNewDomainWhoisServerMap(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "whois.nic.abc", sMap["abc"][0].Host)
 
-	exp, err := regexp.Compile("\\Qno match\\E")
+	exp, err := regexp.Compile(`\Qno match\E`)
 	require.Nil(t, err)
 	assert.Equal(t, exp, sMap["abc"][0].AvailPtn)
 

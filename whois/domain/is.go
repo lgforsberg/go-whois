@@ -182,7 +182,7 @@ func (isw *ISTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	lines := strings.Split(rawtext, "\n")
 
 	if strings.Contains(rawtext, "No entries found for query") {
-		parsedWhois.Statuses = []string{"free"}
+		SetDomainAvailabilityStatus(parsedWhois, true)
 		return parsedWhois, nil
 	}
 

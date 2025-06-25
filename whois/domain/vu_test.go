@@ -166,9 +166,19 @@ func assertVUUnregisteredDomain(t *testing.T, parsed *ParsedWhois, expectedDomai
 	if parsed.CreatedDateRaw != "" {
 		t.Errorf("Expected empty creation date for unregistered domain, got '%s'", parsed.CreatedDateRaw)
 	}
-	if len(parsed.Statuses) != 0 {
-		t.Errorf("Expected no statuses for unregistered domain, got %v", parsed.Statuses)
+
+	expectedStatuses := []string{"not_found"}
+	if len(parsed.Statuses) != len(expectedStatuses) {
+		t.Errorf("Expected %d statuses, got %d: %v", len(expectedStatuses), len(parsed.Statuses), parsed.Statuses)
+		return
 	}
+
+	for i, expected := range expectedStatuses {
+		if parsed.Statuses[i] != expected {
+			t.Errorf("Expected status %d to be '%s', got '%s'", i, expected, parsed.Statuses[i])
+		}
+	}
+
 	if parsed.Registrar != nil && parsed.Registrar.Name != "" {
 		t.Errorf("Expected empty registrar for unregistered domain, got '%s'", parsed.Registrar.Name)
 	}

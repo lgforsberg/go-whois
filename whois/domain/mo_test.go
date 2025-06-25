@@ -87,7 +87,15 @@ func assertMORegisteredDomain(t *testing.T, parsed *ParsedWhois, path string) {
 }
 
 func assertMOUnregisteredDomain(t *testing.T, parsed *ParsedWhois, path string) {
-	if len(parsed.Statuses) != 1 || parsed.Statuses[0] != "free" {
-		t.Errorf("%s: expected status 'free', got %v", path, parsed.Statuses)
+	expectedStatuses := []string{"not_found"}
+	if len(parsed.Statuses) != len(expectedStatuses) {
+		t.Errorf("%s: expected %d statuses, got %d: %v", path, len(expectedStatuses), len(parsed.Statuses), parsed.Statuses)
+		return
+	}
+
+	for i, expected := range expectedStatuses {
+		if parsed.Statuses[i] != expected {
+			t.Errorf("%s: expected status %d to be '%s', got '%s'", path, i, expected, parsed.Statuses[i])
+		}
 	}
 }

@@ -28,7 +28,7 @@ func (eew *EETLDParser) GetName() string {
 func (eew *EETLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	if strings.Contains(rawtext, "Domain not found") {
 		parsedWhois := &ParsedWhois{}
-		parsedWhois.Statuses = []string{"free"}
+		SetDomainAvailabilityStatus(parsedWhois, true)
 		return parsedWhois, nil
 	}
 

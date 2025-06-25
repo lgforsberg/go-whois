@@ -9,8 +9,8 @@ import (
 // Copied from domain package to avoid import cycle
 const WhoisTimeFmt = "2006-01-02T15:04:05+00:00"
 
-// ExtractValue extracts a value from a colon-separated line
-// Pattern: strings.TrimSpace(line[strings.Index(line, ":")+1:])
+// ExtractValue extracts the value portion from a colon-separated line.
+// It handles both "key: value" and "key:value" formats.
 func ExtractValue(line string) string {
 	if idx := strings.Index(line, ":"); idx != -1 && idx+1 < len(line) {
 		return strings.TrimSpace(line[idx+1:])
@@ -18,21 +18,21 @@ func ExtractValue(line string) string {
 	return ""
 }
 
-// ExtractField extracts a field value from a line with a specific prefix
-// Pattern: strings.TrimSpace(strings.TrimPrefix(line, prefix))
+// ExtractField extracts a field value that comes after a specific prefix.
+// This is commonly used for parsing nameserver and other prefixed fields.
 func ExtractField(line, prefix string) string {
 	line = strings.TrimSpace(line)
 	return strings.TrimSpace(strings.TrimPrefix(line, prefix))
 }
 
-// SkipLine determines if a line should be skipped (empty or comment)
-// Pattern: line == "" || strings.HasPrefix(line, "%")
+// SkipLine determines if a line should be skipped during parsing.
+// It returns true for empty lines and comments starting with %.
 func SkipLine(line string) bool {
 	return line == "" || strings.HasPrefix(line, "%")
 }
 
-// InitContact creates and returns a new Contact struct with default values
-// Note: Returns map[string]string to avoid import cycle with domain package
+// InitContact creates a new contact map with default empty values.
+// This is used as a template for parsing contact information.
 func InitContact() map[string]string {
 	return map[string]string{
 		"id":           "",
@@ -48,8 +48,8 @@ func InitContact() map[string]string {
 	}
 }
 
-// InitRegistrar creates and returns a new Registrar struct with default values
-// Note: Returns map[string]string to avoid import cycle with domain package
+// InitRegistrar creates a new registrar map with default empty values.
+// This is used as a template for parsing registrar information.
 func InitRegistrar() map[string]string {
 	return map[string]string{
 		"iana_id":             "",
@@ -61,8 +61,8 @@ func InitRegistrar() map[string]string {
 	}
 }
 
-// ParseDateField parses a date field from a line with a specific prefix
-// Uses the standard WhoisTimeFmt format
+// ParseDateField parses a date field from a line with the given prefix.
+// Returns nil if the date cannot be parsed or if the line doesn't match the prefix.
 func ParseDateField(line, prefix string) *time.Time {
 	value := ExtractField(line, prefix)
 	if value == "" {
@@ -92,8 +92,8 @@ func ParseDateField(line, prefix string) *time.Time {
 	return nil
 }
 
-// ParseNameServers extracts nameserver information from a slice of lines
-// Handles common patterns like "nserver:", "nameserver:", etc.
+// ParseNameServers extracts name server entries from an array of lines.
+// It looks for lines that appear to contain nameserver information.
 func ParseNameServers(lines []string) []string {
 	var nameservers []string
 	prefixes := []string{"nserver:", "nameserver:", "name server:"}
@@ -121,9 +121,8 @@ func ParseNameServers(lines []string) []string {
 	return nameservers
 }
 
-// HandleNameserverField parses a nameserver field from a line with a configurable prefix
-// Pattern: Check for nameserver prefix, extract field value, append to NameServers slice, return flow control
-// Returns true if the line was processed as a nameserver field, false otherwise
+// HandleNameserverField processes a nameserver field and adds it to the nameservers slice.
+// Returns true if the line was processed as a nameserver field.
 func HandleNameserverField(line string, prefix string, nameservers *[]string) bool {
 	line = strings.TrimSpace(line)
 	if !strings.HasPrefix(line, prefix) {
@@ -138,25 +137,20 @@ func HandleNameserverField(line string, prefix string, nameservers *[]string) bo
 	return false
 }
 
-// IsNameserverLine checks if a line contains nameserver information with a given prefix
-// Pattern: Check if line starts with nameserver prefix
-// Returns true if the line is a nameserver line, false otherwise
+// IsNameserverLine checks if a line contains nameserver information with the given prefix.
 func IsNameserverLine(line, prefix string) bool {
 	line = strings.TrimSpace(line)
 	return strings.HasPrefix(line, prefix)
 }
 
-// IsRegistrarLine checks if a line contains registrar information with a given prefix
-// Pattern: Check if line starts with registrar prefix
-// Returns true if the line is a registrar line, false otherwise
+// IsRegistrarLine checks if a line contains registrar information with the given prefix.
 func IsRegistrarLine(line, prefix string) bool {
 	line = strings.TrimSpace(line)
 	return strings.HasPrefix(line, prefix)
 }
 
-// IsContactSection checks if a line indicates a contact section
-// Pattern: Check if line contains contact section keywords
-// Returns true if the line indicates a contact section, false otherwise
+// IsContactSection determines if a line indicates the start of a contact section.
+// It looks for common contact section headers in whois responses.
 func IsContactSection(line string) bool {
 	line = strings.TrimSpace(line)
 	contactKeywords := []string{

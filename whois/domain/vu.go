@@ -26,9 +26,11 @@ func (p *VUTLDParser) GetName() string {
 func (p *VUTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	// Check if domain is not found
 	if strings.Contains(rawtext, "is not valid!") {
-		return &ParsedWhois{
+		parsedWhois := &ParsedWhois{
 			DomainName: extractDomainFromInvalid(rawtext),
-		}, nil
+		}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
 	}
 
 	// Use default parser with custom key mappings

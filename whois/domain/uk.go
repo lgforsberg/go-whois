@@ -15,13 +15,19 @@ var UKMap = map[string]string{
 	"URL": "reg/url",
 }
 
+// UKParser represents a parser for UK domain whois responses.
+// Deprecated: Use UKTLDParser instead.
 type UKParser struct{}
 
+// UKTLDParser is a specialized parser for .uk domain whois responses.
+// It handles the specific format and fields used by Nominet UK registry.
 type UKTLDParser struct {
 	parser   IParser
 	stopFunc func(string) bool
 }
 
+// NewUKTLDParser creates a new parser for .uk domain whois responses.
+// The parser is configured to handle UK-specific date formats and field layouts.
 func NewUKTLDParser() *UKTLDParser {
 	return &UKTLDParser{
 		parser:   NewParser(),
@@ -84,6 +90,14 @@ func (ukw *UKTLDParser) handleDateFields(keyword string, lines []string, idx int
 }
 
 func (ukw *UKTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	// Check if domain is not found using UK-specific patterns
+	if strings.Contains(rawtext, "No match for ") &&
+		strings.Contains(rawtext, "This domain name has not been registered.") {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
+	}
+
 	parsedWhois, err := ukw.parser.Do(rawtext, ukw.stopFunc, UKMap)
 	if err != nil {
 		return nil, err

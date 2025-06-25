@@ -10,13 +10,19 @@ var BRMap map[string]string = map[string]string{
 	"owner": "c/registrant/name",
 }
 
+// BRParser represents a parser for BR domain whois responses.
+// Deprecated: Use BRTLDParser instead.
 type BRParser struct{}
 
+// BRTLDParser is a specialized parser for .br domain whois responses.
+// It handles the specific format used by Registro.br, the Brazilian registry.
 type BRTLDParser struct {
 	parser   IParser
 	stopFunc func(string) bool
 }
 
+// NewBRTLDParser creates a new parser for .br domain whois responses.
+// The parser is configured to stop at security notices and handle Brazilian date formats.
 func NewBRTLDParser() *BRTLDParser {
 	return &BRTLDParser{
 		parser:   NewParser(),
@@ -29,6 +35,13 @@ func (brw *BRTLDParser) GetName() string {
 }
 
 func (brw *BRTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	// Check if domain is not found using Brazilian-specific pattern
+	if strings.Contains(rawtext, "% No match for") {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
+	}
+
 	parsedWhois, err := brw.parser.Do(rawtext, brw.stopFunc, BRMap)
 	if err != nil {
 		return nil, err

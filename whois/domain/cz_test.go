@@ -31,7 +31,7 @@ func TestCZParser(t *testing.T) {
 		},
 	}
 
-	checkParserResult(t, "whois.nic.cz", "cz/case1.txt", "cz", exp)
+	checkParserResult(t, "whois.nic.cz", "testdata/cz/case1.txt", "cz", exp)
 
 	exp = &ParsedWhois{
 		DomainName: "nyx.cz",
@@ -57,5 +57,31 @@ func TestCZParser(t *testing.T) {
 		},
 	}
 
-	checkParserResult(t, "whois.nic.cz", "cz/case2.txt", "cz", exp)
+	checkParserResult(t, "whois.nic.cz", "testdata/cz/case2.txt", "cz", exp)
+}
+
+func TestCZTLDParserNotFound(t *testing.T) {
+	parser := NewCZTLDParser()
+
+	// Test with common "not found" pattern
+	rawtextNotFound := `Domain not found.
+No matching record.`
+
+	result, err := parser.GetParsedWhois(rawtextNotFound)
+	if err != nil {
+		t.Errorf("Expected no error for not found domain, got %v", err)
+	}
+
+	// Should have dual status for backward compatibility
+	expectedStatuses := []string{"not_found"}
+	if len(result.Statuses) != len(expectedStatuses) {
+		t.Errorf("Expected %d statuses, got %d: %v", len(expectedStatuses), len(result.Statuses), result.Statuses)
+		return
+	}
+
+	for i, expected := range expectedStatuses {
+		if result.Statuses[i] != expected {
+			t.Errorf("Expected status %d to be '%s', got '%s'", i, expected, result.Statuses[i])
+		}
+	}
 }

@@ -30,7 +30,7 @@ func (aww *AWTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	// Check if domain is not found
 	if strings.Contains(rawtext, " is free") {
 		parsedWhois := &ParsedWhois{}
-		parsedWhois.Statuses = []string{"free"}
+		SetDomainAvailabilityStatus(parsedWhois, true)
 		return parsedWhois, nil
 	}
 

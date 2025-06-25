@@ -68,8 +68,8 @@ func TestLUTLDParser_ParseUnregistered(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
-	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "free" {
-		t.Errorf("Expected status 'free', got '%v'", parsedWhois.Statuses)
+	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "not_found" {
+		t.Errorf("Expected status ['not_found'], got '%v'", parsedWhois.Statuses)
 	}
 }
 

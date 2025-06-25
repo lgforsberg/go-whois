@@ -134,7 +134,15 @@ func assertROStatuses(t *testing.T, actual, expected []string) {
 }
 
 func assertROUnregisteredDomain(t *testing.T, result *ParsedWhois) {
-	if len(result.Statuses) != 1 || result.Statuses[0] != "free" {
-		t.Errorf("Expected status 'free', got %v", result.Statuses)
+	expectedStatuses := []string{"not_found"}
+	if len(result.Statuses) != len(expectedStatuses) {
+		t.Errorf("Expected %d statuses, got %d: %v", len(expectedStatuses), len(result.Statuses), result.Statuses)
+		return
+	}
+
+	for i, expected := range expectedStatuses {
+		if result.Statuses[i] != expected {
+			t.Errorf("Expected status %d to be '%s', got '%s'", i, expected, result.Statuses[i])
+		}
 	}
 }

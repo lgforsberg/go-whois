@@ -167,11 +167,16 @@ This server is maintained by KazNIC Organization, a ccTLD manager for Kazakhstan
 	}
 
 	// Check status for unregistered domain
-	if len(parsedWhois.Statuses) != 1 {
-		t.Errorf("Expected 1 status, got %d", len(parsedWhois.Statuses))
+	expectedStatuses := []string{"not_found"}
+	if len(parsedWhois.Statuses) != len(expectedStatuses) {
+		t.Errorf("Expected %d statuses, got %d: %v", len(expectedStatuses), len(parsedWhois.Statuses), parsedWhois.Statuses)
+		return
 	}
-	if parsedWhois.Statuses[0] != "free" {
-		t.Errorf("Expected status 'free', got '%s'", parsedWhois.Statuses[0])
+
+	for i, expected := range expectedStatuses {
+		if parsedWhois.Statuses[i] != expected {
+			t.Errorf("Expected status %d to be '%s', got '%s'", i, expected, parsedWhois.Statuses[i])
+		}
 	}
 }
 

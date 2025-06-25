@@ -28,6 +28,13 @@ func (asw *ASTLDParser) GetName() string {
 }
 
 func (asw *ASTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	// Check if domain is not found using centralized detection logic
+	if CheckDomainAvailability(rawtext) {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
+	}
+
 	parsedWhois := &ParsedWhois{}
 	lines := strings.Split(rawtext, "\n")
 	for idx, line := range lines {
@@ -71,7 +78,7 @@ func (asw *ASTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 
 func handleCreateDate(ts string) string {
 	// Registered on 06th December 2017 at 13:10:17.774 -> 06 Dec 2017 13:10:17
-	cd := strings.TrimLeft(ts, "Registered on ")
+	cd := strings.TrimPrefix(ts, "Registered on ")
 	cd = strings.Replace(cd, " at ", " ", 1)
 	cd = dayReplacer.Replace(cd)
 	cd = strings.Split(cd, ".")[0]

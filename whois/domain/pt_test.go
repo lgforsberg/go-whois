@@ -1,10 +1,8 @@
 package domain
 
 import (
-	"fmt"
+	"os"
 	"testing"
-
-	"github.com/lgforsberg/go-whois/whois/domain/testdata"
 )
 
 func sortParsedWhois(exp *ParsedWhois) {
@@ -43,7 +41,7 @@ func TestPTParserCase1(t *testing.T) {
 		},
 	}
 	sortParsedWhois(exp)
-	checkParserResult(t, "whois.dns.pt", "pt/case1.txt", "pt", exp)
+	checkParserResult(t, "whois.dns.pt", "testdata/pt/case1.txt", "pt", exp)
 }
 
 func TestPTParserCase2(t *testing.T) {
@@ -66,11 +64,8 @@ func TestPTParserCase2(t *testing.T) {
 			},
 		},
 	}
-	parsed := getParsedWhoisForTest(t, "whois.dns.pt", "pt/case2.txt")
-	fmt.Println("EXPECTED:", exp.NameServers)
-	fmt.Println("ACTUAL:", parsed.NameServers)
 	sortParsedWhois(exp)
-	checkParserResult(t, "whois.dns.pt", "pt/case2.txt", "pt", exp)
+	checkParserResult(t, "whois.dns.pt", "testdata/pt/case2.txt", "pt", exp)
 }
 
 func TestPTParserCase3(t *testing.T) {
@@ -102,7 +97,7 @@ func TestPTParserCase3(t *testing.T) {
 		},
 	}
 	sortParsedWhois(exp)
-	checkParserResult(t, "whois.dns.pt", "pt/case3.txt", "pt", exp)
+	checkParserResult(t, "whois.dns.pt", "testdata/pt/case3.txt", "pt", exp)
 }
 
 func TestPTParserCase4(t *testing.T) {
@@ -134,13 +129,13 @@ func TestPTParserCase4(t *testing.T) {
 		},
 	}
 	sortParsedWhois(exp)
-	checkParserResult(t, "whois.dns.pt", "pt/case4.txt", "pt", exp)
+	checkParserResult(t, "whois.dns.pt", "testdata/pt/case4.txt", "pt", exp)
 }
 
 // getParsedWhoisForTest is a helper to get the actual parsed result for debugging
 func getParsedWhoisForTest(t *testing.T, whoisServer, rawtextPath string) *ParsedWhois {
 	parser := NewTLDDomainParser(whoisServer)
-	b, err := testdata.ReadRawtext(rawtextPath)
+	b, err := os.ReadFile(rawtextPath)
 	if err != nil {
 		t.Fatalf("failed to read rawtext: %v", err)
 	}

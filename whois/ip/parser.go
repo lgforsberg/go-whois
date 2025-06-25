@@ -91,11 +91,15 @@ type IParser interface {
 	Do(string, ...map[string]string) (*ParsedWhois, error)
 }
 
+// Parser implements IP whois parsing functionality.
+// It processes raw whois text and extracts network, contact, and routing information.
 type Parser struct {
 	ip     string
 	logger logrus.FieldLogger
 }
 
+// NewParser creates a new IP whois parser for the given IP address.
+// The logger is used for debugging and error reporting during parsing.
 func NewParser(ip string, logger logrus.FieldLogger) *Parser {
 	return &Parser{ip: ip, logger: logger}
 }
@@ -295,11 +299,12 @@ func map2ParsedContactIP(wMap map[string]interface{}) (*Contact, error) {
 	return &c, nil
 }
 
-// WhoisNotFound check keywords in rawtext
+// WhoisNotFound checks if the rawtext indicates that no whois information was found.
+// It looks for common "not found" patterns across different RIR responses.
 func WhoisNotFound(rawtext string) bool {
 	rw := strings.ToLower(rawtext)
 	for _, kw := range notFoundMsg {
-		if strings.Index(rw, kw) != -1 {
+		if strings.Contains(rw, kw) {
 			return true
 		}
 	}

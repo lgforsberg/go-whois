@@ -49,7 +49,7 @@ func TestFRParser(t *testing.T) {
 		},
 	}
 
-	checkParserResult(t, "whois.nic.fr", "fr/case1.txt", "fr", exp)
+	checkParserResult(t, "whois.nic.fr", "testdata/fr/case1.txt", "fr", exp)
 
 	c := &Contact{
 		ID:      "XP2148-FRNIC",
@@ -86,5 +86,5 @@ func TestFRParser(t *testing.T) {
 		},
 	}
 
-	checkParserResult(t, "whois.nic.fr", "fr/case2.txt", "fr", exp)
+	checkParserResult(t, "whois.nic.fr", "testdata/fr/case2.txt", "fr", exp)
 }

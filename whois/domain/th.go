@@ -34,6 +34,7 @@ func (p *THTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	}
 
 	if strings.Contains(rawtext, "% No match found.") {
+		SetDomainAvailabilityStatus(parsed, true)
 		return parsed, nil
 	}
 

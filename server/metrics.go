@@ -23,7 +23,6 @@ var (
 
 	// unit: seconds
 	defaultDurationBucket = []float64{.001, .0025, .005, .01, .025, .05, .1, .25, .5, 1, 2.5, 5, 10}
-	defaultBodySizeBucket = prometheus.ExponentialBuckets(128, 2, 11)
 )
 
 // MetricRegister register metrics when server starts

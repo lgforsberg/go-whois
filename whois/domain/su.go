@@ -32,6 +32,7 @@ func (p *SUTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	}
 
 	if strings.Contains(rawtext, "No entries found for the selected source(s).") {
+		SetDomainAvailabilityStatus(parsed, true)
 		return parsed, nil
 	}
 

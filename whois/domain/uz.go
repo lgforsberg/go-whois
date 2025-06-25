@@ -26,9 +26,11 @@ func (p *UZTLDParser) GetName() string {
 func (p *UZTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	// Check if domain is not found
 	if strings.Contains(rawtext, "not found in database") {
-		return &ParsedWhois{
+		parsedWhois := &ParsedWhois{
 			DomainName: extractDomainFromNotFound(rawtext),
-		}, nil
+		}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
 	}
 
 	// Use default parser with custom key mappings

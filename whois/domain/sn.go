@@ -34,6 +34,7 @@ func (p *SNTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	}
 
 	if strings.Contains(rawtext, "%% NOT FOUND") {
+		SetDomainAvailabilityStatus(parsed, true)
 		return parsed, nil
 	}
 

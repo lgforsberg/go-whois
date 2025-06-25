@@ -106,8 +106,17 @@ func assertSERegisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
 }
 
 func assertSEUnregisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
-	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "free" {
-		t.Errorf("Expected status to be 'free', got %v", parsedWhois.Statuses)
+	// v2.0.0: Expect single "not_found" status for clean behavior
+	expectedStatuses := []string{"not_found"}
+	if len(parsedWhois.Statuses) != len(expectedStatuses) {
+		t.Errorf("Expected %d statuses, got %d: %v", len(expectedStatuses), len(parsedWhois.Statuses), parsedWhois.Statuses)
+		return
+	}
+
+	for i, expected := range expectedStatuses {
+		if parsedWhois.Statuses[i] != expected {
+			t.Errorf("Expected status %d to be '%s', got '%s'", i, expected, parsedWhois.Statuses[i])
+		}
 	}
 
 	if len(parsedWhois.NameServers) != 0 {
@@ -227,8 +236,17 @@ func assertNURegisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
 }
 
 func assertNUUnregisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
-	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "free" {
-		t.Errorf("Expected status to be 'free', got %v", parsedWhois.Statuses)
+	// v2.0.0: Expect single "not_found" status for clean behavior
+	expectedStatuses := []string{"not_found"}
+	if len(parsedWhois.Statuses) != len(expectedStatuses) {
+		t.Errorf("Expected %d statuses, got %d: %v", len(expectedStatuses), len(parsedWhois.Statuses), parsedWhois.Statuses)
+		return
+	}
+
+	for i, expected := range expectedStatuses {
+		if parsedWhois.Statuses[i] != expected {
+			t.Errorf("Expected status %d to be '%s', got '%s'", i, expected, parsedWhois.Statuses[i])
+		}
 	}
 
 	if len(parsedWhois.NameServers) != 0 {

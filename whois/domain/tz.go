@@ -34,6 +34,7 @@ func (p *TZTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	}
 
 	if strings.Contains(rawtext, "%ERROR:101: no entries found") || strings.Contains(rawtext, "% No entries found.") {
+		SetDomainAvailabilityStatus(parsed, true)
 		return parsed, nil
 	}
 

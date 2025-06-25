@@ -8,8 +8,7 @@ import (
 type EUParser struct{}
 
 type EUTLDParser struct {
-	parser   IParser
-	stopFunc func(string) bool
+	parser IParser
 }
 
 func NewEUTLDParser() *EUTLDParser {
@@ -90,6 +89,13 @@ func (euw *EUTLDParser) handleContactDetails(key, val string, contactFlg string,
 }
 
 func (euw *EUTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	// Check if domain is not found using centralized detection logic
+	if CheckDomainAvailability(rawtext) {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
+	}
+
 	parsedWhois := &ParsedWhois{}
 	lines := strings.Split(rawtext, "\n")
 	var contactFlg string

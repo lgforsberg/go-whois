@@ -120,8 +120,8 @@ func TestVEParserUnregistered(t *testing.T) {
 		t.Errorf("Expected empty creation date for unregistered domain, got '%s'", parsed.CreatedDateRaw)
 	}
 
-	if len(parsed.Statuses) != 0 {
-		t.Errorf("Expected no statuses for unregistered domain, got %v", parsed.Statuses)
+	if len(parsed.Statuses) != 1 || parsed.Statuses[0] != "not_found" {
+		t.Errorf("Expected status ['not_found'] for unregistered domain, got %v", parsed.Statuses)
 	}
 
 	if parsed.Registrar != nil && parsed.Registrar.Name != "" {

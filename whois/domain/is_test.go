@@ -65,8 +65,8 @@ func assertISRegistrantContact(t *testing.T, parsedWhois *ParsedWhois, expectedO
 }
 
 func assertISUnregisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
-	if len(parsedWhois.Statuses) == 0 || parsedWhois.Statuses[0] != "free" {
-		t.Errorf("Expected status 'free' for unregistered domain, got %v", parsedWhois.Statuses)
+	if len(parsedWhois.Statuses) == 0 || parsedWhois.Statuses[0] != "not_found" {
+		t.Errorf("Expected status 'not_found' for unregistered domain, got %v", parsedWhois.Statuses)
 	}
 }
 

@@ -125,8 +125,16 @@ func assertLTRegistrantContact(t *testing.T, parsedWhois *ParsedWhois, expectedO
 }
 
 func assertLTUnregisteredDomain(t *testing.T, parsedWhois *ParsedWhois) {
-	if len(parsedWhois.Statuses) != 1 || parsedWhois.Statuses[0] != "free" {
-		t.Errorf("Expected status 'free', got '%v'", parsedWhois.Statuses)
+	expectedStatuses := []string{"not_found"}
+	if len(parsedWhois.Statuses) != len(expectedStatuses) {
+		t.Errorf("Expected %d statuses, got %d: %v", len(expectedStatuses), len(parsedWhois.Statuses), parsedWhois.Statuses)
+		return
+	}
+
+	for i, expected := range expectedStatuses {
+		if parsedWhois.Statuses[i] != expected {
+			t.Errorf("Expected status %d to be '%s', got '%s'", i, expected, parsedWhois.Statuses[i])
+		}
 	}
 }
 

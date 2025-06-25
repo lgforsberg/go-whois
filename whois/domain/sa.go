@@ -27,7 +27,7 @@ func (s *SATLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	// Handle unregistered domains
 	for _, line := range lines {
 		if strings.Contains(line, "No Match for") {
-			parsedWhois.Statuses = []string{"free"}
+			SetDomainAvailabilityStatus(parsedWhois, true)
 			return parsedWhois, nil
 		}
 	}

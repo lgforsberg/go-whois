@@ -20,12 +20,18 @@ var CNMap = map[string]string{
 	"DNSSEC":                   "dnssec",
 }
 
+// CNParser represents a parser for CN domain whois responses.
+// Deprecated: Use CNTLDParser instead.
 type CNParser struct{}
 
+// CNTLDParser is a specialized parser for .cn domain whois responses.
+// It handles the specific format used by CNNIC, the Chinese registry.
 type CNTLDParser struct {
 	parser IParser
 }
 
+// NewCNTLDParser creates a new parser for .cn domain whois responses.
+// The parser handles Chinese domain registration and expiration date formats.
 func NewCNTLDParser() *CNTLDParser {
 	return &CNTLDParser{
 		parser: NewParser(),
@@ -78,7 +84,7 @@ func (cnw *CNTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	if strings.Contains(rawtext, "No matching record.") ||
 		strings.Contains(rawtext, "the Domain Name you apply can not be registered online") {
 		parsedWhois := &ParsedWhois{}
-		parsedWhois.Statuses = []string{"free"}
+		SetDomainAvailabilityStatus(parsedWhois, true)
 		return parsedWhois, nil
 	}
 

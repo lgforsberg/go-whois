@@ -31,6 +31,7 @@ func (p *SMTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	}
 
 	if strings.Contains(rawtext, "No entries found.") {
+		SetDomainAvailabilityStatus(parsed, true)
 		return parsed, nil
 	}
 

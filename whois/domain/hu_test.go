@@ -37,7 +37,7 @@ func TestHUTLDParser_Parse(t *testing.T) {
 		t.Fatalf("Failed to parse whois data: %v", err)
 	}
 
-	if len(parsedWhois.Statuses) == 0 || parsedWhois.Statuses[0] != "free" {
-		t.Errorf("Expected status 'free' for unregistered domain, got %v", parsedWhois.Statuses)
+	if len(parsedWhois.Statuses) == 0 || parsedWhois.Statuses[0] != "not_found" {
+		t.Errorf("Expected status 'not_found' for unregistered domain, got %v", parsedWhois.Statuses)
 	}
 }

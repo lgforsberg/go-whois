@@ -65,6 +65,13 @@ func (uaw *UATLDParser) handleContactDetails(key, val, contactFlg string, contac
 }
 
 func (uaw *UATLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	// Check if domain is not found using centralized detection logic
+	if CheckDomainAvailability(rawtext) {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
+	}
+
 	parsedWhois, err := uaw.parser.Do(rawtext, nil, UAMap)
 	if err != nil {
 		return nil, err

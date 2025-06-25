@@ -1,14 +1,13 @@
 package ip
 
 import (
+	"os"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	"github.com/lgforsberg/go-whois/whois/ip/testdata"
 )
 
 func TestDefaultIPParserRIPE(t *testing.T) {
@@ -76,7 +75,7 @@ func TestDefaultIPParserRIPE(t *testing.T) {
 	}
 	parser := NewParser("80.20.134.34", logrus.New())
 
-	b, err := testdata.ReadRawtext("default/ripe.txt")
+	b, err := os.ReadFile("testdata/default/ripe.txt")
 	require.Nil(t, err)
 	parsedWhois, err := parser.Do(string(b))
 	require.Nil(t, err)
@@ -166,7 +165,7 @@ func TestDefaultIPParserARIN(t *testing.T) {
 	}
 	parser := NewParser("20.13.58.30", logrus.New())
 
-	b, err := testdata.ReadRawtext("default/arin.txt")
+	b, err := os.ReadFile("testdata/default/arin.txt")
 	require.Nil(t, err)
 	parsedWhois, err := parser.Do(string(b))
 	require.Nil(t, err)
@@ -262,7 +261,7 @@ func TestDefaultIPParserAPNIC(t *testing.T) {
 	}
 	parser := NewParser("110.13.60.20", logrus.New())
 
-	b, err := testdata.ReadRawtext("default/apnic.txt")
+	b, err := os.ReadFile("testdata/default/apnic.txt")
 	require.Nil(t, err)
 	parsedWhois, err := parser.Do(string(b))
 	require.Nil(t, err)
@@ -306,7 +305,7 @@ func TestDefaultIPParserLACNIC(t *testing.T) {
 	}
 	parser := NewParser("200.68.34.62", logrus.New())
 
-	b, err := testdata.ReadRawtext("default/lacnic.txt")
+	b, err := os.ReadFile("testdata/default/lacnic.txt")
 	require.Nil(t, err)
 	parsedWhois, err := parser.Do(string(b))
 	require.Nil(t, err)
@@ -392,7 +391,7 @@ func TestDefaultIPParserAFRINIC(t *testing.T) {
 	}
 	parser := NewParser("105.158.104.112", logrus.New())
 
-	b, err := testdata.ReadRawtext("default/afrinic.txt")
+	b, err := os.ReadFile("testdata/default/afrinic.txt")
 	require.Nil(t, err)
 	parsedWhois, err := parser.Do(string(b))
 	require.Nil(t, err)

@@ -34,6 +34,7 @@ func (p *TNTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	}
 
 	if strings.Contains(rawtext, "NO OBJECT FOUND!") {
+		SetDomainAvailabilityStatus(parsed, true)
 		return parsed, nil
 	}
 

@@ -8,8 +8,7 @@ var IRMap map[string]string = map[string]string{
 type IRParser struct{}
 
 type IRTLDParser struct {
-	parser   IParser
-	stopFunc func(string) bool
+	parser IParser
 }
 
 func NewIRTLDParser() *IRTLDParser {
@@ -30,6 +29,13 @@ func (irw *IRTLDParser) GetName() string {
 }
 
 func (irw *IRTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	// Check if domain is not found using centralized detection logic
+	if CheckDomainAvailability(rawtext) {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
+	}
+
 	parsedWhois, err := irw.parser.Do(rawtext, nil, IRMap)
 	if err != nil {
 		return nil, err

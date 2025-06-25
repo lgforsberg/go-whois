@@ -110,8 +110,9 @@ func (p *SITLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 
 	lines := strings.Split(rawtext, "\n")
 
-	// Check if domain is not found
-	if strings.Contains(rawtext, "No entries found for the selected source(s).") {
+	// Check if domain is not found - Slovenia-specific pattern and centralized patterns
+	if strings.Contains(rawtext, "No entries found for the selected source(s).") || CheckDomainAvailability(rawtext) {
+		SetDomainAvailabilityStatus(parsed, true)
 		return parsed, nil
 	}
 

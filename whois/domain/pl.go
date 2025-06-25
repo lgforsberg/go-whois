@@ -11,15 +11,32 @@ const (
 	plTimeFmt = "2006.01.02 15:04:05"
 )
 
-type PLParser struct{}
-
-type PLTLDParser struct {
-	parser IParser
+var PLMap = map[string]string{
+	"DOMAIN NAME":            "domain",
+	"registrar":              "reg/name",
+	"registration date":      "created_date",
+	"last modified":          "updated_date",
+	"renewal date":           "expired_date",
+	"option expiration date": "expired_date",
+	"nameservers":            "name_servers",
+	"dnssec":                 "dnssec",
 }
 
+type PLParser struct{}
+
+// PLTLDParser is a specialized parser for .pl domain whois responses.
+// It handles the specific format used by NASK, the Polish registry.
+type PLTLDParser struct {
+	parser   IParser
+	stopFunc func(string) bool
+}
+
+// NewPLTLDParser creates a new parser for .pl domain whois responses.
+// The parser is configured to handle Polish registry field layouts and stop at WHOIS data protection information.
 func NewPLTLDParser() *PLTLDParser {
 	return &PLTLDParser{
-		parser: NewParser(),
+		parser:   NewParser(),
+		stopFunc: func(line string) bool { return strings.HasPrefix(line, "WHOIS displays data") },
 	}
 }
 
@@ -85,6 +102,13 @@ func (plw *PLTLDParser) handleNameServers(key string, err error, nsFlg *bool, pa
 }
 
 func (plw *PLTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	// Check if domain is not found using Polish-specific pattern
+	if strings.Contains(rawtext, "No information available about domain name") {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
+	}
+
 	parsedWhois, err := plw.parser.Do(rawtext, nil)
 	if err != nil {
 		return nil, err

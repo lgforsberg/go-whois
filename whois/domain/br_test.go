@@ -23,5 +23,5 @@ func TestBRParser(t *testing.T) {
 		},
 	}
 
-	checkParserResult(t, "whois.nic.br", "br/case1.txt", "br", exp)
+	checkParserResult(t, "whois.nic.br", "testdata/br/case1.txt", "br", exp)
 }

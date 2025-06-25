@@ -30,5 +30,5 @@ func TestAUParser(t *testing.T) {
 		},
 	}
 
-	checkParserResult(t, "whois.audns.net.au", "au/case1.txt", "au", exp)
+	checkParserResult(t, "whois.audns.net.au", "testdata/au/case1.txt", "au", exp)
 }

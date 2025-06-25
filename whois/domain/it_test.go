@@ -41,5 +41,5 @@ func TestITParser(t *testing.T) {
 		},
 	}
 
-	checkParserResult(t, "whois.nic.it", "it/case1.txt", "it", exp)
+	checkParserResult(t, "whois.nic.it", "testdata/it/case1.txt", "it", exp)
 }

@@ -20,12 +20,19 @@ var JPMap = map[string]string{
 	"[Name Server]": "name_servers",
 }
 
+// JPParser represents a parser for JP domain whois responses.
+// Deprecated: Use JPTLDParser instead.
 type JPParser struct{}
 
+// JPTLDParser is a specialized parser for .jp domain whois responses.
+// It handles both Japanese and English field names and JST timezone conversion.
 type JPTLDParser struct {
 	parser IParser
 }
 
+// NewJPTLDParser creates a new parser for .jp domain whois responses.
+// The parser handles both Japanese (登録者名, 状態) and English field names,
+// and automatically converts JST timestamps to UTC.
 func NewJPTLDParser() *JPTLDParser {
 	return &JPTLDParser{
 		parser: NewParser(),
@@ -40,7 +47,7 @@ func (jpw *JPTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	// Check if domain is not found
 	if strings.Contains(rawtext, "No match!!") {
 		parsedWhois := &ParsedWhois{}
-		parsedWhois.Statuses = []string{"free"}
+		SetDomainAvailabilityStatus(parsedWhois, true)
 		return parsedWhois, nil
 	}
 

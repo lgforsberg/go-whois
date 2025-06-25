@@ -24,5 +24,5 @@ func TestARParser(t *testing.T) {
 		},
 	}
 
-	checkParserResult(t, "whois.nic.ar", "ar/case1.txt", "ar", exp)
+	checkParserResult(t, "whois.nic.ar", "testdata/ar/case1.txt", "ar", exp)
 }

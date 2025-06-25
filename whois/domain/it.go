@@ -11,15 +11,18 @@ func itMapContactKeyValue(key string) string {
 	return strings.ToLower(key)
 }
 
+// ITTLDParser is a specialized parser for .it domain whois responses.
+// It handles the specific format used by Registro.it, the Italian registry.
 type ITTLDParser struct {
-	parser   IParser
-	stopFunc func(string) bool
+	parser IParser
 }
 
 func (itw *ITTLDParser) GetName() string {
 	return "it"
 }
 
+// NewITTLDParser creates a new parser for .it domain whois responses.
+// The parser is configured to handle Italian registry contact sections and field layouts.
 func NewITTLDParser() *ITTLDParser {
 	return &ITTLDParser{
 		parser: NewParser(),
@@ -81,6 +84,13 @@ func (itw *ITTLDParser) handleContactDetails(key, val, contactFlg string, addres
 }
 
 func (itw *ITTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	// Check if domain is not found using Italian-specific pattern
+	if strings.Contains(rawtext, "Status:             AVAILABLE") {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
+	}
+
 	parsedWhois, err := itw.parser.Do(rawtext, nil)
 	if err != nil {
 		return nil, err

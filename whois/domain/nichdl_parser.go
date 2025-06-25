@@ -18,17 +18,21 @@ var nicHdlDefaultMap map[string]string = map[string]string{
 	"bill-c":   "c/billing/id",
 }
 
-// NicHdlParser implements parser for nic-hdl format rawtext
+// NicHdlParser implements parser for nic-hdl format rawtext.
+// This parser handles the NIC handle format used by many registries for contact information.
 type NicHdlParser struct {
 	keyMap        map[string]string
 	contactKeyMap map[string]string
 }
 
-// NicHdlTLDParser implements nic-hdl parser which invoke Parser.Do with different parameters
+// NicHdlTLDParser implements nic-hdl parser which invoke Parser.Do with different parameters.
+// This is a wrapper around the basic Parser for nic-hdl formatted responses.
 type NicHdlTLDParser struct {
 	parser IParser
 }
 
+// NewNicHdlParser creates a new NIC handle parser with the given contact key mappings.
+// The contactKeyMap parameter maps contact field names to their standardized keys.
 func NewNicHdlParser(contactKeyMap map[string]string) *NicHdlParser {
 	return &NicHdlParser{
 		keyMap:        nicHdlDefaultMap,
@@ -36,6 +40,8 @@ func NewNicHdlParser(contactKeyMap map[string]string) *NicHdlParser {
 	}
 }
 
+// NewNicHdlTLDParser creates a new NIC handle TLD parser using the default parser.
+// This parser is used for registries that follow the NIC handle format.
 func NewNicHdlTLDParser() *NicHdlTLDParser {
 	return &NicHdlTLDParser{
 		parser: NewParser(),

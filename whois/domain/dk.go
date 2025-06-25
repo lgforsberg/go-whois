@@ -11,20 +11,29 @@ const (
 )
 
 var DKMap = map[string]string{
-	"Domain":    "domain",
-	"Registrar": "reg/name",
-	"Status":    "statuses",
+	"Domain":      "domain",
+	"Status":      "statuses",
+	"Registered":  "created_date",
+	"Expires":     "expired_date",
+	"Nameservers": "name_servers",
+	"Dnssec":      "dnssec",
 }
 
 type DKParser struct{}
 
+// DKTLDParser is a specialized parser for .dk domain whois responses.
+// It handles the specific format used by DK Hostmaster A/S, the Danish registry.
 type DKTLDParser struct {
-	parser IParser
+	parser   IParser
+	stopFunc func(string) bool
 }
 
+// NewDKTLDParser creates a new parser for .dk domain whois responses.
+// The parser is configured to handle Danish registry field layouts and stop at copyright notices.
 func NewDKTLDParser() *DKTLDParser {
 	return &DKTLDParser{
-		parser: NewParser(),
+		parser:   NewParser(),
+		stopFunc: func(line string) bool { return strings.HasPrefix(line, "Copyright notice") },
 	}
 }
 
@@ -94,7 +103,7 @@ func (dkw *DKTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	// Check if domain is not found
 	if strings.Contains(rawtext, "No entries found for the selected source.") {
 		parsedWhois := &ParsedWhois{}
-		parsedWhois.Statuses = []string{"free"}
+		SetDomainAvailabilityStatus(parsedWhois, true)
 		return parsedWhois, nil
 	}
 

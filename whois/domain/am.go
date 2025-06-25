@@ -25,6 +25,13 @@ func (amw *AMTLDParser) GetName() string {
 }
 
 func (amw *AMTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	// Check if domain is not found using centralized detection logic
+	if CheckDomainAvailability(rawtext) {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
+	}
+
 	parsedWhois, err := amw.parser.Do(rawtext, nil)
 	if err != nil {
 		return nil, err

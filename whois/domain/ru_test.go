@@ -24,5 +24,5 @@ func TestRUParser(t *testing.T) {
 		},
 	}
 
-	checkParserResult(t, "whois.ripn.net", "ru/case1.txt", "ru", exp)
+	checkParserResult(t, "whois.ripn.net", "testdata/ru/case1.txt", "ru", exp)
 }

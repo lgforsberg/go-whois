@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"regexp"
 	"strconv"
@@ -78,10 +77,14 @@ type Status struct {
 	Err           error
 }
 
+// NewStatus creates a new Status instance with the specified whois server.
+// Status tracks the progress and results of WHOIS queries.
 func NewStatus(ws string) *Status {
 	return &Status{WhoisServer: ws}
 }
 
+// NewRaw creates a new Raw instance containing raw whois response text.
+// If availPtn is provided, it's used to determine domain availability from the raw text.
 func NewRaw(rawtext, server string, availPtn ...*regexp.Regexp) *Raw {
 	nr := &Raw{Rawtext: rawtext, Server: server}
 	if len(availPtn) > 0 {
@@ -105,8 +108,12 @@ type Client struct {
 	logger       logrus.FieldLogger
 }
 
+// ClientOpts is a function type for configuring Client instances.
+// It follows the functional options pattern for flexible client configuration.
 type ClientOpts func(*Client) error
 
+// WithTimeout sets the timeout for WHOIS queries.
+// It configures read, write, and overall timeouts to the same value.
 func WithTimeout(timeout time.Duration) ClientOpts {
 	return func(c *Client) error {
 		if timeout == 0 {
@@ -119,6 +126,8 @@ func WithTimeout(timeout time.Duration) ClientOpts {
 	}
 }
 
+// WithServerMap configures the client to use a custom domain-to-whois-server mapping.
+// This overrides the default mapping fetched from whois-server-list.xml.
 func WithServerMap(serverMap DomainWhoisServerMap) ClientOpts {
 	return func(c *Client) error {
 		if serverMap == nil {
@@ -129,9 +138,11 @@ func WithServerMap(serverMap DomainWhoisServerMap) ClientOpts {
 	}
 }
 
+// WithIANA configures the client to use a custom IANA whois server address.
+// The address must include both host and port (e.g., "whois.iana.org:43").
 func WithIANA(ianaAddr string) ClientOpts {
 	return func(c *Client) error {
-		if strings.Index(ianaAddr, ":") == -1 {
+		if !strings.Contains(ianaAddr, ":") {
 			return fmt.Errorf("ianaAddr should contains port, get: %s", ianaAddr)
 		}
 		c.ianaServAddr = ianaAddr
@@ -139,9 +150,11 @@ func WithIANA(ianaAddr string) ClientOpts {
 	}
 }
 
+// WithARIN configures the client to use a custom ARIN whois server address.
+// The address must include both host and port (e.g., "whois.arin.net:43").
 func WithARIN(arinAddr string) ClientOpts {
 	return func(c *Client) error {
-		if strings.Index(arinAddr, ":") == -1 {
+		if !strings.Contains(arinAddr, ":") {
 			return fmt.Errorf("arinAddr should contains port, get: %s", arinAddr)
 		}
 		c.arinServAddr = arinAddr
@@ -157,6 +170,8 @@ func WithTestingWhoisPort(port int) ClientOpts {
 	}
 }
 
+// WithErrLogger configures the client to use a custom logger for error reporting.
+// If not provided, a default logrus logger will be used.
 func WithErrLogger(logger logrus.FieldLogger) ClientOpts {
 	return func(c *Client) error {
 		c.logger = logger
@@ -203,6 +218,48 @@ func newClient(opts ...ClientOpts) (*Client, error) {
 	return c, nil
 }
 
+// determineAvailability determines domain availability with priority-based conflict resolution
+// Priority 1: Status-based detection
+// Priority 2: XML pattern fallback
+// Priority 3: WhoisNotFound() pattern matching
+// Default: Assume registered if no clear indication (safer assumption)
+func (c *Client) determineAvailability(w *wd.Whois, xmlAvail *bool) {
+	// Priority 1: Status-based detection
+	if w.ParsedWhois != nil && len(w.ParsedWhois.Statuses) > 0 {
+		for _, status := range w.ParsedWhois.Statuses {
+			switch status {
+			case "not_found", "free": // Support both during transition
+				available := true
+				w.IsAvailable = &available
+				return
+			case "active", "registered", "ok", "clientTransferProhibited":
+				available := false
+				w.IsAvailable = &available
+				return
+			}
+		}
+	}
+
+	// Priority 2: XML pattern fallback
+	if xmlAvail != nil {
+		w.IsAvailable = xmlAvail
+		return
+	}
+
+	// Priority 3: WhoisNotFound() pattern matching
+	if wd.WhoisNotFound(w.RawText) {
+		available := true
+		w.IsAvailable = &available
+		return
+	}
+
+	// Default: Assume registered if no clear indication
+	available := false
+	w.IsAvailable = &available
+}
+
+// IsParsePanicErr checks if an error is caused by a panic during WHOIS parsing.
+// Parse panics are recovered and converted to errors with "parse error:" prefix.
 func IsParsePanicErr(err error) bool {
 	if err == nil {
 		return false
@@ -213,24 +270,24 @@ func IsParsePanicErr(err error) bool {
 func (c *Client) getText(ctx context.Context, dst, domain string) (string, error) {
 	conn, err := c.dialer.DialContext(ctx, "tcp", dst)
 	if err != nil {
-		return "", fmt.Errorf("Failed to dial %s: %w", dst, err)
+		return "", fmt.Errorf("failed to dial %s: %w", dst, err)
 	}
 	defer conn.Close()
 
 	if err := conn.SetWriteDeadline(utils.UTCNow().Add(c.wtimeout)); err != nil {
-		return "", fmt.Errorf("Set write deadline failed: %w", err)
+		return "", fmt.Errorf("set write deadline failed: %w", err)
 	}
 	if _, err = conn.Write([]byte(domain + "\r\n")); err != nil {
-		return "", fmt.Errorf("Send to server failed: %w", err)
+		return "", fmt.Errorf("send to server failed: %w", err)
 	}
 	if err := conn.SetReadDeadline(utils.UTCNow().Add(c.rtimeout)); err != nil {
-		return "", fmt.Errorf("Set read deadline failed: %w", err)
+		return "", fmt.Errorf("set read deadline failed: %w", err)
 	}
 	// Use LimitReader to prevent unbounded memory consumption
 	limitedReader := io.LimitReader(conn, MaxWhoisResponseSize)
-	content, err := ioutil.ReadAll(limitedReader)
+	content, err := io.ReadAll(limitedReader)
 	if err != nil {
-		return "", fmt.Errorf("Read from server failed: %w", err)
+		return "", fmt.Errorf("read from server failed: %w", err)
 	}
 	return string(content), nil
 }
@@ -332,7 +389,7 @@ func (c *Client) QueryPublicSuffixs(ctx context.Context, pslist []string, whoisS
 	if err != nil {
 		return w, err
 	}
-	w.IsAvailable = isAvail
+	c.determineAvailability(w, isAvail)
 
 	// panic when parsing, w.ParsedWhois = nil
 	if IsParsePanicErr(err) {

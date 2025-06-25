@@ -8,8 +8,7 @@ import (
 type BEParser struct{}
 
 type BETLDParser struct {
-	parser   IParser
-	stopFunc func(string) bool
+	parser IParser
 }
 
 func NewBETLDParser() *BETLDParser {
@@ -117,6 +116,13 @@ func (bew *BETLDParser) parse(rawtext string, parsedWhois *ParsedWhois) *ParsedW
 }
 
 func (bew *BETLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	// Check if domain is not found using Belgium-specific pattern
+	if strings.Contains(rawtext, "Status: AVAILABLE") {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
+	}
+
 	parsedWhois, err := bew.parser.Do(rawtext, nil)
 	if err != nil {
 		return nil, err

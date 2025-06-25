@@ -48,7 +48,7 @@ func TestIRParser(t *testing.T) {
 		},
 	}
 
-	checkParserResult(t, "whois.nic.ir", "ir/case1.txt", "ir", exp)
+	checkParserResult(t, "whois.nic.ir", "testdata/ir/case1.txt", "ir", exp)
 
 	c := &Contact{
 		ID:           "no297-irnic",
@@ -73,5 +73,5 @@ func TestIRParser(t *testing.T) {
 		},
 	}
 
-	checkParserResult(t, "whois.nic.ir", "ir/case2.txt", "ir", exp)
+	checkParserResult(t, "whois.nic.ir", "testdata/ir/case2.txt", "ir", exp)
 }

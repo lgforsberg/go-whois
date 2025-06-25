@@ -6,10 +6,14 @@ import (
 	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
+// KRTLDParser is a specialized parser for .kr domain whois responses.
+// It handles the specific format used by KISA (Korea Internet & Security Agency).
 type KRTLDParser struct {
 	parser IParser
 }
 
+// NewKRTLDParser creates a new parser for .kr domain whois responses.
+// The parser is configured to handle Korean registry field layouts and Korean language fields.
 func NewKRTLDParser() *KRTLDParser {
 	return &KRTLDParser{
 		parser: NewParser(),
@@ -28,7 +32,7 @@ func (krw *KRTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	for _, line := range lines {
 		if strings.Contains(line, "restricted to specifically qualified registrants") ||
 			strings.Contains(line, "등록자격이 제한된 도메인이름입니다") {
-			parsedWhois.Statuses = []string{"free"}
+			SetDomainAvailabilityStatus(parsedWhois, true)
 			return parsedWhois, nil
 		}
 	}

@@ -12,17 +12,25 @@ const (
 
 var SEMap = map[string]string{
 	"domain":    "domain",
-	"registrar": "reg/name",
+	"state":     "statuses",
+	"created":   "created_date",
+	"modified":  "updated_date",
+	"expires":   "expired_date",
 	"nserver":   "name_servers",
 	"dnssec":    "dnssec",
+	"registrar": "reg/name",
 }
 
 type SEParser struct{}
 
+// SETLDParser is a specialized parser for .se domain whois responses.
+// It handles the specific format used by IIS, the Swedish Internet Infrastructure Foundation.
 type SETLDParser struct {
 	parser IParser
 }
 
+// NewSETLDParser creates a new parser for .se domain whois responses.
+// The parser is configured to handle Swedish registry field layouts and date formats.
 func NewSETLDParser() *SETLDParser {
 	return &SETLDParser{
 		parser: NewParser(),
@@ -80,7 +88,7 @@ func (sew *SETLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	// Check if domain is not found
 	if strings.Contains(rawtext, "not found.") {
 		parsedWhois := &ParsedWhois{}
-		parsedWhois.Statuses = []string{"free"}
+		SetDomainAvailabilityStatus(parsedWhois, true)
 		return parsedWhois, nil
 	}
 

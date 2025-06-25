@@ -6,19 +6,30 @@ import (
 	"github.com/lgforsberg/go-whois/whois/utils"
 )
 
+var NOMap = map[string]string{
+	"Domain Name": "domain",
+	"Domain_Name": "domain",
+}
+
 const (
 	noTimeFmt = "2006-01-02"
 )
 
 type NOParser struct{}
 
+// NOTLDParser is a specialized parser for .no domain whois responses.
+// It handles the specific format used by Norid, the Norwegian registry.
 type NOTLDParser struct {
-	parser IParser
+	parser   IParser
+	stopFunc func(string) bool
 }
 
+// NewNOTLDParser creates a new parser for .no domain whois responses.
+// The parser is configured to handle Norwegian registry field layouts and stop at additional information.
 func NewNOTLDParser() *NOTLDParser {
 	return &NOTLDParser{
-		parser: NewParser(),
+		parser:   NewParser(),
+		stopFunc: func(line string) bool { return strings.HasPrefix(line, "Additional information:") },
 	}
 }
 
@@ -67,7 +78,7 @@ func (now *NOTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	// Check if domain is not found
 	if strings.Contains(rawtext, "% No match") {
 		parsedWhois := &ParsedWhois{}
-		parsedWhois.Statuses = []string{"free"}
+		SetDomainAvailabilityStatus(parsedWhois, true)
 		return parsedWhois, nil
 	}
 

@@ -116,6 +116,7 @@ func (p *TRTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	}
 
 	if strings.Contains(rawtext, "No match found for") {
+		SetDomainAvailabilityStatus(parsed, true)
 		return parsed, nil
 	}
 

@@ -28,7 +28,7 @@ func TestTWParser(t *testing.T) {
 		},
 	}
 
-	checkParserResult(t, "whois.twnic.net.tw", "tw/case1.txt", "tw", exp)
+	checkParserResult(t, "whois.twnic.net.tw", "testdata/tw/case1.txt", "tw", exp)
 
 	c = &Contact{
 		Name:  "Han Yuan \\u5f35",
@@ -57,5 +57,5 @@ func TestTWParser(t *testing.T) {
 		},
 	}
 
-	checkParserResult(t, "whois.twnic.net", "tw/case2.txt", "tw", exp)
+	checkParserResult(t, "whois.twnic.net", "testdata/tw/case2.txt", "tw", exp)
 }

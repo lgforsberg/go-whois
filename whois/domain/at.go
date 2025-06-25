@@ -24,8 +24,7 @@ var atContactKeyMap = map[string]string{
 }
 
 type ATTLDParser struct {
-	parser   IParser
-	stopFunc func(string) bool
+	parser IParser
 }
 
 func (atw *ATTLDParser) GetName() string {
@@ -138,6 +137,13 @@ func (atw *ATTLDParser) parse(rawtext string, parsedWhois *ParsedWhois) *ParsedW
 }
 
 func (atw *ATTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	// Check if domain is not found using centralized detection logic
+	if CheckDomainAvailability(rawtext) {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
+	}
+
 	parsedWhois, err := atw.parser.Do(rawtext, nil, ATMap)
 	if err != nil {
 		return nil, err

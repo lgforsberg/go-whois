@@ -28,15 +28,19 @@ const (
 var (
 	errStop = errors.New("stop")
 
-	DefaultIpLookupTimeout = 2 * time.Second
+	DefaultIPLookupTimeout = 2 * time.Second
 	DefaultTimeout         = 5 * time.Second
 )
 
+// ServerCfg holds configuration parameters for the WHOIS server.
+// It controls timeouts for IP lookups and WHOIS queries.
 type ServerCfg struct {
 	ipLookupTimeout time.Duration
 	whoisTimeout    time.Duration
 }
 
+// NewServerCfg creates a new server configuration with the specified timeouts.
+// iptimeout sets the IP lookup timeout, timeout sets the WHOIS query timeout.
 func NewServerCfg(iptimeout, timeout time.Duration) *ServerCfg {
 	return &ServerCfg{
 		ipLookupTimeout: iptimeout,
@@ -44,7 +48,8 @@ func NewServerCfg(iptimeout, timeout time.Duration) *ServerCfg {
 	}
 }
 
-// Server is whois api server to interact with database, cache, logger, ...
+// Server represents a WHOIS API server that provides HTTP endpoints for domain and IP lookups.
+// It integrates DNS resolution, WHOIS querying, metrics collection, and logging capabilities.
 type Server struct {
 	resolver  *Resolver
 	cli       *whois.Client
@@ -55,8 +60,9 @@ type Server struct {
 	Killed    chan struct{}
 }
 
-// New initialize whois api server
-// If customClient is not nil, it will be used instead of creating a new one
+// New creates a new WHOIS API server with the given configuration and loggers.
+// If customClient is provided, it will be used instead of creating a default WHOIS client.
+// The server automatically fetches and configures domain-to-whois-server mappings.
 func New(cfg *ServerCfg, errLogger, acsLogger logrus.FieldLogger, customClient ...*whois.Client) (*Server, error) {
 	s := &Server{
 		resolver:  NewResolver(cfg.ipLookupTimeout),

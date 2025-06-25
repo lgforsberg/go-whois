@@ -11,12 +11,15 @@ import (
 *   https://www.lacnic.net/1040/2/lacnic/lacnics-whois
  */
 
+// Whois represents a complete IP whois response including parsed and raw data.
 type Whois struct {
 	ParsedWhois *ParsedWhois `json:"parsed_whois"`
 	WhoisServer string       `json:"whois_server,omitempty"` // whois server which response the rawtext, OrgId
 	RawText     string       `json:"rawtext,omitempty"`
 }
 
+// ParsedWhois contains the structured data extracted from an IP whois response.
+// It includes network allocations, contact information, and routing data.
 type ParsedWhois struct {
 	Networks []Network `json:"networks,omitempty"`
 	Contacts []Contact `json:"contacts,omitempty"`
@@ -25,7 +28,7 @@ type ParsedWhois struct {
 
 // Network records (NETs) define a range of IPv4 or IPv6 addresses
 // and show the organizations and POCs with authority over them.
-// To reposrt networtk abuse, contact mnt-irt
+// To report network abuse, contact mnt-irt.
 type Network struct {
 	Inetnum  string `json:"inetnum,omitempty"`
 	Range    *Range `json:"range,omitempty"`
@@ -37,13 +40,14 @@ type Network struct {
 	Contact
 }
 
-// Range parse result from Inetnum
+// Range contains the parsed IP address range from an Inetnum field.
 type Range struct {
 	From string   `json:"from,omitempty"`
 	To   string   `json:"to,omitempty"`
 	CIDR []string `json:"cidr,omitempty"`
 }
 
+// Route represents routing information for an IP address block.
 type Route struct {
 	OriginAS string `json:"asn,omitempty"`
 	Route    string `json:"route,omitempty"`
@@ -56,6 +60,9 @@ type Route struct {
 *	Irt from https://www.apnic.net/manage-ip/using-whois/guide/irt/
 *   ...
  */
+// Contact stores information from all kinds of contact objects, including
+// Person, Organization, IRT (Incident Response Team), and other contact types
+// as defined by the various RIRs (Regional Internet Registries).
 type Contact struct {
 	ID             string   `json:"id,omitempty"` // primary key
 	Type           string   `json:"type,omitempty"`
@@ -98,6 +105,7 @@ func (c *Contact) convDate() {
 	}
 }
 
+// NewWhois creates a new IP Whois struct with the provided parsed data, raw text, and server information.
 func NewWhois(parsedWhois *ParsedWhois, rawtext, whoisServer string) *Whois {
 	return &Whois{ParsedWhois: parsedWhois, RawText: rawtext, WhoisServer: whoisServer}
 }

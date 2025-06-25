@@ -60,6 +60,19 @@ func assertTMUnregisteredDomain(t *testing.T, result *ParsedWhois) {
 	if result.DomainName != "" {
 		t.Errorf("Expected empty domain name for unregistered domain, got '%s'", result.DomainName)
 	}
+
+	expectedStatuses := []string{"not_found"}
+	if len(result.Statuses) != len(expectedStatuses) {
+		t.Errorf("Expected %d statuses, got %d: %v", len(expectedStatuses), len(result.Statuses), result.Statuses)
+		return
+	}
+
+	for i, expected := range expectedStatuses {
+		if result.Statuses[i] != expected {
+			t.Errorf("Expected status %d to be '%s', got '%s'", i, expected, result.Statuses[i])
+		}
+	}
+
 	if result.Contacts.Registrant != nil {
 		t.Errorf("Expected nil registrant for unregistered domain, got '%v'", result.Contacts.Registrant)
 	}

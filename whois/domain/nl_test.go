@@ -23,7 +23,7 @@ func TestNLParser(t *testing.T) {
 		Dnssec:         "yes",
 	}
 
-	checkParserResult(t, "whois.domain-registry.nl", "nl/case1.txt", "nl", exp)
+	checkParserResult(t, "whois.domain-registry.nl", "testdata/nl/case1.txt", "nl", exp)
 
 	exp = &ParsedWhois{
 		DomainName: "t-mobile.nl",
@@ -43,5 +43,5 @@ func TestNLParser(t *testing.T) {
 		Dnssec:         "yes",
 	}
 
-	checkParserResult(t, "whois.domain-registry.nl", "nl/case2.txt", "nl", exp)
+	checkParserResult(t, "whois.domain-registry.nl", "testdata/nl/case2.txt", "nl", exp)
 }

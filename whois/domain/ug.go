@@ -23,6 +23,12 @@ func (p *UGTLDParser) GetName() string {
 }
 
 func (p *UGTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	if CheckDomainAvailability(rawtext) {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
+	}
+
 	parsed := &ParsedWhois{
 		DomainName:  "",
 		Registrar:   &Registrar{},

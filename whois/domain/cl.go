@@ -92,11 +92,10 @@ func (clw *CLTLDParser) handleNameServer(line string, parsedWhois *ParsedWhois) 
 }
 
 func (clw *CLTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
-	// Check if domain is not found
-	if strings.Contains(rawtext, ": no entries found.") {
-		parsedWhois := &ParsedWhois{
-			Statuses: []string{"free"},
-		}
+	// Check for Chile-specific not found pattern and centralized patterns
+	if strings.Contains(rawtext, ": no entries found.") || CheckDomainAvailability(rawtext) {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
 		return parsedWhois, nil
 	}
 

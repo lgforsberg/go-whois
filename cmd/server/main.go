@@ -21,7 +21,7 @@ func main() {
 	acsLogLvl := fset.String("acsloglvl", "info", "logging level for access log")
 	listen := fset.String("listen", ":8080", "listen address")
 	metric := fset.String("metric", ":6060", "metric address")
-	ipLookupTimeout := fset.Duration("iplookuptimeout", server.DefaultIpLookupTimeout, "ip lookup timeout")
+	ipLookupTimeout := fset.Duration("iplookuptimeout", server.DefaultIPLookupTimeout, "ip lookup timeout")
 	timeout := fset.Duration("timeout", server.DefaultTimeout, "timeout for WHOIS query, default 5s")
 	fset.Parse(os.Args[1:])
 

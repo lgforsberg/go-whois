@@ -87,7 +87,7 @@ func (mdw *MDTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	lines := strings.Split(rawtext, "\n")
 
 	if strings.Contains(rawtext, "No match for") {
-		parsedWhois.Statuses = []string{"free"}
+		SetDomainAvailabilityStatus(parsedWhois, true)
 		return parsedWhois, nil
 	}
 

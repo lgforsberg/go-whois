@@ -11,6 +11,8 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/lgforsberg/go-whois/whois/domain"
 )
 
 func TestQuery(t *testing.T) {
@@ -27,6 +29,10 @@ func TestQuery(t *testing.T) {
 	require.Nil(t, err)
 	exp, err := client.Parse(TestDomain, NewRaw(TestDomainWhoisRawText, whoisServerHost))
 	require.Nil(t, err)
+
+	// Apply availability determination to expected result for consistency with Query behavior
+	// github.io is a registered domain, so it should be not available
+	client.determineAvailability(exp, nil)
 
 	t.Run("QueryDomain", func(t *testing.T) {
 		testServerMap = DomainWhoisServerMap{"io": []WhoisServer{{Host: whoisServerHost}}}
@@ -339,4 +345,134 @@ func TestQueryIPError(t *testing.T) {
 		assert.NotNil(t, status.Err)
 		assert.Contains(t, status.Err.Error(), "connection refused")
 	})
+}
+
+func TestClientDetermineAvailability(t *testing.T) {
+	client, err := NewClient()
+	if err != nil {
+		t.Fatalf("Failed to create client: %v", err)
+	}
+
+	// Test status-based availability detection (Phase 1 dual status)
+	testCases := []struct {
+		name          string
+		statuses      []string
+		expectedAvail bool
+		description   string
+	}{
+		{
+			name:          "Dual status - not found",
+			statuses:      []string{"not_found"},
+			expectedAvail: true,
+			description:   "Phase 1 dual status should be available",
+		},
+		{
+			name:          "Legacy free status",
+			statuses:      []string{"free"},
+			expectedAvail: true,
+			description:   "Legacy free status should be available",
+		},
+		{
+			name:          "New not found status",
+			statuses:      []string{"not_found"},
+			expectedAvail: true,
+			description:   "New not_found status should be available",
+		},
+		{
+			name:          "Active domain",
+			statuses:      []string{"active"},
+			expectedAvail: false,
+			description:   "Active domain should not be available",
+		},
+		{
+			name:          "Registered domain",
+			statuses:      []string{"registered"},
+			expectedAvail: false,
+			description:   "Registered domain should not be available",
+		},
+		{
+			name:          "OK status domain",
+			statuses:      []string{"ok"},
+			expectedAvail: false,
+			description:   "OK status domain should not be available",
+		},
+		{
+			name:          "Empty statuses",
+			statuses:      []string{},
+			expectedAvail: false,
+			description:   "Empty statuses should default to not available",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			whois := &domain.Whois{
+				ParsedWhois: &domain.ParsedWhois{
+					Statuses: tc.statuses,
+				},
+				RawText: "test rawtext",
+			}
+
+			client.determineAvailability(whois, nil)
+
+			if whois.IsAvailable == nil {
+				t.Errorf("Expected IsAvailable to be set, got nil")
+				return
+			}
+
+			if *whois.IsAvailable != tc.expectedAvail {
+				t.Errorf("Expected available to be %v, got %v. %s", tc.expectedAvail, *whois.IsAvailable, tc.description)
+			}
+		})
+	}
+}
+
+func TestClientDetermineAvailabilityFallback(t *testing.T) {
+	client, err := NewClient()
+	if err != nil {
+		t.Fatalf("Failed to create client: %v", err)
+	}
+
+	// Test XML pattern fallback
+	xmlAvail := true
+	whois := &domain.Whois{
+		ParsedWhois: &domain.ParsedWhois{
+			Statuses: []string{}, // No statuses
+		},
+		RawText: "some domain text",
+	}
+
+	client.determineAvailability(whois, &xmlAvail)
+
+	if whois.IsAvailable == nil || *whois.IsAvailable != true {
+		t.Errorf("Expected fallback to XML pattern (available=true), got %v", whois.IsAvailable)
+	}
+
+	// Test WhoisNotFound fallback
+	whois2 := &domain.Whois{
+		ParsedWhois: &domain.ParsedWhois{
+			Statuses: []string{}, // No statuses
+		},
+		RawText: "No match for domain.com", // Should trigger WhoisNotFound
+	}
+
+	client.determineAvailability(whois2, nil)
+
+	if whois2.IsAvailable == nil || *whois2.IsAvailable != true {
+		t.Errorf("Expected fallback to WhoisNotFound (available=true), got %v", whois2.IsAvailable)
+	}
+
+	// Test default case
+	whois3 := &domain.Whois{
+		ParsedWhois: &domain.ParsedWhois{
+			Statuses: []string{}, // No statuses
+		},
+		RawText: "registered domain text", // No "not found" patterns
+	}
+
+	client.determineAvailability(whois3, nil)
+
+	if whois3.IsAvailable == nil || *whois3.IsAvailable != false {
+		t.Errorf("Expected default case (available=false), got %v", whois3.IsAvailable)
+	}
 }

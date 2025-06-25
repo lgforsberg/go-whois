@@ -81,7 +81,7 @@ func (mxw *MXTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
 	lines := strings.Split(rawtext, "\n")
 
 	if strings.Contains(rawtext, "No_Se_Encontro_El_Objeto/Object_Not_Found") {
-		parsedWhois.Statuses = []string{"free"}
+		SetDomainAvailabilityStatus(parsedWhois, true)
 		return parsedWhois, nil
 	}
 

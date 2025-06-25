@@ -87,6 +87,13 @@ func (skw *SKTLDParser) handleContactDetails(key, val string, contactFlg string,
 }
 
 func (skw *SKTLDParser) GetParsedWhois(rawtext string) (*ParsedWhois, error) {
+	// Check if domain is not found using centralized detection logic
+	if CheckDomainAvailability(rawtext) {
+		parsedWhois := &ParsedWhois{}
+		SetDomainAvailabilityStatus(parsedWhois, true)
+		return parsedWhois, nil
+	}
+
 	parsedWhois, err := skw.parser.Do(rawtext, skw.stopFunc, SKMap)
 	if err != nil {
 		return nil, err
