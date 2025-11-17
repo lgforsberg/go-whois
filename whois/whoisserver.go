@@ -205,6 +205,7 @@ func applyOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
 
 	// unfilled whois server
 	applyArgentinaOverrides(DomainWhoisServerMap)
+	applyMalaysiaOverrides(DomainWhoisServerMap)
 }
 
 func applyServerOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
@@ -212,7 +213,6 @@ func applyServerOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
 		"ai":   "whois.nic.ai",   // ai: whois.ai -> whois.nic.ai
 		"cyou": "whois.nic.cyou", // cyou: whois.afilias-srs.net -> whois.nic.cyou
 		"live": "whois.nic.live", // live: whois.rightside.co -> whois.nic.live
-		"my":   "whois.mynic.my", // my: migrated to Tucows Registry Backend (2024/2025)
 		"vg":   "whois.nic.vg",   // vg: ccwhois.ksregistry.net -> whois.nic.vg
 		"surf": "whois.nic.surf", // live: whois-dub.mm-registry.com -> whois.nic.live
 	}
@@ -228,6 +228,18 @@ func applyArgentinaOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
 
 	for _, tld := range argentinaTLDs {
 		DomainWhoisServerMap[tld] = []WhoisServer{{Host: "whois.nic.ar"}}
+	}
+}
+
+func applyMalaysiaOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
+	// Malaysia TLDs migrated to Tucows Registry Backend
+	// Old server whois.mynic.net.my is dead (DNS lookup fails)
+	// New server whois.mynic.my handles all .my domains and subdomains
+	malaysiaTLDs := []string{"my", "blogspot.my", "com.my", "edu.my", "gov.my",
+		"mil.my", "name.my", "net.my", "org.my"}
+
+	for _, tld := range malaysiaTLDs {
+		DomainWhoisServerMap[tld] = []WhoisServer{{Host: "whois.mynic.my"}}
 	}
 }
 
