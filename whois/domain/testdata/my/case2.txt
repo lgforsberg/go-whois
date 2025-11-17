@@ -1,0 +1,7 @@
+>>> Domain notregistereddomaintest12345.my is available for registration
+
+>>> Please visit https://rdap.mynicregistry.my/registrars/ for a list of
+accredited registrars
+
+>>> Last update of WHOIS database: 2025-11-17T07:39:27.980Z <<<
+
