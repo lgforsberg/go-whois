@@ -212,6 +212,7 @@ func applyServerOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
 		"ai":   "whois.nic.ai",   // ai: whois.ai -> whois.nic.ai
 		"cyou": "whois.nic.cyou", // cyou: whois.afilias-srs.net -> whois.nic.cyou
 		"live": "whois.nic.live", // live: whois.rightside.co -> whois.nic.live
+		"my":   "whois.mynic.my", // my: migrated to Tucows Registry Backend (2024/2025)
 		"vg":   "whois.nic.vg",   // vg: ccwhois.ksregistry.net -> whois.nic.vg
 		"surf": "whois.nic.surf", // live: whois-dub.mm-registry.com -> whois.nic.live
 	}
