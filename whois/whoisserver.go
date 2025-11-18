@@ -206,16 +206,28 @@ func applyOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
 	// unfilled whois server
 	applyArgentinaOverrides(DomainWhoisServerMap)
 	applyMalaysiaOverrides(DomainWhoisServerMap)
+	applyColombiaOverrides(DomainWhoisServerMap)
+	applyIndiaOverrides(DomainWhoisServerMap)
 	applyAfiliasMigrationOverrides(DomainWhoisServerMap)
 }
 
 func applyServerOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
 	overrides := map[string]string{
-		"ai":   "whois.nic.ai",   // ai: whois.ai -> whois.nic.ai
-		"live": "whois.nic.live", // live: whois.rightside.co -> whois.nic.live
-		"vg":   "whois.nic.vg",   // vg: ccwhois.ksregistry.net -> whois.nic.vg
-		"surf": "whois.nic.surf", // live: whois-dub.mm-registry.com -> whois.nic.live
+		"ai":   "whois.nic.ai",       // ai: whois.ai -> whois.nic.ai
+		"live": "whois.nic.live",     // live: whois.rightside.co -> whois.nic.live
+		"vg":   "whois.nic.vg",       // vg: ccwhois.ksregistry.net -> whois.nic.vg
+		"surf": "whois.nic.surf",     // surf: whois-dub.mm-registry.com -> whois.nic.surf
+		"shop": "whois.nic.shop",     // shop: missing from XML
+		"fun":  "whois.nic.fun",      // fun: missing from XML
+		"hair": "whois.nic.hair",     // hair: missing from XML
+		"gay":  "whois.nic.gay",      // gay: missing from XML
+		"sg":   "whois.sgnic.sg",     // sg: incorrect in XML
+		"vip":  "whois.nic.vip",      // vip: whois-dub.mm-registry.com (dead) -> whois.nic.vip
+		"fit":  "whois.nic.fit",      // fit: whois-dub.mm-registry.com (dead) -> whois.nic.fit
+		"beer": "whois.nic.beer",     // beer: whois-dub.mm-registry.com (dead) -> whois.nic.beer
 		// Note: .cyou moved to applyAfiliasMigrationOverrides
+		// Note: .co and subdomains moved to applyColombiaOverrides
+		// Note: .in and subdomains moved to applyIndiaOverrides
 	}
 
 	for tld, host := range overrides {
@@ -241,6 +253,31 @@ func applyMalaysiaOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
 
 	for _, tld := range malaysiaTLDs {
 		DomainWhoisServerMap[tld] = []WhoisServer{{Host: "whois.mynic.my"}}
+	}
+}
+
+func applyColombiaOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
+	// Colombia TLDs migrated to CentralNic Registry Backend
+	// Old server whois.nic.co is dead (DNS lookup fails)
+	// New server whois.registry.co handles all .co domains and subdomains
+	colombiaTLDs := []string{"co", "com.co", "net.co", "nom.co", "edu.co", "gov.co",
+		"mil.co", "org.co", "blogspot.com.co"}
+
+	for _, tld := range colombiaTLDs {
+		DomainWhoisServerMap[tld] = []WhoisServer{{Host: "whois.registry.co"}}
+	}
+}
+
+func applyIndiaOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
+	// India TLDs migrated to NIXI Registry Backend
+	// Old server whois.registry.in is dead (DNS lookup fails)
+	// New server whois.nixiregistry.in handles all .in domains and subdomains
+	indiaTLDs := []string{"in", "co.in", "net.in", "org.in", "ac.in", "edu.in",
+		"ernet.in", "firm.in", "gen.in", "gov.in", "ind.in", "mil.in", "nic.in",
+		"res.in", "blogspot.in"}
+
+	for _, tld := range indiaTLDs {
+		DomainWhoisServerMap[tld] = []WhoisServer{{Host: "whois.nixiregistry.in"}}
 	}
 }
 
