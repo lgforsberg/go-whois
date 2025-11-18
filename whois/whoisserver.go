@@ -206,15 +206,16 @@ func applyOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
 	// unfilled whois server
 	applyArgentinaOverrides(DomainWhoisServerMap)
 	applyMalaysiaOverrides(DomainWhoisServerMap)
+	applyAfiliasMigrationOverrides(DomainWhoisServerMap)
 }
 
 func applyServerOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
 	overrides := map[string]string{
 		"ai":   "whois.nic.ai",   // ai: whois.ai -> whois.nic.ai
-		"cyou": "whois.nic.cyou", // cyou: whois.afilias-srs.net -> whois.nic.cyou
 		"live": "whois.nic.live", // live: whois.rightside.co -> whois.nic.live
 		"vg":   "whois.nic.vg",   // vg: ccwhois.ksregistry.net -> whois.nic.vg
 		"surf": "whois.nic.surf", // live: whois-dub.mm-registry.com -> whois.nic.live
+		// Note: .cyou moved to applyAfiliasMigrationOverrides
 	}
 
 	for tld, host := range overrides {
@@ -240,6 +241,176 @@ func applyMalaysiaOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
 
 	for _, tld := range malaysiaTLDs {
 		DomainWhoisServerMap[tld] = []WhoisServer{{Host: "whois.mynic.my"}}
+	}
+}
+
+func applyAfiliasMigrationOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
+	// Afilias Migration (2020-2024): During the Afilias → Identity Digital transition,
+	// 192 TLDs were affected. Of these:
+	// - 128 TLDs migrated to new WHOIS servers (mostly whois.nic.<tld>)
+	// - 66 TLDs abandoned WHOIS entirely (no server in IANA, RDAP only)
+	//
+	// This function maps the 128 TLDs that still have WHOIS support to their new servers.
+	// The old Afilias infrastructure (whois.afilias-srs.net, whois.afilias.net, whois.afilias.info)
+	// now returns "TLD is not supported" for all affected TLDs.
+	
+	overrides := map[string]string{
+		"abbott":       "whois.nic.abbott",
+		"aco":          "whois.nic.aco",
+		"adult":        "whois.nic.adult",
+		"agakhan":      "whois.nic.agakhan",
+		"akdn":         "whois.nic.akdn",
+		"alibaba":      "whois.nic.alibaba",
+		"alipay":       "whois.nic.alipay",
+		"allstate":     "whois.nic.allstate",
+		"ally":         "whois.nic.ally",
+		"audi":         "whois.nic.audi",
+		"autos":        "whois.nic.autos",
+		"bcg":          "whois.nic.bcg",
+		"beats":        "whois.nic.beats",
+		"bestbuy":      "whois.nic.bestbuy",
+		"blockbuster":  "whois.nic.blockbuster",
+		"bnpparibas":   "whois.nic.bnpparibas",
+		"boats":        "whois.nic.boats",
+		"boehringer":   "whois.nic.boehringer",
+		"case":         "whois.nic.case",
+		"cern":         "whois.nic.cern",
+		"cipriani":     "whois.nic.cipriani",
+		"clinique":     "whois.nic.clinique",
+		"creditunion":  "whois.nic.creditunion",
+		"cyou":         "whois.nic.cyou",
+		"delta":        "whois.nic.delta",
+		"dish":         "whois.nic.dish",
+		"dot":          "whois.nic.dot",
+		"dtv":          "whois.nic.dtv",
+		"dvr":          "whois.nic.dvr",
+		"eco":          "whois.nic.eco",
+		"edeka":        "whois.nic.edeka",
+		"emerck":       "whois.nic.emerck",
+		"extraspace":   "whois.nic.extraspace",
+		"fage":         "whois.nic.fage",
+		"fedex":        "whois.nic.fedex",
+		"ferrari":      "whois.nic.ferrari",
+		"fido":         "whois.nic.fido",
+		"gallup":       "whois.nic.gallup",
+		"gea":          "whois.nic.gea",
+		"godaddy":      "whois.nic.godaddy",
+		"goodyear":     "whois.nic.goodyear",
+		"hdfc":         "whois.nic.hdfc",
+		"hdfcbank":     "whois.nic.hdfcbank",
+		"helsinki":     "whois.nic.helsinki",
+		"hermes":       "whois.nic.hermes",
+		"hiv":          "whois.tucowsregistry.net",
+		"hkt":          "whois.nic.hkt",
+		"homedepot":    "whois.nic.homedepot",
+		"homes":        "whois.nic.homes",
+		"hughes":       "whois.nic.hughes",
+		"icbc":         "whois.nic.icbc",
+		"imamat":       "whois.nic.imamat",
+		"ismaili":      "whois.nic.ismaili",
+		"ist":          "whois.nic.ist",
+		"istanbul":     "whois.nic.istanbul",
+		"itv":          "whois.nic.itv",
+		"jeep":         "whois.nic.jeep",
+		"jll":          "whois.nic.jll",
+		"kosher":       "whois.nic.kosher",
+		"lamborghini":  "whois.nic.lamborghini",
+		"lamer":        "whois.nic.lamer",
+		"lasalle":      "whois.nic.lasalle",
+		"latino":       "whois.nic.latino",
+		"lds":          "whois.nic.lds",
+		"locker":       "whois.nic.locker",
+		"ltda":         "whois.nic.ltda",
+		"marriott":     "whois.nic.marriott",
+		"mckinsey":     "whois.nic.mckinsey",
+		"merckmsd":     "whois.nic.merckmsd",
+		"mit":          "whois.nic.mit",
+		"monster":      "whois.nic.monster",
+		"mormon":       "whois.nic.mormon",
+		"moto":         "whois.nic.moto",
+		"motorcycles":  "whois.nic.motorcycles",
+		"nokia":        "whois.nic.nokia",
+		"nowtv":        "whois.nic.nowtv",
+		"nra":          "whois.nic.nra",
+		"ollo":         "whois.nic.ollo",
+		"onl":          "whois.nic.onl",
+		"origins":      "whois.nic.origins",
+		"ott":          "whois.nic.ott",
+		"pccw":         "whois.nic.pccw",
+		"pnc":          "whois.nic.pnc",
+		"porn":         "whois.nic.porn",
+		"progressive":  "whois.nic.progressive",
+		"pwc":          "whois.nic.pwc",
+		"redumbrella":  "whois.nic.redumbrella",
+		"rich":         "whois.nic.rich",
+		"richardli":    "whois.nic.richardli",
+		"rogers":       "whois.nic.rogers",
+		"sbi":          "whois.nic.sbi",
+		"scholarships": "whois.nic.scholarships",
+		"sew":          "whois.nic.sew",
+		"sex":          "whois.nic.sex",
+		"sina":         "whois.nic.sina",
+		"sling":        "whois.nic.sling",
+		"srl":          "whois.nic.srl",
+		"stada":        "whois.nic.stada",
+		"star":         "whois.nic.star",
+		"statebank":    "whois.nic.statebank",
+		"stockholm":    "whois.nic.stockholm",
+		"storage":      "whois.nic.storage",
+		"temasek":      "whois.nic.temasek",
+		"thd":          "whois.nic.thd",
+		"travelers":    "whois.nic.travelers",
+		"travelersinsurance": "whois.nic.travelersinsurance",
+		"trv":     "whois.nic.trv",
+		"tvs":     "whois.nic.tvs",
+		"ups":     "whois.nic.ups",
+		"vegas":   "whois.nic.vegas",
+		"vig":     "whois.nic.vig",
+		"viking":  "whois.nic.viking",
+		"weibo":   "whois.nic.weibo",
+		"wolterskluwer": "whois.nic.wolterskluwer",
+		"xin":     "whois.nic.xin",
+		"yachts":  "whois.nic.yachts",
+		"zara":    "whois.nic.zara",
+		// Internationalized TLDs (punycode)
+		"xn--mgbca7dzdo":   "whois.nic.xn--mgbca7dzdo",   // ابوظبي
+		"xn--4gbrim":       "whois.nic.xn--4gbrim",       // موقع
+		"xn--fiq228c5hs":   "whois.teleinfo.cn",          // 中文网
+		"xn--3ds443g":      "whois.teleinfo.cn",          // 在线
+		"xn--9krt00a":      "whois.nic.xn--9krt00a",      // 微博
+		"xn--kput3i":       "whois.nic.xn--kput3i",       // 手机
+		"xn--b4w605ferd":   "whois.nic.xn--b4w605ferd",   // 淡马锡
+		"xn--5tzm5g":       "whois.nic.xn--5tzm5g",       // 网站
+		"xn--g2xx48c":      "whois.nic.xn--g2xx48c",      // 购物
+		"xn--fzys8d69uvgm": "whois.nic.xn--fzys8d69uvgm", // 電訊盈科
+	}
+
+	for tld, host := range overrides {
+		DomainWhoisServerMap[tld] = []WhoisServer{{Host: host}}
+	}
+	
+	// Remove entries for 66 TLDs that have NO WHOIS server at all (RDAP only)
+	// These TLDs have empty whois: field in IANA and the old Afilias servers
+	// reject them with "TLD is not supported"
+	noWhoisTLDs := []string{
+		"abarth", "abbvie", "active", "aigo", "alfaromeo", "apple", "avianca",
+		"bet", "black", "blue", "bnl", "bugatti", "buy", "caseih", "cbs", "ceb",
+		"chrysler", "dabur", "dodge", "dstv", "dunlop", "esurance", "fiat",
+		"global", "goodhands", "green", "info", "irish", "iveco", "jcp", "kim",
+		"lancia", "lgbt", "lotto", "maserati", "meet", "metlife", "mobi", "mopar",
+		"natura", "newholland", "organic", "orientexpress", "origin", "payu", "pet",
+		"pink", "poker", "pro", "promo", "red", "redstone", "shaw", "shiksha",
+		"showtime", "shriram", "srt", "uconnect", "volkswagen", "vote", "voto",
+		// Internationalized TLDs (punycode)
+		"xn--55qx5d8y0buji4b930a", // 大众汽车
+		"xn--czru2d",              // 工行
+		"xn--6frz82g",             // 移动
+		"xn--kprw13d",             // 臺灣
+		"xn--rhqv96g",             // 诺基亚
+	}
+	
+	for _, tld := range noWhoisTLDs {
+		delete(DomainWhoisServerMap, tld)
 	}
 }
 
