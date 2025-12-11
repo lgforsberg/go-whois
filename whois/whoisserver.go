@@ -225,6 +225,8 @@ func applyServerOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
 		"vip":  "whois.nic.vip",      // vip: whois-dub.mm-registry.com (dead) -> whois.nic.vip
 		"fit":  "whois.nic.fit",      // fit: whois-dub.mm-registry.com (dead) -> whois.nic.fit
 		"beer": "whois.nic.beer",     // beer: whois-dub.mm-registry.com (dead) -> whois.nic.beer
+		// Private suffixes with own WHOIS servers
+		"it.com": "whois.it.com",     // it.com: private suffix, similar to co.uk
 		// Note: .cyou moved to applyAfiliasMigrationOverrides
 		// Note: .co and subdomains moved to applyColombiaOverrides
 		// Note: .in and subdomains moved to applyIndiaOverrides
