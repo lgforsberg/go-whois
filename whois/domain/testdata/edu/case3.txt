@@ -1,0 +1,34 @@
+Domain Name: STANFORD.EDU
+
+Registrant:
+	Stanford University
+	450 Jane Stanford Way
+	Stanford, CA 94305
+	USA
+
+Administrative Contact:
+	Domain Administrator
+	University IT
+	Pine Hall, Floor 3
+	Stanford, CA 94305
+	USA
+	+1.6507232300
+	domain-admin@stanford.edu
+
+Technical Contact:
+	Network Operations
+	University IT
+	Pine Hall, Floor 2
+	Stanford, CA 94305
+	USA
+	+1.6507232300
+	noc@stanford.edu
+
+Name Servers:
+	ARGUS.STANFORD.EDU
+	AVALLONE.STANFORD.EDU
+
+Domain record activated:    04-Oct-1985
+Domain record last updated: 05-Nov-2024
+Domain expires:             31-Jul-2027
+

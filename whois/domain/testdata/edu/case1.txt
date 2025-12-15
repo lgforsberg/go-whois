@@ -1,0 +1,38 @@
+Domain Name: UCLA.EDU
+
+Registrant:
+	UCLA
+	Office of the Secretary of the Regents
+	1111 Franklin Street, 12th Floor
+	Oakland, CA 94607
+	USA
+
+Administrative Contact:
+	Gary Stevens
+	UCLA Marketing & Special Events
+	10920 Wilshire Boulevard, #1000
+	Los Angeles, CA 90024
+	USA
+	+1.3107949061
+	marketing@support.ucla.edu
+
+Technical Contact:
+	UCLA Network Operations Center
+	UCLA IT Services
+	Bldg CSB1 2nd floor
+	741 Circle Dr South
+	Los Angeles, CA 90095-1363
+	USA
+	+1.3102065345
+	noc@ucla.edu
+
+Name Servers:
+	NS3.DNS.UCLA.EDU
+	NS1.DNS.UCLA.EDU
+	NS2.DNS.UCLA.EDU
+	NS4.DNS.UCLA.EDU
+
+Domain record activated:    24-Apr-1985
+Domain record last updated: 15-Jan-2025
+Domain expires:             31-Jul-2027
+

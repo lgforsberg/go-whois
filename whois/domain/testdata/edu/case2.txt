@@ -1,0 +1,35 @@
+Domain Name: MIT.EDU
+
+Registrant:
+	Massachusetts Institute of Technology
+	77 Massachusetts Avenue
+	Cambridge, MA 02139
+	USA
+
+Administrative Contact:
+	MIT Domain Registration
+	MIT Information Systems and Technology
+	77 Massachusetts Avenue, Building N42
+	Cambridge, MA 02139
+	USA
+	+1.6172535400
+	domreg@mit.edu
+
+Technical Contact:
+	MIT Network Operations
+	MIT Information Systems and Technology
+	77 Massachusetts Avenue, Building N42
+	Cambridge, MA 02139
+	USA
+	+1.6172535400
+	noc@mit.edu
+
+Name Servers:
+	BITSY.MIT.EDU
+	STRAWB.MIT.EDU
+	W20NS.MIT.EDU
+
+Domain record activated:    23-May-1985
+Domain record last updated: 10-Dec-2024
+Domain expires:             31-Jul-2027
+

@@ -195,6 +195,7 @@ func NewTLDDomainParser(whoisServer string) ITLDParser {
 		"whois.nic.cl":             func() ITLDParser { return NewCLTLDParser() }, // cl
 		"whois.nic.cr":             func() ITLDParser { return NewCRTLDParser() }, // cr
 		"whois.eenet.ee":           func() ITLDParser { return NewEETLDParser() }, // ee
+		"whois.educause.edu":       func() ITLDParser { return NewEDUTLDParser() }, // edu
 		"whois.channelisles.net":   func() ITLDParser { return NewGGTLDParser() }, // gg, je
 		"whois.hkirc.hk":           func() ITLDParser { return NewHKTLDParser() }, // hk
 		"whois.dns.hr":             func() ITLDParser { return NewHRTLDParser() }, // hr
