@@ -219,20 +219,32 @@ func newClient(opts ...ClientOpts) (*Client, error) {
 }
 
 // determineAvailability determines domain availability with priority-based conflict resolution
-// Priority 1: Status-based detection
-// Priority 2: XML pattern fallback
-// Priority 3: WhoisNotFound() pattern matching
+// Priority 1: Status-based detection (EPP status codes)
+// Priority 2: Registration data validation (CreatedDate, ExpiredDate, Registrar)
+// Priority 3: XML pattern fallback
+// Priority 4: WhoisNotFound() pattern matching
 // Default: Assume registered if no clear indication (safer assumption)
 func (c *Client) determineAvailability(w *wd.Whois, xmlAvail *bool) {
 	// Priority 1: Status-based detection
 	if w.ParsedWhois != nil && len(w.ParsedWhois.Statuses) > 0 {
 		for _, status := range w.ParsedWhois.Statuses {
 			switch status {
-			case "not_found", "free": // Support both during transition
+			case "not_found", "free": // Available/unregistered indicators
 				available := true
 				w.IsAvailable = &available
 				return
-			case "active", "registered", "ok", "clientTransferProhibited":
+			case "active", "registered", "ok",
+				// EPP client* statuses
+				"clientTransferProhibited", "clientDeleteProhibited",
+				"clientHold", "clientRenewProhibited", "clientUpdateProhibited",
+				// EPP server* statuses
+				"serverTransferProhibited", "serverDeleteProhibited",
+				"serverHold", "serverRenewProhibited", "serverUpdateProhibited",
+				// EPP lifecycle statuses
+				"addPeriod", "autoRenewPeriod", "renewPeriod",
+				"pendingCreate", "pendingDelete", "pendingRenew",
+				"pendingRestore", "pendingTransfer", "pendingUpdate",
+				"redemptionPeriod":
 				available := false
 				w.IsAvailable = &available
 				return
@@ -240,13 +252,27 @@ func (c *Client) determineAvailability(w *wd.Whois, xmlAvail *bool) {
 		}
 	}
 
-	// Priority 2: XML pattern fallback
+	// Priority 2: Registration data validation
+	// If we have valid registration data, the domain is definitely registered
+	// This prevents false positives from XML patterns matching unrelated text
+	if w.ParsedWhois != nil {
+		hasRegistrationData := w.ParsedWhois.CreatedDate != "" ||
+			w.ParsedWhois.ExpiredDate != "" ||
+			(w.ParsedWhois.Registrar != nil && w.ParsedWhois.Registrar.Name != "")
+		if hasRegistrationData {
+			available := false
+			w.IsAvailable = &available
+			return
+		}
+	}
+
+	// Priority 3: XML pattern fallback
 	if xmlAvail != nil {
 		w.IsAvailable = xmlAvail
 		return
 	}
 
-	// Priority 3: WhoisNotFound() pattern matching
+	// Priority 4: WhoisNotFound() pattern matching
 	if wd.WhoisNotFound(w.RawText) {
 		available := true
 		w.IsAvailable = &available

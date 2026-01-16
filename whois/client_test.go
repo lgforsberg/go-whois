@@ -353,7 +353,7 @@ func TestClientDetermineAvailability(t *testing.T) {
 		t.Fatalf("Failed to create client: %v", err)
 	}
 
-	// Test status-based availability detection (Phase 1 dual status)
+	// Test status-based availability detection
 	testCases := []struct {
 		name          string
 		statuses      []string
@@ -361,22 +361,16 @@ func TestClientDetermineAvailability(t *testing.T) {
 		description   string
 	}{
 		{
-			name:          "Dual status - not found",
+			name:          "not_found status",
 			statuses:      []string{"not_found"},
 			expectedAvail: true,
-			description:   "Phase 1 dual status should be available",
+			description:   "not_found status should be available",
 		},
 		{
 			name:          "Legacy free status",
 			statuses:      []string{"free"},
 			expectedAvail: true,
 			description:   "Legacy free status should be available",
-		},
-		{
-			name:          "New not found status",
-			statuses:      []string{"not_found"},
-			expectedAvail: true,
-			description:   "New not_found status should be available",
 		},
 		{
 			name:          "Active domain",
@@ -395,6 +389,69 @@ func TestClientDetermineAvailability(t *testing.T) {
 			statuses:      []string{"ok"},
 			expectedAvail: false,
 			description:   "OK status domain should not be available",
+		},
+		// EPP client* statuses
+		{
+			name:          "clientTransferProhibited status",
+			statuses:      []string{"clientTransferProhibited"},
+			expectedAvail: false,
+			description:   "clientTransferProhibited should indicate registered",
+		},
+		{
+			name:          "clientDeleteProhibited status",
+			statuses:      []string{"clientDeleteProhibited"},
+			expectedAvail: false,
+			description:   "clientDeleteProhibited should indicate registered",
+		},
+		{
+			name:          "clientHold status",
+			statuses:      []string{"clientHold"},
+			expectedAvail: false,
+			description:   "clientHold should indicate registered",
+		},
+		// EPP server* statuses
+		{
+			name:          "serverTransferProhibited status",
+			statuses:      []string{"serverTransferProhibited"},
+			expectedAvail: false,
+			description:   "serverTransferProhibited should indicate registered",
+		},
+		{
+			name:          "serverDeleteProhibited status",
+			statuses:      []string{"serverDeleteProhibited"},
+			expectedAvail: false,
+			description:   "serverDeleteProhibited should indicate registered",
+		},
+		{
+			name:          "serverHold status",
+			statuses:      []string{"serverHold"},
+			expectedAvail: false,
+			description:   "serverHold should indicate registered",
+		},
+		// EPP lifecycle statuses
+		{
+			name:          "addPeriod status",
+			statuses:      []string{"addPeriod"},
+			expectedAvail: false,
+			description:   "addPeriod should indicate registered (just created)",
+		},
+		{
+			name:          "autoRenewPeriod status",
+			statuses:      []string{"autoRenewPeriod"},
+			expectedAvail: false,
+			description:   "autoRenewPeriod should indicate registered",
+		},
+		{
+			name:          "redemptionPeriod status",
+			statuses:      []string{"redemptionPeriod"},
+			expectedAvail: false,
+			description:   "redemptionPeriod should indicate registered (expired but recoverable)",
+		},
+		{
+			name:          "pendingDelete status",
+			statuses:      []string{"pendingDelete"},
+			expectedAvail: false,
+			description:   "pendingDelete should indicate registered (not yet released)",
 		},
 		{
 			name:          "Empty statuses",
@@ -433,7 +490,7 @@ func TestClientDetermineAvailabilityFallback(t *testing.T) {
 		t.Fatalf("Failed to create client: %v", err)
 	}
 
-	// Test XML pattern fallback
+	// Test XML pattern fallback (should work when no registration data)
 	xmlAvail := true
 	whois := &domain.Whois{
 		ParsedWhois: &domain.ParsedWhois{
@@ -474,5 +531,70 @@ func TestClientDetermineAvailabilityFallback(t *testing.T) {
 
 	if whois3.IsAvailable == nil || *whois3.IsAvailable != false {
 		t.Errorf("Expected default case (available=false), got %v", whois3.IsAvailable)
+	}
+}
+
+// TestClientDetermineAvailabilityRegistrationData tests that registration data
+// overrides XML pattern fallback to prevent false positives (e.g., .blog bug)
+func TestClientDetermineAvailabilityRegistrationData(t *testing.T) {
+	client, err := NewClient()
+	if err != nil {
+		t.Fatalf("Failed to create client: %v", err)
+	}
+
+	// Bug scenario: XML pattern incorrectly says "available" due to word "available"
+	// appearing in legal footer, but we have registration data that proves it's registered
+	xmlAvail := true // XML pattern falsely thinks domain is available
+	whois := &domain.Whois{
+		ParsedWhois: &domain.ParsedWhois{
+			Statuses:    []string{}, // No recognized statuses
+			CreatedDate: "2026-01-14T02:21:05+00:00",
+		},
+		RawText: `Domain Name: test.blog
+Creation Date: 2026-01-14T02:21:05Z
+% Notice, available at https://www.cira.ca/...`, // "available" in legal notice
+	}
+
+	client.determineAvailability(whois, &xmlAvail)
+
+	// Registration data should override XML pattern
+	if whois.IsAvailable == nil {
+		t.Error("Expected IsAvailable to be set")
+		return
+	}
+	if *whois.IsAvailable != false {
+		t.Errorf("Expected domain with CreatedDate to be marked as NOT available, got available=true")
+	}
+
+	// Test with ExpiredDate
+	whois2 := &domain.Whois{
+		ParsedWhois: &domain.ParsedWhois{
+			Statuses:    []string{},
+			ExpiredDate: "2027-01-14T02:21:05+00:00",
+		},
+		RawText: "some text",
+	}
+
+	client.determineAvailability(whois2, &xmlAvail)
+
+	if whois2.IsAvailable == nil || *whois2.IsAvailable != false {
+		t.Errorf("Expected domain with ExpiredDate to be marked as NOT available")
+	}
+
+	// Test with Registrar
+	whois3 := &domain.Whois{
+		ParsedWhois: &domain.ParsedWhois{
+			Statuses: []string{},
+			Registrar: &domain.Registrar{
+				Name: "Ultahost, Inc.",
+			},
+		},
+		RawText: "some text",
+	}
+
+	client.determineAvailability(whois3, &xmlAvail)
+
+	if whois3.IsAvailable == nil || *whois3.IsAvailable != false {
+		t.Errorf("Expected domain with Registrar to be marked as NOT available")
 	}
 }
