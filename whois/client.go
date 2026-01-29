@@ -445,7 +445,7 @@ func (c *Client) Parse(ps string, wrt *Raw) (pw *wd.Whois, err error) {
 			err = fmt.Errorf("parse error: %s", panicErr.(string))
 		}
 	}()
-	c.logger.WithFields(logrus.Fields{"tld": tld, "parser": parser.GetName()}).Info("parse")
+	c.logger.WithFields(logrus.Fields{"tld": tld, "parser": parser.GetName()}).Debug("parse")
 
 	// Log for panic to avoid crashing server
 	parsedWhois, err := parser.GetParsedWhois(wrt.Rawtext)
