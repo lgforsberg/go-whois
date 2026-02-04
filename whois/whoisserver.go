@@ -208,6 +208,7 @@ func applyOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
 	applyMalaysiaOverrides(DomainWhoisServerMap)
 	applyColombiaOverrides(DomainWhoisServerMap)
 	applyIndiaOverrides(DomainWhoisServerMap)
+	applySouthAfricaOverrides(DomainWhoisServerMap)
 	applyAfiliasMigrationOverrides(DomainWhoisServerMap)
 }
 
@@ -281,6 +282,30 @@ func applyIndiaOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
 	for _, tld := range indiaTLDs {
 		DomainWhoisServerMap[tld] = []WhoisServer{{Host: "whois.nixiregistry.in"}}
 	}
+}
+
+func applySouthAfricaOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
+	// South Africa .za TLDs operated by ZARC (ZA Registry Consortium)
+	// All servers return "Available" for unregistered domains
+	// The XML file has correct servers but missing availablePattern
+
+	availPtn, _ := regexp.Compile(`^Available`)
+
+	// Map of .za subdomains to their specific WHOIS servers
+	zaOverrides := map[string]string{
+		"co.za":  "coza-whois.registry.net.za",
+		"net.za": "net-whois.registry.net.za",
+		"org.za": "org-whois.registry.net.za",
+		"web.za": "web-whois.registry.net.za",
+	}
+
+	for tld, host := range zaOverrides {
+		DomainWhoisServerMap[tld] = []WhoisServer{{Host: host, AvailPtn: availPtn}}
+	}
+
+	// These .za subdomains use whois.ac.za or whois.co.za as fallback
+	// but have their own specific servers in the registry.net.za infrastructure
+	// that also use the same "Available" pattern
 }
 
 func applyAfiliasMigrationOverrides(DomainWhoisServerMap map[string][]WhoisServer) {
